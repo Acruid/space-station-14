@@ -1,5 +1,4 @@
 ﻿using Lidgren.Network;
-using SFML.Graphics;
 using SFML.System;
 using SS14.Server.Interfaces.Map;
 using SS14.Server.Interfaces.Network;
@@ -40,12 +39,12 @@ namespace SS14.Server.Map
 
         // If `ignoreSpace` is false, this will return tiles in chunks that don't even exist.
         // This is to make the tile count predictable.  Is this appropriate behavior?
-        public IEnumerable<TileRef> GetTilesIntersecting(FloatRect area, bool ignoreSpace)
+        public IEnumerable<TileRef> GetTilesIntersecting(RectF area, bool ignoreSpace)
         {
             int chunkLeft = (int)Math.Floor(area.Left / ChunkSize);
             int chunkTop = (int)Math.Floor(area.Top / ChunkSize);
-            int chunkRight = (int)Math.Floor(area.Right() / ChunkSize);
-            int chunkBottom = (int)Math.Floor(area.Bottom() / ChunkSize);
+            int chunkRight = (int)Math.Floor(area.Right / ChunkSize);
+            int chunkBottom = (int)Math.Floor(area.Bottom / ChunkSize);
             for (int chunkY = chunkTop; chunkY <= chunkBottom; ++chunkY)
             {
                 for (int chunkX = chunkLeft; chunkX <= chunkRight; ++chunkX)
@@ -61,9 +60,9 @@ namespace SS14.Server.Map
                         yMin = Mod(Math.Floor(area.Top), ChunkSize);
 
                     if (chunkX == chunkRight)
-                        xMax = Mod(Math.Floor(area.Right()), ChunkSize);
+                        xMax = Mod(Math.Floor(area.Right), ChunkSize);
                     if (chunkY == chunkBottom)
-                        yMax = Mod(Math.Floor(area.Bottom()), ChunkSize);
+                        yMax = Mod(Math.Floor(area.Bottom), ChunkSize);
 
                     Chunk chunk;
                     if (!chunks.TryGetValue(new Vector2i(chunkX, chunkY), out chunk))
@@ -95,11 +94,11 @@ namespace SS14.Server.Map
                 }
             }
         }
-        public IEnumerable<TileRef> GetGasTilesIntersecting(FloatRect area)
+        public IEnumerable<TileRef> GetGasTilesIntersecting(RectF area)
         {
             return GetTilesIntersecting(area, true).Where(t => t.Tile.TileDef.IsGasVolume);
         }
-        public IEnumerable<TileRef> GetWallsIntersecting(FloatRect area)
+        public IEnumerable<TileRef> GetWallsIntersecting(RectF area)
         {
             return GetTilesIntersecting(area, true).Where(t => t.Tile.TileDef.IsWall);
         }

@@ -1,5 +1,4 @@
-using SFML.Graphics;
-using System;
+﻿using System;
 
 namespace SS14.Shared
 {

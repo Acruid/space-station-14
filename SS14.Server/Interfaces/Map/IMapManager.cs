@@ -1,9 +1,9 @@
 ﻿using Lidgren.Network;
-using SFML.Graphics;
 using SFML.System;
 using SS14.Shared;
 using System.Collections.Generic;
 using SS14.Shared.IoC;
+using SS14.Shared.Maths;
 
 namespace SS14.Server.Interfaces.Map
 {
@@ -22,9 +22,9 @@ namespace SS14.Server.Interfaces.Map
 
         int TileSize { get; }
 
-        IEnumerable<TileRef> GetTilesIntersecting(FloatRect area, bool ignoreSpace);
-        IEnumerable<TileRef> GetGasTilesIntersecting(FloatRect area);
-        IEnumerable<TileRef> GetWallsIntersecting(FloatRect area);
+        IEnumerable<TileRef> GetTilesIntersecting(RectF area, bool ignoreSpace);
+        IEnumerable<TileRef> GetGasTilesIntersecting(RectF area);
+        IEnumerable<TileRef> GetWallsIntersecting(RectF area);
         IEnumerable<TileRef> GetAllTiles();
 
         TileRef GetTileRef(Vector2f pos);

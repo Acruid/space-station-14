@@ -1,4 +1,4 @@
-using SFML.Graphics;
+﻿using SS14.Shared.Maths;
 using System;
 
 namespace SS14.Shared.GameObjects.Components.Hitbox
@@ -11,9 +11,9 @@ namespace SS14.Shared.GameObjects.Components.Hitbox
     [Serializable]
     public class HitboxComponentState : ComponentState
     {
-        public FloatRect AABB;
+        public RectF AABB;
 
-        public HitboxComponentState(FloatRect aabb)
+        public HitboxComponentState(RectF aabb)
             :base(ComponentFamily.Hitbox)
         {
             AABB = aabb;
