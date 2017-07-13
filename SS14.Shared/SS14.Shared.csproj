@@ -67,6 +67,9 @@
     <Reference Include="Nett, Version=0.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nett.0.7.0\lib\Net40\Nett.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.2.0.0\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="sfmlnet-graphics-2, Version=2.1.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Third-Party\sfmlnet-graphics-2.dll</HintPath>
@@ -113,6 +116,7 @@
     <Compile Include="ColorUtils.cs" />
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="Configuration\CVarFlags.cs" />
+    <Compile Include="GameObjects\Components\Transform\TransformComponent.cs" />
     <Compile Include="Interfaces\Configuration\IConfigurationManager.cs" />
     <Compile Include="ConsoleCommand.cs" />
     <Compile Include="EntityEvents.cs" />
@@ -197,6 +201,7 @@
     <Compile Include="Utility\PlatformTools.cs" />
     <Compile Include="Utility\RandomString.cs" />
     <Compile Include="Utility\Range.cs" />
+    <Compile Include="Utility\SfmlCompatibility.cs" />
     <Compile Include="Utility\unZipString.cs" />
     <Compile Include="Utility\YamlHelpers.cs" />
     <Compile Include="Utility\CollectionExtensions.cs" />
@@ -223,27 +228,27 @@
     <Compile Include="GameObjects\System\EntitySystem.cs" />
     <Compile Include="Utility\AppDomainHelpers.cs" />
     <Compile Include="Utility\AssemblyHelpers.cs" />
-    <Compile Include="GameObjects\Component\Collidable\CollidableComponentState.cs" />
-    <Compile Include="GameObjects\Component\Damageable\DamageableComponentState.cs" />
-    <Compile Include="GameObjects\Component\Damageable\Health\HealthComponentState.cs" />
-    <Compile Include="GameObjects\Component\Direction\DirectionComponentState.cs" />
-    <Compile Include="GameObjects\Component\EntityStats\EntityStatsComponentState.cs" />
-    <Compile Include="GameObjects\Component\Equipment\EquipmentComponentState.cs" />
-    <Compile Include="GameObjects\Component\Equippable\EquippableComponentState.cs" />
-    <Compile Include="GameObjects\Component\Hands\HandsComponentState.cs" />
-    <Compile Include="GameObjects\Component\Hitbox\HitboxComponentState.cs" />
-    <Compile Include="GameObjects\Component\Inventory\InventoryComponentState.cs" />
-    <Compile Include="GameObjects\Component\Item\ItemComponentState.cs" />
-    <Compile Include="GameObjects\Component\Light\LightComponentState.cs" />
-    <Compile Include="GameObjects\Component\Mover\MoverComponentState.cs" />
-    <Compile Include="GameObjects\Component\Particles\ParticleSystemComponentState.cs" />
-    <Compile Include="GameObjects\Component\Physics\PhysicsComponentState.cs" />
-    <Compile Include="GameObjects\Component\Renderable\AnimatedSpriteComponentState.cs" />
-    <Compile Include="GameObjects\Component\Renderable\RenderableComponentState.cs" />
-    <Compile Include="GameObjects\Component\Renderable\SpriteComponentState.cs" />
-    <Compile Include="GameObjects\Component\Renderable\WearableAnimatedSpriteComponentState.cs" />
-    <Compile Include="GameObjects\Component\Transform\TransformComponentState.cs" />
-    <Compile Include="GameObjects\Component\Velocity\VelocityComponentState.cs" />
+    <Compile Include="GameObjects\Components\Collidable\CollidableComponentState.cs" />
+    <Compile Include="GameObjects\Components\Damageable\DamageableComponentState.cs" />
+    <Compile Include="GameObjects\Components\Damageable\Health\HealthComponentState.cs" />
+    <Compile Include="GameObjects\Components\Direction\DirectionComponentState.cs" />
+    <Compile Include="GameObjects\Components\EntityStats\EntityStatsComponentState.cs" />
+    <Compile Include="GameObjects\Components\Equipment\EquipmentComponentState.cs" />
+    <Compile Include="GameObjects\Components\Equippable\EquippableComponentState.cs" />
+    <Compile Include="GameObjects\Components\Hands\HandsComponentState.cs" />
+    <Compile Include="GameObjects\Components\Hitbox\HitboxComponentState.cs" />
+    <Compile Include="GameObjects\Components\Inventory\InventoryComponentState.cs" />
+    <Compile Include="GameObjects\Components\Item\ItemComponentState.cs" />
+    <Compile Include="GameObjects\Components\Light\LightComponentState.cs" />
+    <Compile Include="GameObjects\Components\Mover\MoverComponentState.cs" />
+    <Compile Include="GameObjects\Components\Particles\ParticleSystemComponentState.cs" />
+    <Compile Include="GameObjects\Components\Physics\PhysicsComponentState.cs" />
+    <Compile Include="GameObjects\Components\Renderable\AnimatedSpriteComponentState.cs" />
+    <Compile Include="GameObjects\Components\Renderable\RenderableComponentState.cs" />
+    <Compile Include="GameObjects\Components\Renderable\SpriteComponentState.cs" />
+    <Compile Include="GameObjects\Components\Renderable\WearableAnimatedSpriteComponentState.cs" />
+    <Compile Include="GameObjects\Components\Transform\TransformComponentState.cs" />
+    <Compile Include="GameObjects\Components\Velocity\VelocityComponentState.cs" />
     <Compile Include="GameObjects\EntitySystemMessage\EntitySystemMessage.cs" />
     <Compile Include="GameObjects\EntitySystemMessage\InventorySystemMessages.cs" />
     <Compile Include="GameObjects\Events\InputEvents.cs" />
@@ -287,6 +292,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
