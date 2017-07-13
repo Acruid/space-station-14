@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
+using SS14.Server.GameObjects;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.Network;
 using SS14.Shared.Network.Messages;
@@ -207,7 +208,7 @@ namespace SS14.Server.Chat
                 return;
             List<INetChannel> recipients = IoCManager.Resolve<IPlayerManager>()
                 .GetPlayersInRange(entityManager.GetEntity((int) entityId)
-                .GetComponent<ITransformComponent>(ComponentFamily.Transform).Position, withinRange)
+                .GetComponent<TransformComponent>(ComponentFamily.Transform).Position, withinRange)
                 .Select(p => p.ConnectedClient).ToList();
 
             IoCManager.Resolve<IServerNetManager>().ServerSendToMany(message, recipients);

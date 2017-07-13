@@ -13,6 +13,7 @@ using SS14.Shared.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SS14.Server.GameObjects;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.Network;
 using SS14.Shared.Network.Messages;
@@ -100,7 +101,7 @@ namespace SS14.Server.Placement
                     IEntity created = manager.SpawnEntityAt(entityTemplateName, new Vector2f(xRcv, yRcv));
                     if (created != null)
                     {
-                        created.GetComponent<ITransformComponent>(ComponentFamily.Transform).TranslateTo(
+                        created.GetComponent<TransformComponent>(ComponentFamily.Transform).TranslateTo(
                             new Vector2f(xRcv, yRcv));
                         if (created.HasComponent(ComponentFamily.Direction))
                             created.GetComponent<IDirectionComponent>(ComponentFamily.Direction).Direction = dirRcv;

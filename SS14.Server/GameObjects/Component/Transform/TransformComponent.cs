@@ -8,7 +8,7 @@ using System;
 
 namespace SS14.Server.GameObjects
 {
-    public class TransformComponent : Component, ITransformComponent
+    public class TransformComponent : Component
     {
         public override string Name => "Transform";
         private Vector2f _position = new Vector2f();

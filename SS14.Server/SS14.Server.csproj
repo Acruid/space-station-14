@@ -243,7 +243,6 @@
     <Compile Include="Interfaces\GameObjects\IInventoryComponent.cs" />
     <Compile Include="Interfaces\GameObjects\IParticleSystemComponent.cs" />
     <Compile Include="Interfaces\GameObjects\IRenderableComponent.cs" />
-    <Compile Include="Interfaces\GameObjects\ITransformComponent.cs" />
     <Compile Include="Interfaces\GameObjects\IWallMountedComponent.cs" />
     <Compile Include="Interfaces\GameState\IGameStateManager.cs" />
     <Compile Include="Interfaces\Map\Chunk.cs" />
