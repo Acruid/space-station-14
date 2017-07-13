@@ -2,8 +2,8 @@
 using SS14.Server.Interfaces.GameObjects;
 using SS14.Shared;
 using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Interfaces.GameObjects;
-using SS14.Shared.IoC;
 using SS14.Shared.Utility;
 using System;
 using System.Collections.Generic;
@@ -11,6 +11,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using OpenTK;
 
 namespace SS14.Server.GameObjects
 {
@@ -40,7 +41,7 @@ namespace SS14.Server.GameObjects
         public IEntity SpawnEntityAt(string EntityType, Vector2f position)
         {
             IEntity e = SpawnEntity(EntityType);
-            e.GetComponent<TransformComponent>(ComponentFamily.Transform).TranslateTo(position);
+            e.GetComponent<TransformComponent>(ComponentFamily.Transform).Position = position.Convert();
             e.Initialize();
             return e;
         }
@@ -94,7 +95,7 @@ namespace SS14.Server.GameObjects
             string name = e.Attribute("name").Value;
             IEntity ent = SpawnEntity(template);
             ent.Name = name;
-            ent.GetComponent<TransformComponent>(ComponentFamily.Transform).TranslateTo(new Vector2f(X, Y));
+            ent.GetComponent<TransformComponent>(ComponentFamily.Transform).Position = new Vector2(X, Y);
             ent.GetComponent<DirectionComponent>(ComponentFamily.Direction).Direction = dir;
         }
 

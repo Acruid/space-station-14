@@ -1,8 +1,9 @@
 ﻿using Lidgren.Network;
+using OpenTK;
 using SFML.System;
 using SS14.Shared;
 using SS14.Shared.GameObjects;
-using SS14.Shared.IoC;
+using SS14.Shared.GameObjects.Components.Transform;
 
 namespace SS14.Server.GameObjects
 {
@@ -25,7 +26,7 @@ namespace SS14.Server.GameObjects
             var transform = Owner.GetComponent<TransformComponent>(ComponentFamily.Transform);
 
             velComp.Velocity = new Vector2f((float)message.MessageParameters[2], (float)message.MessageParameters[3]);
-            transform.Position = new Vector2f((float)message.MessageParameters[0], (float)message.MessageParameters[1]);
+            transform.Position = new Vector2((float)message.MessageParameters[0], (float)message.MessageParameters[1]);
         }
     }
 }

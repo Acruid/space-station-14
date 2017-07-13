@@ -11,6 +11,8 @@ using SS14.Shared.IoC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SS14.Shared.GameObjects.Components.Transform;
+using SS14.Shared.Utility;
 
 namespace SS14.Client.GameObjects
 {
@@ -85,7 +87,7 @@ namespace SS14.Client.GameObjects
         public virtual void Render(Vector2f topLeft, Vector2f bottomRight)
         {
             Vector2f renderPos = CluwneLib.WorldToScreen(
-                    Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position);
+                    Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Convert());
 
             foreach (KeyValuePair<string, ParticleSystem> particleSystem in _emitters)
             {

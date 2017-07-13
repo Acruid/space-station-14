@@ -13,11 +13,14 @@ using SS14.Shared.Maths;
 using System.Collections.Generic;
 using System.Linq;
 using Lidgren.Network;
+using OpenTK;
 using SS14.Server.GameObjects;
+using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.Network;
 using SS14.Shared.Network.Messages;
 using SS14.Shared.ServerEnums;
+using SS14.Shared.Utility;
 
 namespace SS14.Server.Player
 {
@@ -93,7 +96,7 @@ namespace SS14.Server.Player
         {
             //TODO: There's probably a much better place to do this.
             IEntity entity = _entityManager.SpawnEntity("HumanMob");
-            entity.GetComponent<TransformComponent>(ComponentFamily.Transform).TranslateTo(new Vector2f(0, 0));
+            entity.GetComponent<TransformComponent>(ComponentFamily.Transform).Position = (new Vector2(0, 0));
             session.AttachToEntity(entity);
         }
         
@@ -200,7 +203,7 @@ namespace SS14.Server.Player
             return
                 _sessions.Values.Where(x =>
                     x.attachedEntity != null &&
-                    (position - x.attachedEntity.GetComponent<TransformComponent>(ComponentFamily.Transform).Position).LengthSquared() < range * range)
+                    (position - x.attachedEntity.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Convert()).LengthSquared() < range * range)
                     .Cast<IPlayerSession>()
                     .ToList();
         }

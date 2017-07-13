@@ -8,6 +8,7 @@ using SS14.Shared.IoC;
 using SS14.Shared.Utility;
 using System;
 using System.Collections.Generic;
+using SS14.Shared.GameObjects.Components.Transform;
 using YamlDotNet.RepresentationModel;
 
 namespace SS14.Client.GameObjects
@@ -132,17 +133,19 @@ namespace SS14.Client.GameObjects
         public override void Render(Vector2f topLeft, Vector2f bottomRight)
         {
             if (!visible) return;
-            if (Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.X < topLeft.X
-                || Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.X > bottomRight.X
-                || Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Y < topLeft.Y
-                || Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Y > bottomRight.Y)
+
+            var position = Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Convert();
+
+            if (position.X < topLeft.X
+                || position.X > bottomRight.X
+                || position.Y < topLeft.Y
+                || position.Y > bottomRight.Y)
                 return;
 
             base.Render(topLeft, bottomRight);
 
             if (_speechBubble != null)
-                _speechBubble.Draw(CluwneLib.WorldToScreen(Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position),
-                                   new Vector2f(), currentBaseSprite);
+                _speechBubble.Draw(position, new Vector2f(), currentBaseSprite);
         }
 
         public override void HandleComponentState(dynamic state)

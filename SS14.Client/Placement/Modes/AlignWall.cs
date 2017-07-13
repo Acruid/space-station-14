@@ -1,4 +1,4 @@
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
 using SS14.Client.GameObjects;
 using SS14.Client.Graphics;
@@ -7,6 +7,8 @@ using SS14.Shared.GameObjects;
 using SS14.Shared.Maths;
 using System.Collections.Generic;
 using System.Linq;
+using SS14.Shared.GameObjects.Components.Transform;
+using SS14.Shared.Utility;
 
 namespace SS14.Client.Placement.Modes
 {
@@ -41,7 +43,7 @@ namespace SS14.Client.Placement.Modes
             if (rangeSquared > 0)
                 if (
                     (pManager.PlayerManager.ControlledEntity.GetComponent<TransformComponent>(ComponentFamily.Transform)
-                         .Position - mouseWorld).LengthSquared() > rangeSquared)
+                         .Position.Convert() - mouseWorld).LengthSquared() > rangeSquared)
                     return false;
 
             var nodes = new List<Vector2f>();
@@ -71,7 +73,7 @@ namespace SS14.Client.Placement.Modes
             if (range > 0)
                 if (
                     (pManager.PlayerManager.ControlledEntity.GetComponent<TransformComponent>(ComponentFamily.Transform)
-                         .Position - mouseWorld).LengthSquared() > range * range)
+                         .Position.Convert() - mouseWorld).LengthSquared() > range * range)
                     return false;
 
             return true;

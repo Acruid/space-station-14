@@ -9,6 +9,7 @@ using SS14.Shared.IoC;
 using SS14.Shared.Utility;
 using System;
 using System.Collections.Generic;
+using SS14.Shared.GameObjects.Components.Transform;
 using YamlDotNet.RepresentationModel;
 
 namespace SS14.Client.GameObjects
@@ -44,7 +45,7 @@ namespace SS14.Client.GameObjects
 
             _light.SetRadius(_lightRadius);
             _light.SetColor(255, (int)_lightColor.X, (int)_lightColor.Y, (int)_lightColor.Z);
-            _light.Move(Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position + _lightOffset);
+            _light.Move(Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Convert() + _lightOffset);
             _light.SetMask(_mask);
             Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).OnMove += OnMove;
         }
@@ -119,7 +120,7 @@ namespace SS14.Client.GameObjects
 
         private void OnMove(object sender, VectorEventArgs args)
         {
-            _light.Move(Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position + _lightOffset);
+            _light.Move(Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Convert() + _lightOffset);
         }
 
         public override void Update(float frameTime)

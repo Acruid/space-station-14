@@ -1,7 +1,8 @@
 ﻿using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.GameObjects.System;
-using SS14.Shared.IoC;
 using SS14.Shared.Maths;
+using SS14.Shared.Utility;
 
 namespace SS14.Server.GameObjects.EntitySystems
 {
@@ -32,9 +33,10 @@ namespace SS14.Server.GameObjects.EntitySystems
                 //Decelerate
                 velocity.Velocity -= (velocity.Velocity * (frametime * 0.01f));
 
-                var movement = velocity.Velocity * frametime;
+                var movement = (velocity.Velocity * frametime).Convert();
                 //Apply velocity
-                transform.Position += movement;
+
+                transform.OffsetPosition(ref movement);
             }
         }
 

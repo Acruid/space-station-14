@@ -1,10 +1,12 @@
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
 using SS14.Client.GameObjects;
 using SS14.Client.Graphics;
 using SS14.Client.Interfaces.Map;
 using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Maths;
+using SS14.Shared.Utility;
 
 namespace SS14.Client.Placement.Modes
 {
@@ -41,7 +43,7 @@ namespace SS14.Client.Placement.Modes
             if (rangeSquared > 0)
                 if (
                     (pManager.PlayerManager.ControlledEntity.GetComponent<TransformComponent>(ComponentFamily.Transform)
-                         .Position - mouseWorld).LengthSquared() > rangeSquared) return false;
+                         .Position.Convert() - mouseWorld).LengthSquared() > rangeSquared) return false;
 
             currentTile = currentMap.GetTileRef(mouseWorld);
 

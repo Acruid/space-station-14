@@ -1,12 +1,14 @@
 ﻿using SFML.System;
 using SS14.Client.Interfaces.GameObjects;
 using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Interfaces.GameObjects;
 using SS14.Shared.IoC;
 using SS14.Shared.Maths;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SS14.Shared.Utility;
 
 namespace SS14.Client.GameObjects
 {
@@ -21,7 +23,7 @@ namespace SS14.Client.GameObjects
             return from e in _entities.Values
                    where
                        (position -
-                        e.GetComponent<TransformComponent>(ComponentFamily.Transform).Position).
+                        e.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Convert()).
                            LengthSquared() < Range
                    select e;
         }

@@ -1,6 +1,6 @@
-﻿using SFML.System;
+﻿using OpenTK;
 using SS14.Shared.GameObjects;
-using SS14.Shared.IoC;
+using SS14.Shared.GameObjects.Components.Transform;
 
 namespace SS14.Server.GameObjects
 {
@@ -31,7 +31,7 @@ namespace SS14.Server.GameObjects
 
         public void Translate(float x, float y)
         {
-            Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position = new Vector2f(x, y);
+            Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position = new Vector2(x, y);
         }
 
     }

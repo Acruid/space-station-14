@@ -1,4 +1,4 @@
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
 using SS14.Client.GameObjects;
 using SS14.Client.Graphics;
@@ -10,6 +10,8 @@ using SS14.Shared.IoC;
 using SS14.Shared.Maths;
 using System.Collections.Generic;
 using System.Linq;
+using SS14.Shared.GameObjects.Components.Transform;
+using SS14.Shared.Utility;
 
 namespace SS14.Client.Placement.Modes
 {
@@ -45,7 +47,7 @@ namespace SS14.Client.Placement.Modes
             if (rangeSquared > 0)
                 if (
                     (pManager.PlayerManager.ControlledEntity.GetComponent<TransformComponent>(ComponentFamily.Transform)
-                         .Position - mouseWorld).LengthSquared() > rangeSquared) return false;
+                         .Position.Convert() - mouseWorld).LengthSquared() > rangeSquared) return false;
 
             var manager = IoCManager.Resolve<IClientEntityManager>();
 
@@ -54,7 +56,7 @@ namespace SS14.Client.Placement.Modes
                 where entity.Prototype == pManager.CurrentPrototype
                 orderby
                     (entity.GetComponent<TransformComponent>(
-                        ComponentFamily.Transform).Position - mouseWorld).LengthSquared()
+                        ComponentFamily.Transform).Position.Convert() - mouseWorld).LengthSquared()
                     ascending
                 select entity;
 

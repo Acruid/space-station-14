@@ -237,7 +237,6 @@
     <Compile Include="GameObjects\Component\Renderable\MobSpriteComponent.cs" />
     <Compile Include="GameObjects\Component\Renderable\SpriteComponent.cs" />
     <Compile Include="GameObjects\Component\SVars\SVarsComponent.cs" />
-    <Compile Include="GameObjects\Component\Transform\TransformComponent.cs" />
     <Compile Include="GameObjects\Component\Velocity\VelocityComponent.cs" />
     <Compile Include="GameObjects\ContextMenuEntry.cs" />
     <Compile Include="GameObjects\EntitySystems\ParticleSystem.cs" />

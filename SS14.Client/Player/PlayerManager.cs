@@ -8,6 +8,7 @@ using SS14.Client.Player.PostProcessing;
 using SS14.Client.State.States;
 using SS14.Shared;
 using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.GameStates;
 using SS14.Shared.Interfaces.GameObjects;
 using SS14.Shared.IoC;

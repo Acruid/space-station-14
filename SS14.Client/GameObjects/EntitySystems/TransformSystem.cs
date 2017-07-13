@@ -2,12 +2,14 @@
 using SS14.Client.Interfaces.GameTimer;
 using SS14.Client.Interfaces.Player;
 using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.GameObjects.System;
 using SS14.Shared.Interfaces.Configuration;
 using SS14.Shared.Interfaces.GameObjects;
 using SS14.Shared.IoC;
 using SS14.Shared.Maths;
 using System;
+using SS14.Shared.Utility;
 
 namespace SS14.Client.GameObjects.EntitySystems
 {
@@ -24,7 +26,7 @@ namespace SS14.Client.GameObjects.EntitySystems
         {
             //Check for collision
             var collider = entity.GetComponent<ColliderComponent>(ComponentFamily.Collider);
-            bool collided = collider.TryCollision(newPosition - transform.Position, true);
+            bool collided = collider.TryCollision(newPosition - transform.Position.Convert(), true);
             if (!collided)
             {
                 return newPosition;
@@ -36,7 +38,7 @@ namespace SS14.Client.GameObjects.EntitySystems
 
             Vector2f newPositionX = newPosition;
             newPositionX.X = transform.Position.X;
-            bool collidedX = collider.TryCollision(newPositionX - transform.Position, true);
+            bool collidedX = collider.TryCollision(newPositionX - transform.Position.Convert(), true);
             if (!collidedX)
             {
                 // Add back the lost speed from colliding with the wall
@@ -47,7 +49,7 @@ namespace SS14.Client.GameObjects.EntitySystems
 
             Vector2f newPositionY = newPosition;
             newPositionY.Y = transform.Position.Y;
-            bool collidedY = collider.TryCollision(newPositionY - transform.Position, true);
+            bool collidedY = collider.TryCollision(newPositionY - transform.Position.Convert(), true);
             if (!collidedY)
             {
                 // Add back the lost speed from colliding with the wall
@@ -105,7 +107,7 @@ namespace SS14.Client.GameObjects.EntitySystems
                     newPosition = Interpolate(p1, p2, lerp, false);
                     if (isLocallyControlled)
                     {
-                        newPosition = EaseExponential(currentTime - t1, transform.Position, newPosition, t2 - t1);
+                        newPosition = EaseExponential(currentTime - t1, transform.Position.Convert(), newPosition, t2 - t1);
                     }
                 }
 
@@ -117,7 +119,7 @@ namespace SS14.Client.GameObjects.EntitySystems
                     if (velocityComponent != null)
                     {
                         var movement = velocityComponent.Velocity * frametime;
-                        var playerPosition = movement + transform.Position;
+                        var playerPosition = movement + transform.Position.Convert();
                         var difference = playerPosition - newPosition;
                         if (difference.LengthSquared() <= humanMoveLimit * humanMoveLimit)
                             //TODO do this by reducing the length of the difference vector to the acceptable amount and applying it
@@ -127,7 +129,7 @@ namespace SS14.Client.GameObjects.EntitySystems
                     // Reduce rubber banding by easing to the position we're supposed to be at
                 }
 
-                if ((newPosition - transform.Position).LengthSquared() > 0.0000001f)// &&
+                if ((newPosition - transform.Position.Convert()).LengthSquared() > 0.0000001f)// &&
                                                                                     //(!haskbMover || (newPosition - transform.Position).Length > humanMoveLimit))
                 {
                     var doTranslate = false;
@@ -153,7 +155,7 @@ namespace SS14.Client.GameObjects.EntitySystems
                     }
                     if (doTranslate)
                     {
-                        transform.TranslateTo(newPosition);
+                        transform.Position = newPosition.Convert();
                         if (isLocallyControlled)
                             entity.GetComponent<PlayerInputMoverComponent>(ComponentFamily.Mover).SendPositionUpdate(newPosition);
                     }

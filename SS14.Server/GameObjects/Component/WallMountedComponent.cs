@@ -1,7 +1,9 @@
-﻿using SFML.System;
+﻿using OpenTK;
+using SFML.System;
 using SS14.Server.Interfaces.GameObjects;
 using SS14.Server.Interfaces.Map;
 using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.IoC;
 
 namespace SS14.Server.GameObjects
@@ -43,7 +45,7 @@ namespace SS14.Server.GameObjects
         {
             var transComp = Owner.GetComponent<TransformComponent>(ComponentFamily.Transform);
             if (transComp != null)
-                transComp.Position = new Vector2f(tilePos.X + 0.5f, tilePos.Y + 0.5f);
+                transComp.Position = new Vector2(tilePos.X + 0.5f, tilePos.Y + 0.5f);
         }
 
     }

@@ -2,17 +2,17 @@
 using SS14.Shared;
 using SS14.Shared.GameObjects;
 using SS14.Shared.GameObjects.Components.Mover;
+using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Interfaces.GameObjects;
-using SS14.Shared.IoC;
+using SS14.Shared.Utility;
 
 namespace SS14.Server.GameObjects
 {
     /// <summary>
-    /// Mover component that responds to movement by an entity.
+    ///     Mover component that responds to movement by an entity.
     /// </summary>
     public class SlaveMoverComponent : Component
     {
-        public override string Name => "SlaveMover";
         private IEntity master;
 
         public SlaveMoverComponent()
@@ -20,10 +20,11 @@ namespace SS14.Server.GameObjects
             Family = ComponentFamily.Mover;
         }
 
-        public override ComponentReplyMessage RecieveMessage(object sender, ComponentMessageType type,
-                                                             params object[] list)
+        public override string Name => "SlaveMover";
+
+        public override ComponentReplyMessage RecieveMessage(object sender, ComponentMessageType type, params object[] list)
         {
-            ComponentReplyMessage reply = base.RecieveMessage(sender, type, list);
+            var reply = base.RecieveMessage(sender, type, list);
 
             if (sender == this)
                 return ComponentReplyMessage.Empty;
@@ -31,7 +32,7 @@ namespace SS14.Server.GameObjects
             switch (type)
             {
                 case ComponentMessageType.SlaveAttach:
-                    Attach((int)list[0]);
+                    Attach((int) list[0]);
                     break;
             }
             return reply;
@@ -48,7 +49,7 @@ namespace SS14.Server.GameObjects
             master = Owner.EntityManager.GetEntity(uid);
             master.OnShutdown += master_OnShutdown;
             master.GetComponent<TransformComponent>(ComponentFamily.Transform).OnMove += HandleOnMasterMove;
-            Translate(master.GetComponent<TransformComponent>(ComponentFamily.Transform).Position);
+            Translate(master.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Convert());
         }
 
         public void Attach(IEntity newMaster)
@@ -56,7 +57,7 @@ namespace SS14.Server.GameObjects
             master = newMaster;
             master.OnShutdown += master_OnShutdown;
             master.GetComponent<TransformComponent>(ComponentFamily.Transform).OnMove += HandleOnMasterMove;
-            Translate(master.GetComponent<TransformComponent>(ComponentFamily.Transform).Position);
+            Translate(master.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Convert());
         }
 
         private void master_OnShutdown(IEntity e)
@@ -80,7 +81,7 @@ namespace SS14.Server.GameObjects
 
         public void Translate(Vector2f toPosition)
         {
-            Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position = toPosition;
+            Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position = toPosition.Convert();
         }
 
         private TransformComponent getTransform()
@@ -92,9 +93,7 @@ namespace SS14.Server.GameObjects
         {
             var transform = getTransform();
             if (master == null)
-            {
                 return new MoverComponentState(transform.X, transform.Y, 0, 0);
-            }
             return new MoverComponentState(transform.X, transform.Y, 0, 0, master.Uid);
         }
     }

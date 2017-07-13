@@ -9,6 +9,7 @@ using SS14.Shared.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SS14.Shared.GameObjects.Components.Transform;
 using YamlDotNet.RepresentationModel;
 
 namespace SS14.Client.GameObjects
@@ -93,7 +94,7 @@ namespace SS14.Client.GameObjects
             var bounds = spriteToRender.GetLocalBounds();
 
             Vector2f renderPos = CluwneLib.WorldToScreen(
-                    Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position);
+                    Owner.GetComponent<TransformComponent>(ComponentFamily.Transform).Position.Convert());
             spriteToRender.Position = new SFML.System.Vector2f(renderPos.X - (bounds.Width / 2),
                                                                renderPos.Y - (bounds.Height / 2));
 

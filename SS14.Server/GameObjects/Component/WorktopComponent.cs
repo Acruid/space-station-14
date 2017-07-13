@@ -1,9 +1,9 @@
-﻿using SFML.System;
-using SS14.Shared.GameObjects;
+﻿using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Interfaces.GameObjects;
-using SS14.Shared.IoC;
 using System;
 using System.Linq;
+using OpenTK;
 
 namespace SS14.Server.GameObjects
 {
@@ -25,8 +25,8 @@ namespace SS14.Server.GameObjects
             actor.SendMessage(this, ComponentMessageType.DropItemInCurrentHand);
             item.GetComponent<SpriteComponent>(ComponentFamily.Renderable).drawDepth = DrawDepth.ItemsOnTables;
             //TODO Unsafe, fix.
-            item.GetComponent<TransformComponent>(ComponentFamily.Transform).TranslateByOffset(
-                new Vector2f(rnd.Next(-28, 28), rnd.Next(-28, 15)));
+            var offset = new Vector2(rnd.Next(-28, 28), rnd.Next(-28, 15));
+            item.GetComponent<TransformComponent>(ComponentFamily.Transform).OffsetPosition(ref offset);
         }
 
         protected override void RecieveItemInteraction(IEntity actor, IEntity item,
