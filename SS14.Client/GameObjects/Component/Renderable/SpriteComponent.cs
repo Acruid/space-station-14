@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SS14.Shared.GameObjects.Components.Transform;
+using SS14.Shared.Maths;
 using YamlDotNet.RepresentationModel;
 
 namespace SS14.Client.GameObjects

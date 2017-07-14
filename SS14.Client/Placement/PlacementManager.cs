@@ -23,6 +23,7 @@ using System.Linq;
 using System.Reflection;
 using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Interfaces.Network;
+using SS14.Shared.Maths;
 using SS14.Shared.Utility;
 
 namespace SS14.Client.Placement

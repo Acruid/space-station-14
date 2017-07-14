@@ -20,13 +20,8 @@ namespace SS14.Shared.GameObjects.Components.Transform
         private bool _firstState = true;
 
         private Vector2 _position;
-        private Vector2 _rotation;
+        private float _rotation;
         private float _scale;
-
-        private readonly List<TransformComponentState> states = new List<TransformComponentState>();
-        private TransformComponentState lastState;
-        public TransformComponentState lerpStateFrom;
-        public TransformComponentState lerpStateTo;
 
         /// <summary>
         /// Default constructor.
@@ -36,35 +31,50 @@ namespace SS14.Shared.GameObjects.Components.Transform
             Family = ComponentFamily.Transform;
 
             _position = Vector2.Zero;
-            _rotation = Vector2.Zero;
+            _rotation = 0.0f;
             _scale = 1.0f;
         }
 
-        // the network state to sync this
+        /// <summary>
+        /// The network state type to sync this component.
+        /// </summary>
         public override Type StateType => typeof(TransformComponentState);
 
         /// <inheritdoc />
         public override string Name => "Transform";
-        
+
+        /// <summary>
+        /// The Y coordinate of the current position in world space.
+        /// </summary>
         public float X
         {
             get => _position.X;
             set => Position = new Vector2(value, _position.Y);
         }
 
+        /// <summary>
+        /// The Y coordinate of the current position in world space.
+        /// </summary>
         public float Y
         {
             get => _position.Y;
             set => Position = new Vector2(_position.X, value);
         }
 
+        /// <summary>
+        /// The current position in world space.
+        /// </summary>
         public Vector2 Position
         {
             get => _position;
             set => SetPosition(ref value);
         }
 
-        private void SetPosition(ref Vector2 pos)
+        /// <summary>
+        /// Sets the position in world space.
+        /// </summary>
+        /// <param name="pos"></param>
+        public void SetPosition(ref Vector2 pos)
         {
             if(pos == _position)
                 return;
@@ -75,15 +85,17 @@ namespace SS14.Shared.GameObjects.Components.Transform
             OnMove?.Invoke(this, new VectorEventArgs(oldPosition.Convert(), _position.Convert()));
         }
 
-        public void OffsetPosition(ref Vector2 pos)
+        /// <summary>
+        /// Offsets the current world position by this vector.
+        /// </summary>
+        /// <param name="vec">The offset vector.</param>
+        public void OffsetPosition(ref Vector2 vec)
         {
-            if(pos.LengthSquared < Epsilon)
+            if(vec.LengthSquared < Epsilon)
                 return;
 
-            Position = _position + pos;
+            Position = _position + vec;
         }
-
-        public event EventHandler<VectorEventArgs> OnMove;
 
         /// <inheritdoc />
         public override ComponentState GetComponentState()
@@ -97,12 +109,19 @@ namespace SS14.Shared.GameObjects.Components.Transform
         public override void Shutdown()
         {
             _position = Vector2.Zero;
-            _rotation = Vector2.Zero;
+            _rotation = 0.0f;
             _scale = 1.0f;
         }
 
         // all of this needs to go somewhere else, or be removed
         #region Clientside Stuff
+
+        public event EventHandler<VectorEventArgs> OnMove;
+
+        private readonly List<TransformComponentState> states = new List<TransformComponentState>();
+        private TransformComponentState lastState;
+        public TransformComponentState lerpStateFrom;
+        public TransformComponentState lerpStateTo;
 
         public override ComponentReplyMessage RecieveMessage(object sender, ComponentMessageType type, params object[] list)
         {

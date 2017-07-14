@@ -116,7 +116,9 @@
     <Compile Include="ColorUtils.cs" />
     <Compile Include="Configuration\ConfigurationManager.cs" />
     <Compile Include="Configuration\CVarFlags.cs" />
+    <Compile Include="Maths\Direction.cs" />
     <Compile Include="GameObjects\Components\Transform\TransformComponent.cs" />
+    <Compile Include="GameObjects\Exceptions\RequiredComponentMissingException.cs" />
     <Compile Include="Interfaces\Configuration\IConfigurationManager.cs" />
     <Compile Include="ConsoleCommand.cs" />
     <Compile Include="EntityEvents.cs" />
