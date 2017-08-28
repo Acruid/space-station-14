@@ -11,7 +11,7 @@
     <DefaultClientScript>JScript</DefaultClientScript>
     <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>
     </AppDesignerFolder>
@@ -84,26 +84,11 @@
     <Reference Include="System.Core">
       <Name>System.Core</Name>
     </Reference>
-    <Reference Include="System.Data">
-      <Name>System.Data</Name>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <Name>System.Data.DataSetExtensions</Name>
-    </Reference>
-    <Reference Include="System.Windows.Forms">
-      <Name>System.Windows.Forms</Name>
-    </Reference>
     <Reference Include="System.Xml">
       <Name>System.Xml</Name>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <Name>System.Xml.Linq</Name>
-    </Reference>
     <Reference Include="YamlDotNet">
       <HintPath>$(SolutionDir)packages\YamlDotNet.4.2.1\lib\net35\YamlDotNet.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ValueTuple">
-      <HintPath>$(SolutionDir)packages\System.ValueTuple.4.3.1\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

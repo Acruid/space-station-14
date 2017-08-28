@@ -1,4 +1,4 @@
-using OpenTK;
+﻿using OpenTK;
 using OpenTK.Graphics;
 using SS14.Shared.Utility;
 using System;
@@ -407,8 +407,7 @@ namespace SS14.Shared.GameObjects
                 OnPropertyChanged("SizeVariance");
             }
         }
-
-        [XmlElement(ElementName = "ColorRange")]
+        
         public Range<Color4> ColorRange
         {
             get { return _colorRange; }
