@@ -146,6 +146,10 @@
       <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\Mike\Mike.csproj">
+      <Project>{b73e2f8d-0cca-40d5-9d26-5c94f07876e7}</Project>
+      <Name>Mike</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SFML\src\Graphics\sfml-graphics.csproj">
       <Project>{46786269-57b9-48e7-aa4f-8f4d84609fe6}</Project>
       <Name>sfml-graphics</Name>

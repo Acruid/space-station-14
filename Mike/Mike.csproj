@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Mike</RootNamespace>
     <AssemblyName>Mike</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,7 +49,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Graphics\Context.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Graphics\Viewport.cs" />
+    <Compile Include="System\Window.cs" />
+    <Compile Include="System\WindowSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Loader\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="OpenTK.dll.config">

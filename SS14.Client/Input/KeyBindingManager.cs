@@ -35,10 +35,13 @@ namespace SS14.Client.Input
         #endregion
 
         /// <summary>
-        /// Destructor -- unbinds from the keyboard input
+        /// Finalizer -- unbinds from the keyboard input
         /// </summary>
         ~KeyBindingManager()
         {
+            if (CluwneLib.Input == null)
+                return;
+
             CluwneLib.Input.KeyPressed  -= KeyDown;
             CluwneLib.Input.KeyReleased -= KeyUp;
         }

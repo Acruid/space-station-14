@@ -22,6 +22,7 @@ using SS14.Shared.Prototypes;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using SS14.Shared.ContentPack;
 using SS14.Shared.Interfaces;
@@ -70,10 +71,13 @@ namespace SS14.Client
         private TimeSpan _lastTick;
         private TimeSpan _lastKeepUpAnnounce;
 
+        public static Mike.System.Window Wind { get; private set; }
+        private bool _running = true;
+
         public void Run()
         {
             Logger.Debug("Initializing GameController.");
-
+#if CL
             _configurationManager.LoadFromFile(PathHelpers.ExecutableRelativeFile("client_config.toml"));
 
             _resourceCache.LoadBaseResources();
@@ -183,6 +187,14 @@ namespace SS14.Client
             Logger.Info("GameController terminated.");
 
             IoCManager.Resolve<IConfigurationManager>().SaveToFile();
+#else
+            var settings = new Mike.System.WindowSettings();
+            settings.Width = 1280;
+            settings.Height = 720;
+            settings.Title = "Space Station 14";
+
+            Wind = new Mike.System.Window(settings);
+#endif
         }
 
         private void LoadContentAssembly<T>(string name) where T: GameShared
@@ -314,9 +326,9 @@ namespace SS14.Client
             CluwneLib.CleanupSplashScreen();
         }
 
-        #endregion Constructors
+#endregion Constructors
 
-        #region EventHandlers
+#region EventHandlers
 
         private void MainWindowLoad(object sender, EventArgs e)
         {
