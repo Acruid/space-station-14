@@ -10,6 +10,11 @@ namespace Mike.System
     /// </summary>
     public class Window
     {
+        public event EventHandler<EventArgs> Load; 
+        public event EventHandler<FrameEventArgs> UpdateFrame;
+        public event EventHandler<FrameEventArgs> RenderFrame;
+        public event EventHandler<EventArgs> Unload; 
+
         private readonly GameWindow _window;
 
         public Window(WindowSettings settings)
@@ -29,8 +34,6 @@ namespace Mike.System
             _window.Unload += OnUnload;
 
             _window.VSync = VSyncMode.Adaptive;
-            
-            _window.Run();
         }
 
         /// <summary>
@@ -43,23 +46,33 @@ namespace Mike.System
         /// </summary>
         public Viewport View { get; private set; }
 
+        public void Initialize()
+        {
+            // actually starts the loop and displays the window
+            _window.Run();
+        }
+
         // this is called when the window starts running
         private void OnLoad(object sender, EventArgs eventArgs)
         {
             Context = new Context(_window);
             View = new Viewport(_window);
+
+            Load?.Invoke(this, eventArgs);
         }
 
         // this is called every frame, put game logic here
         private void OnUpdateFrame(object sender, FrameEventArgs frameEventArgs)
         {
-
+            UpdateFrame?.Invoke(this, frameEventArgs);
         }
 
         // this is called every frame, put game logic here
         private void OnRenderFrame(object sender, FrameEventArgs frameEventArgs)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            RenderFrame?.Invoke(this, frameEventArgs);
 
             _window.SwapBuffers();
         }
@@ -73,7 +86,7 @@ namespace Mike.System
         // this is called when the window is about to be destroyed
         private void OnUnload(object sender, EventArgs eventArgs)
         {
-
+            Unload?.Invoke(this, eventArgs);
         }
     }
 }

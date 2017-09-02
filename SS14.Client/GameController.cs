@@ -71,9 +71,6 @@ namespace SS14.Client
         private TimeSpan _lastTick;
         private TimeSpan _lastKeepUpAnnounce;
 
-        public static Mike.System.Window Wind { get; private set; }
-        private bool _running = true;
-
         public void Run()
         {
             Logger.Debug("Initializing GameController.");
@@ -194,8 +191,22 @@ namespace SS14.Client
             settings.Title = "Space Station 14";
 
             Wind = new Mike.System.Window(settings);
+
+            Wind.Load += (sender, args) => { };
+
+            Wind.UpdateFrame += (sender, args) => { };
+
+            Wind.RenderFrame += (sender, args) => { };
+
+            Wind.Unload += (sender, args) => { };
+
+            Wind.Initialize();
 #endif
         }
+
+#if !CL
+        public static Mike.System.Window Wind { get; private set; }
+#endif
 
         private void LoadContentAssembly<T>(string name) where T: GameShared
         {
