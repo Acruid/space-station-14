@@ -34,6 +34,7 @@ using KeyArgs = SFML.Window.KeyEventArgs;
 using SS14.Shared.Network.Messages;
 using SS14.Client.Interfaces.GameObjects;
 using SS14.Client.Interfaces.GameStates;
+using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 
 namespace SS14.Client
 {
@@ -74,9 +75,16 @@ namespace SS14.Client
         private TimeSpan _lastKeepUpAnnounce;
 
 #if !CL
+        private float[] vertices = {
+            -0.5f, -0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+            0.0f,  0.5f, 0.0f
+        };
+
         public static Mike.System.Window Wind { get; private set; }
 
         private ShaderProgram _defaultShader;
+        private Mike.Graphics.VAO _shape;
 #endif
         public void Run()
         {
@@ -220,6 +228,17 @@ namespace SS14.Client
                 // you can call this in Render event to swap between multiple shader programs,
                 // but for now we just have one, so no point re-binding it every frame.
                 _defaultShader.Use();
+
+                _shape = new VAO(PrimitiveType.Triangles, vertices.Length)
+                {
+                    DisableDepth = false
+                };
+                _shape.Use();
+
+                var gridVerts = new VBO();
+                gridVerts.Buffer(BufferTarget.ArrayBuffer, vertices, 3);
+                _shape.AddVBO(0, gridVerts);
+
             };
 
             // called from the GameWindow main loop, this is for updating logic.
@@ -228,6 +247,8 @@ namespace SS14.Client
             // called from the GameWindow main loop, this is for drawing the frame to the screen.
             Wind.Draw += (sender, args) =>
             {
+                _shape.Use();
+                _shape.Render();
             };
 
             // called from GameWindow when it is about to be destroyed, clean up stuff here.

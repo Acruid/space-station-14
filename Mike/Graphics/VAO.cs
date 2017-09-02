@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Mike.Graphics
 {
-    internal class VAO
+    public class VAO
     {
         private readonly bool _indexed;
 
@@ -41,6 +41,7 @@ namespace Mike.Graphics
         /// <param name="vbo">VBO to add.</param>
         public void AddVBO(int attrib, VBO vbo)
         {
+            Use();
             vbo.Bind();
             GL.EnableVertexAttribArray(attrib);
             GL.VertexAttribPointer(attrib, vbo.ElementSize, VertexAttribPointerType.Float, false, 0, 0);
