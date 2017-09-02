@@ -5,7 +5,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Mike.Graphics
 {
-    internal class ShaderProgram
+    public class ShaderProgram
     {
         private readonly Dictionary<string, int> _uniformCache = new Dictionary<string, int>();
         private Shader _fragmentShader;
@@ -24,7 +24,7 @@ namespace Mike.Graphics
                     _fragmentShader = shader;
                     break;
                 default:
-                    throw new Exception("Tride to add wrong shader type!");
+                    throw new NotSupportedException("Tried to add unsupported shader type!");
             }
         }
 
@@ -45,6 +45,20 @@ namespace Mike.Graphics
             GL.GetProgram(_handle, GetProgramParameterName.LinkStatus, out compiled);
             if (compiled != 1)
                 throw new Exception(GL.GetProgramInfoLog(_handle));
+
+            // don't need the shaders anymore, they are compiled into the program
+            if (_vertexShader != null)
+            {
+                GL.DeleteShader(_vertexShader.Handle);
+                _vertexShader = null;
+            }
+
+            if (_fragmentShader != null)
+            {
+                GL.DeleteShader(_fragmentShader.Handle);
+                _fragmentShader = null;
+            }
+
         }
 
         public void Use()

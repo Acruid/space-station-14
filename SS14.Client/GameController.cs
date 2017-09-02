@@ -24,6 +24,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using Mike.Graphics;
+using OpenTK.Graphics.OpenGL;
 using SS14.Shared.ContentPack;
 using SS14.Shared.Interfaces;
 using SS14.Shared.Interfaces.Network;
@@ -71,6 +73,11 @@ namespace SS14.Client
         private TimeSpan _lastTick;
         private TimeSpan _lastKeepUpAnnounce;
 
+#if !CL
+        public static Mike.System.Window Wind { get; private set; }
+
+        private ShaderProgram _defaultShader;
+#endif
         public void Run()
         {
             Logger.Debug("Initializing GameController.");
@@ -185,28 +192,52 @@ namespace SS14.Client
 
             IoCManager.Resolve<IConfigurationManager>().SaveToFile();
 #else
+            // make a new setting object to hold window settings.
             var settings = new Mike.System.WindowSettings();
             settings.Width = 1280;
             settings.Height = 720;
             settings.Title = "Space Station 14";
 
+            // create the new window
             Wind = new Mike.System.Window(settings);
 
-            Wind.Load += (sender, args) => { };
+            // called when the window is loaded, but before it is actually shown
+            // the GraphicsContext is created at this point, so set it up how you want it
+            Wind.Load += (sender, args) =>
+            {
+                // make a new shader program
+                var shader = new ShaderProgram();
 
-            Wind.UpdateFrame += (sender, args) => { };
+                // add the Vertex and Fragment shaders to our program
+                shader.Add(new Mike.Graphics.Shader(ShaderType.VertexShader, Mike.Graphics.Shader.DefaultVertexShader));
+                shader.Add(new Mike.Graphics.Shader(ShaderType.FragmentShader, Mike.Graphics.Shader.DefaultFragmentShader));
 
-            Wind.RenderFrame += (sender, args) => { };
+                // compile the program
+                shader.Compile();
+                _defaultShader = shader;
 
+                // use this shader program for drawing VBO's from now on
+                // you can call this in Render event to swap between multiple shader programs,
+                // but for now we just have one, so no point re-binding it every frame.
+                _defaultShader.Use();
+            };
+
+            // called from the GameWindow main loop, this is for updating logic.
+            Wind.Update += (sender, args) => { };
+
+            // called from the GameWindow main loop, this is for drawing the frame to the screen.
+            Wind.Draw += (sender, args) =>
+            {
+            };
+
+            // called from GameWindow when it is about to be destroyed, clean up stuff here.
             Wind.Unload += (sender, args) => { };
 
-            Wind.Initialize();
+            // actually show the window after everything is set up.
+            Wind.Show();
 #endif
         }
 
-#if !CL
-        public static Mike.System.Window Wind { get; private set; }
-#endif
 
         private void LoadContentAssembly<T>(string name) where T: GameShared
         {

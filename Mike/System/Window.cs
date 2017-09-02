@@ -11,8 +11,8 @@ namespace Mike.System
     public class Window
     {
         public event EventHandler<EventArgs> Load; 
-        public event EventHandler<FrameEventArgs> UpdateFrame;
-        public event EventHandler<FrameEventArgs> RenderFrame;
+        public event EventHandler<FrameEventArgs> Update;
+        public event EventHandler<FrameEventArgs> Draw;
         public event EventHandler<EventArgs> Unload; 
 
         private readonly GameWindow _window;
@@ -46,7 +46,7 @@ namespace Mike.System
         /// </summary>
         public Viewport View { get; private set; }
 
-        public void Initialize()
+        public void Show()
         {
             // actually starts the loop and displays the window
             _window.Run();
@@ -64,7 +64,7 @@ namespace Mike.System
         // this is called every frame, put game logic here
         private void OnUpdateFrame(object sender, FrameEventArgs frameEventArgs)
         {
-            UpdateFrame?.Invoke(this, frameEventArgs);
+            Update?.Invoke(this, frameEventArgs);
         }
 
         // this is called every frame, put game logic here
@@ -72,7 +72,7 @@ namespace Mike.System
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            RenderFrame?.Invoke(this, frameEventArgs);
+            Draw?.Invoke(this, frameEventArgs);
 
             _window.SwapBuffers();
         }

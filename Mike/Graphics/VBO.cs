@@ -4,6 +4,10 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Mike.Graphics
 {
+    /// <summary>
+    /// Vertex Buffer Object used for drawing vertices in OpenGL. This contains all of the Vertex Attribute Objects
+    /// that are sent to the Shader Program.
+    /// </summary>
     internal class VBO
     {
         private BufferTarget Target { get; set; }
