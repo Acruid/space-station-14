@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -52,9 +53,21 @@ namespace Mike.System
             _window.Run();
         }
 
+        // The callback delegate must be stored to avoid GC
+        private readonly DebugProc _debugCallbackInstance = DebugCallback;
+        private static void DebugCallback(DebugSource source, DebugType type, int id,
+            DebugSeverity severity, int length, IntPtr message, IntPtr userParam)
+        {
+            var msg = Marshal.PtrToStringAnsi(message);
+            Console.WriteLine("[GL] {0}; {1}; {2}; {3}; {4}\n",
+                source, type, id, severity, msg);
+        }
+
         // this is called when the window starts running
         private void OnLoad(object sender, EventArgs eventArgs)
         {
+            GL.DebugMessageCallback(_debugCallbackInstance, IntPtr.Zero);
+
             Context = new Context(_window);
             View = new Viewport(_window);
 

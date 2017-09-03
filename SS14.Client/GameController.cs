@@ -20,12 +20,14 @@ using SS14.Shared.IoC;
 using SS14.Shared.Log;
 using SS14.Shared.Prototypes;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using Mike.Graphics;
 using OpenTK.Graphics.OpenGL;
+using Render.Loader;
 using SS14.Shared.ContentPack;
 using SS14.Shared.Interfaces;
 using SS14.Shared.Interfaces.Network;
@@ -35,6 +37,7 @@ using SS14.Shared.Network.Messages;
 using SS14.Client.Interfaces.GameObjects;
 using SS14.Client.Interfaces.GameStates;
 using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
+using Texture = Mike.Graphics.Texture;
 
 namespace SS14.Client
 {
@@ -75,16 +78,48 @@ namespace SS14.Client
         private TimeSpan _lastKeepUpAnnounce;
 
 #if !CL
-        private float[] vertices = {
-            -0.5f, -0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-            0.0f,  0.5f, 0.0f
-        };
-
         public static Mike.System.Window Wind { get; private set; }
 
-        private ShaderProgram _defaultShader;
-        private Mike.Graphics.VAO _shape;
+        private ShaderProgram _shader;
+        private readonly Dictionary<string, Mike.Graphics.Texture> _textures = new Dictionary<string, Texture>();
+
+        private Mike.Graphics.Mesh _model;
+
+        /*
+        float[] vertices = {
+            // positions          // colors           // texture coords
+            0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+            0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+        };
+        */
+
+        // opengl winds triangles counter clockwise
+        private readonly Vector3[] verts =
+        {
+            new Vector3( 0.5f,  0.5f, 0.0f), // top right
+            new Vector3( 0.5f, -0.5f, 0.0f), // bottom right
+            new Vector3(-0.5f, -0.5f, 0.0f), // bottom left
+            new Vector3(-0.5f,  0.5f, 0.0f), // top left 
+        };
+
+        private readonly Vector3[] colors =
+        {
+            new Vector3(1.0f, 0.0f, 0.0f), // top right
+            new Vector3(0.0f, 1.0f, 0.0f), // bottom right
+            new Vector3(0.0f, 0.0f, 1.0f), // bottom left
+            new Vector3(1.0f, 1.0f, 0.0f), // top left 
+        };
+
+        private readonly Vector2[] tex =
+        {
+            new Vector2(1.0f, 1.0f), // top right
+            new Vector2(1.0f, 0.0f), // bottom right
+            new Vector2(0.0f, 0.0f), // bottom left
+            new Vector2(0.0f, 1.0f), // top left 
+        };
+
 #endif
         public void Run()
         {
@@ -217,28 +252,86 @@ namespace SS14.Client
                 var shader = new ShaderProgram();
 
                 // add the Vertex and Fragment shaders to our program
-                shader.Add(new Mike.Graphics.Shader(ShaderType.VertexShader, Mike.Graphics.Shader.DefaultVertexShader));
-                shader.Add(new Mike.Graphics.Shader(ShaderType.FragmentShader, Mike.Graphics.Shader.DefaultFragmentShader));
+                //shader.Add(new Mike.Graphics.Shader(ShaderType.VertexShader, Mike.Graphics.Shader.DefaultVertexShader));
+                //shader.Add(new Mike.Graphics.Shader(ShaderType.FragmentShader, Mike.Graphics.Shader.DefaultFragmentShader));
+
+                shader.Add(new Mike.Graphics.Shader(ShaderType.VertexShader, new FileInfo(@"Graphics/Shaders/vert_textured.gls")));
+                shader.Add(new Mike.Graphics.Shader(ShaderType.FragmentShader, new FileInfo(@"Graphics/Shaders/frag_textured.gls")));
 
                 // compile the program
                 shader.Compile();
-                _defaultShader = shader;
+                _shader = shader;
 
                 // use this shader program for drawing VBO's from now on
                 // you can call this in Render event to swap between multiple shader programs,
                 // but for now we just have one, so no point re-binding it every frame.
-                _defaultShader.Use();
+                _shader.Use();
 
-                _shape = new VAO(PrimitiveType.Triangles, vertices.Length)
+                // parse in an OBJ model
+                var model = LoaderOBJ.Create(new FileInfo(@"Loader/Examples/cube.obj"));
+
+                _model = new Mesh();
+
+                //TODO: The LoaderObj class needs to do this.
+                // load the texture of the cube
                 {
-                    DisableDepth = false
-                };
-                _shape.Use();
+                    foreach (var kvMaterial in model.Materials)
+                    {
+                        var diffuseFile = new FileInfo(kvMaterial.Value.diffuseMap);
 
-                var gridVerts = new VBO();
-                gridVerts.Buffer(BufferTarget.ArrayBuffer, vertices, 3);
-                _shape.AddVBO(0, gridVerts);
+                        if(!diffuseFile.Exists)
+                            throw new FileNotFoundException("File does not exist: " + diffuseFile.FullName);
 
+                        var tex = Texture.Create(diffuseFile);
+
+                        _textures.Add(kvMaterial.Key, tex);
+                    }
+                }
+
+                // we are only using texture 0 for now
+                _model.Texture = _textures[model.Meshes[0].Material];
+
+                //TODO: The LoaderOBJ class needs a function to do this, people should not have to
+                // build the VAO for the model
+                {
+                    var mesh = model.Meshes[0]; // hard code mesh 0 for now
+                    var numVerts = mesh.Faces.Count * 3;
+
+                    
+                    // lookup the indexed verts and build the array of VBO verts
+                    // this is an OBJ format specific thing
+                    var count = 0;
+                    var objVerts = mesh.CoordVerts;
+                    var vboVerts = new Vector3[numVerts];
+                    foreach (var face in mesh.Faces)
+                    {
+                        foreach (var pos in face.Pos)
+                        {
+                            vboVerts[count] = objVerts[(int) pos - 1]; // OBJ index starts at 1
+                            count++;
+                        }
+                    }
+
+                    // drawing all 3 points, and we have 3 verts / face
+                    _model.Vao = new VAO(PrimitiveType.TriangleFan, 4);
+                    _model.Vao.Use();
+
+                    // make a VBO array to hold the actual triangle verts
+                    var vertexVbo = new VBO();
+                    //vertexVbo.Buffer(BufferTarget.ArrayBuffer, vboVerts, 3);
+                    vertexVbo.Buffer(BufferTarget.ArrayBuffer, verts, 3);
+                    // add the VBO to the VAO at attribute location 0 in shader
+                    _model.Vao.AddVBO(0, vertexVbo);
+
+                    var colVbo = new VBO();
+                    colVbo.Buffer(BufferTarget.ArrayBuffer, colors, 3);
+                    _model.Vao.AddVBO(1, colVbo);
+
+                    var uvVbo = new VBO();
+                    uvVbo.Buffer(BufferTarget.ArrayBuffer, tex, 2);
+                    _model.Vao.AddVBO(2, uvVbo);
+
+                }
             };
 
             // called from the GameWindow main loop, this is for updating logic.
@@ -247,8 +340,22 @@ namespace SS14.Client
             // called from the GameWindow main loop, this is for drawing the frame to the screen.
             Wind.Draw += (sender, args) =>
             {
-                _shape.Use();
-                _shape.Render();
+                var texID = _model.Texture.ID;
+                _model.Texture.BindTexture2d(ref texID, Wind.Context.GetTexUnit(0));
+                _shader.SetUniformTexture("ourTexture", Wind.Context.GetTexUnit(0));
+                _model.Vao.Use();
+
+                GL.FrontFace(FrontFaceDirection.Cw);
+
+                // draw everything in wireframe
+                //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                _model.Vao.Render();
+                
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
+                GL.PointSize(4);
+                _model.Vao.Render();
+
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             };
 
             // called from GameWindow when it is about to be destroyed, clean up stuff here.
@@ -258,7 +365,6 @@ namespace SS14.Client
             Wind.Show();
 #endif
         }
-
 
         private void LoadContentAssembly<T>(string name) where T: GameShared
         {

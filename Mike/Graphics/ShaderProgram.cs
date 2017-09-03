@@ -105,5 +105,12 @@ namespace Mike.Graphics
             var uniformId = GetUniform(uniformName);
             GL.Uniform3(uniformId, vector);
         }
+
+        public void SetUniformTexture(string uniformName, TextureUnit textureUnit)
+        {
+            Use();
+            var uniformId = GetUniform(uniformName);
+            GL.Uniform1(uniformId, (textureUnit - TextureUnit.Texture0));
+        }
     }
 }

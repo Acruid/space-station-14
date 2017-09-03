@@ -31,7 +31,7 @@ namespace Mike.Graphics
 
         public void EnableAttrib(int index)
         {
-            GL.EnableVertexAttribArray(0);
+            GL.EnableVertexAttribArray(index);
         }
 
         /// <summary>

@@ -6,21 +6,25 @@ namespace Mike.Graphics
 {
     public class Shader
     {
-        public static readonly string DefaultVertexShader = @"#version 330 core
+        public static readonly string DefaultVertexShader = @"
+#version 330 core
 layout (location = 0) in vec3 aPos;
 
 void main()
 {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}";
+    gl_Position = vec4(aPos, 1.0);
+}
+";
 
-        public static readonly string DefaultFragmentShader = @"#version 330 core
+        public static readonly string DefaultFragmentShader = @"
+#version 330 core
 out vec4 FragColor;
 
 void main()
 {
     FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-}";
+}
+";
 
         public Shader(ShaderType type, FileInfo file)
         {

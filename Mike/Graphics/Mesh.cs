@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Mike.Graphics
 {
-    class Mesh
+    public class Mesh
     {
+        public Texture Texture { get; set; }
+
+        public VAO Vao { get; set; }
     }
 }
