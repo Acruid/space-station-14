@@ -50,7 +50,7 @@ namespace Mike.System
         public void Show()
         {
             // actually starts the loop and displays the window
-            _window.Run();
+            _window.Run(60, 60);
         }
 
         // The callback delegate must be stored to avoid GC

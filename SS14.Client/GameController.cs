@@ -1,6 +1,5 @@
 ﻿using OpenTK;
 using OpenTK.Graphics;
-using SFML.Graphics;
 using SFML.Window;
 using SFML.System;
 using SS14.Client.Graphics;
@@ -22,6 +21,7 @@ using SS14.Shared.Prototypes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -36,6 +36,7 @@ using KeyArgs = SFML.Window.KeyEventArgs;
 using SS14.Shared.Network.Messages;
 using SS14.Client.Interfaces.GameObjects;
 using SS14.Client.Interfaces.GameStates;
+using Color = SFML.Graphics.Color;
 using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 using Texture = Mike.Graphics.Texture;
 
@@ -85,6 +86,8 @@ namespace SS14.Client
 
         private Mike.Graphics.Mesh _model;
 
+        private Camera _cam;
+
         /*
         float[] vertices = {
             // positions          // colors           // texture coords
@@ -95,7 +98,7 @@ namespace SS14.Client
         };
         */
 
-        // opengl winds triangles counter clockwise
+        // opengl winds triangles counter clockwise by default
         private readonly Vector3[] verts =
         {
             new Vector3( 0.5f,  0.5f, 0.0f), // top right
@@ -114,11 +117,15 @@ namespace SS14.Client
 
         private readonly Vector2[] tex =
         {
-            new Vector2(1.0f, 1.0f), // top right
-            new Vector2(1.0f, 0.0f), // bottom right
-            new Vector2(0.0f, 0.0f), // bottom left
-            new Vector2(0.0f, 1.0f), // top left 
+            new Vector2(1.0f, 0.0f), // top right
+            new Vector2(1.0f, 1.0f), // bottom right
+            new Vector2(0.0f, 1.0f), // bottom left
+            new Vector2(0.0f, 0.0f), // top left 
         };
+        
+        public static Vector3 Up = new Vector3(0, 1, 0);
+        public static Vector3 Center = new Vector3(0, 0, 0);
+        public static Vector3 Spawn = new Vector3(0, 0, 3);
 
 #endif
         public void Run()
@@ -237,8 +244,8 @@ namespace SS14.Client
 #else
             // make a new setting object to hold window settings.
             var settings = new Mike.System.WindowSettings();
-            settings.Width = 1280;
-            settings.Height = 720;
+            settings.Width = 600;
+            settings.Height = 600;
             settings.Title = "Space Station 14";
 
             // create the new window
@@ -252,9 +259,6 @@ namespace SS14.Client
                 var shader = new ShaderProgram();
 
                 // add the Vertex and Fragment shaders to our program
-                //shader.Add(new Mike.Graphics.Shader(ShaderType.VertexShader, Mike.Graphics.Shader.DefaultVertexShader));
-                //shader.Add(new Mike.Graphics.Shader(ShaderType.FragmentShader, Mike.Graphics.Shader.DefaultFragmentShader));
-
                 shader.Add(new Mike.Graphics.Shader(ShaderType.VertexShader, new FileInfo(@"Graphics/Shaders/vert_textured.gls")));
                 shader.Add(new Mike.Graphics.Shader(ShaderType.FragmentShader, new FileInfo(@"Graphics/Shaders/frag_textured.gls")));
 
@@ -266,6 +270,8 @@ namespace SS14.Client
                 // you can call this in Render event to swap between multiple shader programs,
                 // but for now we just have one, so no point re-binding it every frame.
                 _shader.Use();
+
+                _cam = new Mike.Graphics.Camera(new Size(800, 800),  Spawn, Center, Up);
 
                 // parse in an OBJ model
                 var model = LoaderOBJ.Create(new FileInfo(@"Loader/Examples/cube.obj"));
@@ -297,7 +303,6 @@ namespace SS14.Client
                     var mesh = model.Meshes[0]; // hard code mesh 0 for now
                     var numVerts = mesh.Faces.Count * 3;
 
-                    
                     // lookup the indexed verts and build the array of VBO verts
                     // this is an OBJ format specific thing
                     var count = 0;
@@ -313,29 +318,44 @@ namespace SS14.Client
                     }
 
                     // drawing all 3 points, and we have 3 verts / face
-                    _model.Vao = new VAO(PrimitiveType.TriangleFan, 4);
+                    _model.Vao = new VAO(PrimitiveType.Triangles, 36);
                     _model.Vao.Use();
 
                     // make a VBO array to hold the actual triangle verts
                     var vertexVbo = new VBO();
-                    //vertexVbo.Buffer(BufferTarget.ArrayBuffer, vboVerts, 3);
-                    vertexVbo.Buffer(BufferTarget.ArrayBuffer, verts, 3);
+                    vertexVbo.Buffer(BufferTarget.ArrayBuffer, mesh.CoordVerts.ToArray(), 3);
                     // add the VBO to the VAO at attribute location 0 in shader
                     _model.Vao.AddVBO(0, vertexVbo);
 
                     var colVbo = new VBO();
-                    colVbo.Buffer(BufferTarget.ArrayBuffer, colors, 3);
+                    colVbo.Buffer(BufferTarget.ArrayBuffer, mesh.CoordNorm.ToArray(), 3);
                     _model.Vao.AddVBO(1, colVbo);
 
                     var uvVbo = new VBO();
-                    uvVbo.Buffer(BufferTarget.ArrayBuffer, tex, 2);
+                    uvVbo.Buffer(BufferTarget.ArrayBuffer, mesh.CoordTex.ToArray(), 2);
                     _model.Vao.AddVBO(2, uvVbo);
 
+                    // Other state
+                    GL.Enable(EnableCap.DepthTest);
                 }
             };
 
             // called from the GameWindow main loop, this is for updating logic.
-            Wind.Update += (sender, args) => { };
+            Wind.Update += (sender, args) =>
+            {
+                _cam.Think(args.Time);
+
+                var modelMatrix = Matrix4.Identity;
+                var viewMatrix = _cam.ViewMatrix;
+                var projMatrix = _cam.ProjectionMatrix;
+                
+                // apply matrix to the shader
+                // OPENTK MATRICES ARE ROW MAJOR, NOT COLUMN MAJOR, MULTIPLY THEM PROPERLY
+                //var MvpMatrix = projMatrix * viewMatrix * modelMatrix;
+                var MvpMatrix = modelMatrix * viewMatrix * projMatrix;
+
+                _shader.SetUniformMatrix4("transform", false, ref MvpMatrix);
+            };
 
             // called from the GameWindow main loop, this is for drawing the frame to the screen.
             Wind.Draw += (sender, args) =>
@@ -346,16 +366,17 @@ namespace SS14.Client
                 _model.Vao.Use();
 
                 GL.FrontFace(FrontFaceDirection.Cw);
+                //GL.Disable(EnableCap.CullFace);
 
                 // draw everything in wireframe
                 //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 _model.Vao.Render();
                 
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
                 GL.PointSize(4);
                 _model.Vao.Render();
 
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             };
 
             // called from GameWindow when it is about to be destroyed, clean up stuff here.
