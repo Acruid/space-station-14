@@ -122,10 +122,25 @@ namespace SS14.Client
             new Vector2(0.0f, 1.0f), // bottom left
             new Vector2(0.0f, 0.0f), // top left 
         };
-        
+
+        Vector3[] cubePositions = {
+            new Vector3( 0.0f,  0.0f,  0.0f),
+            new Vector3( 2.0f,  5.0f, -15.0f),
+            new Vector3(-1.5f, -2.2f, -2.5f),
+            new Vector3(-3.8f, -2.0f, -12.3f),
+            new Vector3( 2.4f, -0.4f, -3.5f),
+            new Vector3(-1.7f,  3.0f, -7.5f),
+            new Vector3( 1.3f, -2.0f, -2.5f),
+            new Vector3( 1.5f,  2.0f, -2.5f),
+            new Vector3( 1.5f,  0.2f, -1.5f),
+            new Vector3(-1.3f,  1.0f, -1.5f)
+        };
+
         public static Vector3 Up = new Vector3(0, 1, 0);
         public static Vector3 Center = new Vector3(0, 0, 0);
         public static Vector3 Spawn = new Vector3(0, 0, 3);
+
+        private Matrix4 _vpMatrix;
 
 #endif
         public void Run()
@@ -344,17 +359,16 @@ namespace SS14.Client
             Wind.Update += (sender, args) =>
             {
                 _cam.Think(args.Time);
-
-                var modelMatrix = Matrix4.Identity;
+                
                 var viewMatrix = _cam.ViewMatrix;
                 var projMatrix = _cam.ProjectionMatrix;
                 
                 // apply matrix to the shader
                 // OPENTK MATRICES ARE ROW MAJOR, NOT COLUMN MAJOR, MULTIPLY THEM PROPERLY
                 //var MvpMatrix = projMatrix * viewMatrix * modelMatrix;
-                var MvpMatrix = modelMatrix * viewMatrix * projMatrix;
+               _vpMatrix = viewMatrix * projMatrix;
 
-                _shader.SetUniformMatrix4("transform", false, ref MvpMatrix);
+                //_shader.SetUniformMatrix4("transform", false, ref MvpMatrix);
             };
 
             // called from the GameWindow main loop, this is for drawing the frame to the screen.
@@ -368,14 +382,27 @@ namespace SS14.Client
                 GL.FrontFace(FrontFaceDirection.Cw);
                 //GL.Disable(EnableCap.CullFace);
 
-                // draw everything in wireframe
+                for(var i = 0; i < cubePositions.Length;i++)
+                {
+                    var modelMatrix = Matrix4.Identity;
+
+                    modelMatrix = Matrix4.CreateTranslation(cubePositions[i]) * modelMatrix;
+
+                    float angle = 20.0f * i;
+                    modelMatrix = Matrix4.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), MathHelper.DegreesToRadians(angle)) * modelMatrix;
+
+                    var mvpMatrix = modelMatrix * _vpMatrix;
+                    _shader.SetUniformMatrix4("transform", false, ref mvpMatrix);
+                    _model.Vao.Render();
+                }
+                
                 //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 _model.Vao.Render();
                 
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
-                GL.PointSize(4);
-                _model.Vao.Render();
+                //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
+                //GL.PointSize(4);
+                //_model.Vao.Render();
 
             };
 
