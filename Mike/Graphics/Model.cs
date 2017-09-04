@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Mike.Graphics
 {
-    class Model
+    public class Model
     {
+        // key: texture name, val: mesh to draw
+        public Dictionary<string, Mike.Graphics.Mesh> _meshes;
+
+        public List<string> _textures;
     }
 }

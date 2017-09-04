@@ -182,6 +182,8 @@
     <Compile Include="Placement\Modes\AlignSnapgridBorder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Voxel\ChunkModel.cs" />
+    <Compile Include="Voxel\MapRender.cs" />
     <Content Include="ss14.ico" />
     <None Include="app.config">
     </None>

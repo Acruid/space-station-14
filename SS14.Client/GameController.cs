@@ -286,7 +286,7 @@ namespace SS14.Client
                 // but for now we just have one, so no point re-binding it every frame.
                 _shader.Use();
 
-                _cam = new Mike.Graphics.Camera(new Size(800, 800),  Spawn, Center, Up);
+                _cam = new Mike.Graphics.Camera(new Size(settings.Width, settings.Height),  Spawn, Center, Up);
 
                 // parse in an OBJ model
                 var model = LoaderOBJ.Create(new FileInfo(@"Loader/Examples/cube.obj"));
