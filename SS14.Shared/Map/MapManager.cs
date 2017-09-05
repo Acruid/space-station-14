@@ -401,18 +401,18 @@ namespace SS14.Shared.Map
             {
                 Logger.Log("Cannot find map. Generating blank map.", LogLevel.Warning);
                 var floor = defManager["Floor"].TileId;
-                var wall = defManager["Wall"].TileId;
+                //var wall = defManager["Wall"].TileId;
 
                 Debug.Assert(floor > 0);
-                Debug.Assert(wall > 0);
+                //Debug.Assert(wall > 0);
 
                 var grid = mapManager.GetGrid(gridId) ?? mapManager.CreateGrid(gridId);
 
                 for (var y = -32; y <= 32; ++y)
                 for (var x = -32; x <= 32; ++x)
-                    if (Math.Abs(x) == 32 || Math.Abs(y) == 32 || Math.Abs(x) == 5 && Math.Abs(y) < 5 || Math.Abs(y) == 7 && Math.Abs(x) < 3)
-                        grid.SetTile(x, y, new Tile(wall));
-                    else
+                //    if (Math.Abs(x) == 32 || Math.Abs(y) == 32 || Math.Abs(x) == 5 && Math.Abs(y) < 5 || Math.Abs(y) == 7 && Math.Abs(x) < 3)
+                //        grid.SetTile(x, y, new Tile(wall));
+                //    else
                         grid.SetTile(x, y, new Tile(floor));
             }
             finally

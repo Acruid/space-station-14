@@ -167,7 +167,11 @@ namespace SS14.Client
             _userInterfaceManager.Initialize();
 #endif
             _mapManager.Initialize();
-            
+
+#if !CL
+            _mapManager.LoadMap(String.Empty);
+#endif
+
             _networkManager.RegisterNetMessage<MsgFullState>(MsgFullState.NAME, (int)MsgFullState.ID, message => IoCManager.Resolve<IGameStateManager>().HandleFullStateMessage((MsgFullState)message));
             _networkManager.RegisterNetMessage<MsgStateUpdate>(MsgStateUpdate.NAME, (int)MsgStateUpdate.ID, message => IoCManager.Resolve<IGameStateManager>().HandleStateUpdateMessage((MsgStateUpdate)message));
             _networkManager.RegisterNetMessage<MsgEntity>(MsgEntity.NAME, (int)MsgEntity.ID, message => IoCManager.Resolve<IClientEntityManager>().HandleEntityNetworkMessage((MsgEntity)message));
@@ -285,6 +289,7 @@ namespace SS14.Client
                 _model = new Model(Wind.Context);
                 var mesh = new Mesh();
                 _model.Meshes.Add(mesh);
+                MapRender.CubeModel = _model;
 
                 //TODO: The LoaderObj class needs to do this.
                 // load the texture of the cube

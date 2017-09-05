@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Mike;
+using Mike.Graphics;
 using OpenTK;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.IoC;
@@ -30,6 +31,8 @@ namespace SS14.Client.Voxel
 
         public int GridID { get; }
 
+        public static Model CubeModel { get; set; }
+
         private void OnTileChanged(int gridId, TileRef tileRef, Tile oldTile)
         {
             if(gridId != GridID)
@@ -45,6 +48,8 @@ namespace SS14.Client.Voxel
         private void BuildChunk(MapGrid.Indices indices)
         {
             throw new NotImplementedException();
+
+            //ChunkModel.BuildMesh(indices);
         }
 
         // retrieves a chunk, queuing it up for rebuild if needed.
@@ -83,9 +88,18 @@ namespace SS14.Client.Voxel
             {
                 for (var y = chunkBounds.Top; y <= chunkBounds.Bottom; y++)
                 {
-                    var model = GetChunkModel(new MapGrid.Indices(x, y));
+                    var indices = new MapGrid.Indices(x, y);
+                    var model = GetChunkModel(indices);
+                    var chunk = grid.GetChunk(indices);
 
-                    model.Draw();
+                    foreach (var tile in chunk.GetAllTiles())
+                    {
+                        var worldPos = tile.WorldPos;
+                        var worldPosCenter = worldPos + new Vector2(0.5f, 0.5f);
+                        CubeModel.ModelMatrix = Matrix4.CreateTranslation(new Vector3(worldPosCenter));
+                        CubeModel.Draw();
+
+                    }
 
                 }
             }

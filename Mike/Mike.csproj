@@ -74,6 +74,9 @@
     <Content Include="Loader\Examples\dev_tex.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Loader\Examples\floor_texture.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Loader\Examples\nanotrasen_logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

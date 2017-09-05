@@ -15,24 +15,12 @@ namespace SS14.Client.Voxel
     /// </summary>
     class ChunkModel : Mike.Graphics.Model
     {
-        private IMapChunk _chunk;
+        private readonly IMapChunk _chunk;
 
         public ChunkModel(Context context, IMapChunk chunk) : base(context)
         {
             _chunk = chunk;
         }
-
-        public void BuildMesh()
-        {
-            var size = _chunk.ChunkSize;
-
-            for (var x = 0; x < size; x++)
-            {
-                for (var y = 0; y < size; y++)
-                {
-                    
-                }
-            }
-        }
+        
     }
 }
