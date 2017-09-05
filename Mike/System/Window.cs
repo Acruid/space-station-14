@@ -35,7 +35,8 @@ namespace Mike.System
             _window.RenderFrame += OnRenderFrame;
             _window.Unload += OnUnload;
 
-            _window.VSync = VSyncMode.Adaptive;
+            //_window.VSync = VSyncMode.Adaptive;
+            _window.VSync = VSyncMode.Off;
         }
 
         /// <summary>
@@ -51,7 +52,7 @@ namespace Mike.System
         public void Show()
         {
             // actually starts the loop and displays the window
-            _window.Run(60, 60);
+            _window.Run();
         }
 
         // The callback delegate must be stored to avoid GC

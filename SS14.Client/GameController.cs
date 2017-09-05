@@ -131,6 +131,8 @@ namespace SS14.Client
 
         private Voxel.MapRender _mapRend;
 
+        private TimeSpan _lastAnnounce = TimeSpan.Zero;
+
 #endif
         public void Run()
         {
@@ -250,6 +252,8 @@ namespace SS14.Client
 
             IoCManager.Resolve<IConfigurationManager>().SaveToFile();
 #else
+            var timing = IoCManager.Resolve<IGameTiming>();
+
             // make a new setting object to hold window settings.
             var settings = new Mike.System.WindowSettings();
             settings.Width = 800;
@@ -350,6 +354,8 @@ namespace SS14.Client
 
                     // Other state
                     GL.Enable(EnableCap.DepthTest);
+
+                    timing.ResetRealTime();
                 }
             };
 
@@ -374,6 +380,15 @@ namespace SS14.Client
             // called from the GameWindow main loop, this is for drawing the frame to the screen.
             Wind.Draw += (sender, args) =>
             {
+                timing.StartFrame();
+
+                if ((timing.RealTime - _lastAnnounce).TotalSeconds > 5.0f)
+                {
+                    _lastAnnounce = timing.RealTime;
+                    System.Console.WriteLine($"FT: {Math.Round(timing.RealFrameTimeAvg.TotalMilliseconds, 2)}ms ({Math.Round(timing.FramesPerSecondAvg, 2)} FPS) SD: {Math.Round(timing.RealFrameTimeStdDev.TotalMilliseconds, 2)}ms");
+                }
+
+
                 var mesh = _model.Meshes[0];
                 mesh.Texture.BindTexture2d(Wind.Context.GetTexUnit(0));
                 Wind.Context.CurrentShader.SetUniformTexture("ourTexture", Wind.Context.GetTexUnit(0));
