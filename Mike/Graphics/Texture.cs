@@ -72,10 +72,10 @@ namespace Mike.Graphics
             return id;
         }
 
-        public void BindTexture2d(ref int textureId, TextureUnit textureUnit)
+        public void BindTexture2d(TextureUnit textureUnit)
         {
             GL.ActiveTexture(textureUnit);
-            GL.BindTexture(TextureTarget.Texture2D, textureId);
+            GL.BindTexture(TextureTarget.Texture2D, ID);
         }
     }
 }

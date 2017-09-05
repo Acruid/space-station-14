@@ -1,4 +1,5 @@
 ﻿using System;
+using Mike.Graphics;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -7,6 +8,10 @@ namespace Mike
 {
     public class Context
     {
+        public ShaderProgram CurrentShader { get; set; }
+        public Matrix4 VPMatrix { get; set; }
+        public Camera Camera { get; set; }
+
         private GameWindow _wind;
         private Color4 _clearColor;
 

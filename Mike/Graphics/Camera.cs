@@ -103,7 +103,7 @@ namespace Mike.Graphics
 
         private Matrix4 _modelviewMatrix;
 
-        private Size ViewportSize { get; }
+        public Size ViewportSize { get; set; }
         private Vector3 CamPosition { get; }
         private Vector3 TargetPosition { get; }
         private Vector3 Up { get; }

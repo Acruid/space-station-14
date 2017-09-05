@@ -36,6 +36,7 @@ using KeyArgs = SFML.Window.KeyEventArgs;
 using SS14.Shared.Network.Messages;
 using SS14.Client.Interfaces.GameObjects;
 using SS14.Client.Interfaces.GameStates;
+using SS14.Client.Voxel;
 using Color = SFML.Graphics.Color;
 using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 using Texture = Mike.Graphics.Texture;
@@ -81,22 +82,10 @@ namespace SS14.Client
 #if !CL
         public static Mike.System.Window Wind { get; private set; }
 
-        private ShaderProgram _shader;
+        //private ShaderProgram _shader;
         private readonly Dictionary<string, Mike.Graphics.Texture> _textures = new Dictionary<string, Texture>();
 
-        private Mike.Graphics.Mesh _model;
-
-        private Camera _cam;
-
-        /*
-        float[] vertices = {
-            // positions          // colors           // texture coords
-            0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-            0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-        };
-        */
+        private Model _model;
 
         // opengl winds triangles counter clockwise by default
         private readonly Vector3[] verts =
@@ -140,13 +129,12 @@ namespace SS14.Client
         public static Vector3 Center = new Vector3(0, 0, 0);
         public static Vector3 Spawn = new Vector3(0, 0, 3);
 
-        private Matrix4 _vpMatrix;
+        private Voxel.MapRender _mapRend;
 
 #endif
         public void Run()
         {
             Logger.Debug("Initializing GameController.");
-#if CL
             _configurationManager.LoadFromFile(PathHelpers.ExecutableRelativeFile("client_config.toml"));
 
             _resourceCache.LoadBaseResources();
@@ -161,11 +149,11 @@ namespace SS14.Client
 
             // Call Init in game assemblies.
             AssemblyLoader.BroadcastRunLevel(AssemblyLoader.RunLevel.Init);
-
+#if CL
             //Setup Cluwne first, as the rest depends on it.
             SetupCluwne();
             CleanupSplashScreen();
-
+#endif
             //Initialization of private members
             _tileDefinitionManager.InitializeResources();
 
@@ -174,17 +162,18 @@ namespace SS14.Client
             prototypeManager.LoadDirectory(@"Prototypes");
             prototypeManager.Resync();
             _networkManager.Initialize(false);
+#if CL
             _netGrapher.Initialize();
             _userInterfaceManager.Initialize();
+#endif
             _mapManager.Initialize();
             
             _networkManager.RegisterNetMessage<MsgFullState>(MsgFullState.NAME, (int)MsgFullState.ID, message => IoCManager.Resolve<IGameStateManager>().HandleFullStateMessage((MsgFullState)message));
             _networkManager.RegisterNetMessage<MsgStateUpdate>(MsgStateUpdate.NAME, (int)MsgStateUpdate.ID, message => IoCManager.Resolve<IGameStateManager>().HandleStateUpdateMessage((MsgStateUpdate)message));
             _networkManager.RegisterNetMessage<MsgEntity>(MsgEntity.NAME, (int)MsgEntity.ID, message => IoCManager.Resolve<IClientEntityManager>().HandleEntityNetworkMessage((MsgEntity)message));
-
+#if CL
             _stateManager.RequestStateChange<MainScreen>();
-
-            #region GameLoop
+#region GameLoop
 
             // maximum number of ticks to queue before the loop slows down.
             const int maxTicks = 5;
@@ -249,7 +238,7 @@ namespace SS14.Client
                 Render(realFrameEvent);
             }
 
-            #endregion
+#endregion
 
             _networkManager.ClientDisconnect("Client disconnected from game.");
             CluwneLib.Terminate();
@@ -259,8 +248,8 @@ namespace SS14.Client
 #else
             // make a new setting object to hold window settings.
             var settings = new Mike.System.WindowSettings();
-            settings.Width = 600;
-            settings.Height = 600;
+            settings.Width = 800;
+            settings.Height = 800;
             settings.Title = "Space Station 14";
 
             // create the new window
@@ -270,6 +259,8 @@ namespace SS14.Client
             // the GraphicsContext is created at this point, so set it up how you want it
             Wind.Load += (sender, args) =>
             {
+                _mapRend = new MapRender(Wind.Context, _mapManager.DefaultGridId);
+
                 // make a new shader program
                 var shader = new ShaderProgram();
 
@@ -279,19 +270,21 @@ namespace SS14.Client
 
                 // compile the program
                 shader.Compile();
-                _shader = shader;
 
                 // use this shader program for drawing VBO's from now on
                 // you can call this in Render event to swap between multiple shader programs,
                 // but for now we just have one, so no point re-binding it every frame.
-                _shader.Use();
+                shader.Use();
+                Wind.Context.CurrentShader = shader;
 
-                _cam = new Mike.Graphics.Camera(new Size(settings.Width, settings.Height),  Spawn, Center, Up);
+                Wind.Context.Camera = new Mike.Graphics.Camera(new Size(settings.Width, settings.Height),  Spawn, Center, Up);
 
                 // parse in an OBJ model
                 var model = LoaderOBJ.Create(new FileInfo(@"Loader/Examples/cube.obj"));
 
-                _model = new Mesh();
+                _model = new Model(Wind.Context);
+                var mesh = new Mesh();
+                _model.Meshes.Add(mesh);
 
                 //TODO: The LoaderObj class needs to do this.
                 // load the texture of the cube
@@ -310,20 +303,20 @@ namespace SS14.Client
                 }
 
                 // we are only using texture 0 for now
-                _model.Texture = _textures[model.Meshes[0].Material];
+                mesh.Texture = _textures[model.Meshes[0].Material];
 
                 //TODO: The LoaderOBJ class needs a function to do this, people should not have to
                 // build the VAO for the model
                 {
-                    var mesh = model.Meshes[0]; // hard code mesh 0 for now
-                    var numVerts = mesh.Faces.Count * 3;
+                    var objMesh = model.Meshes[0]; // hard code mesh 0 for now
+                    var numVerts = objMesh.Faces.Count * 3;
 
                     // lookup the indexed verts and build the array of VBO verts
                     // this is an OBJ format specific thing
                     var count = 0;
-                    var objVerts = mesh.CoordVerts;
+                    var objVerts = objMesh.CoordVerts;
                     var vboVerts = new Vector3[numVerts];
-                    foreach (var face in mesh.Faces)
+                    foreach (var face in objMesh.Faces)
                     {
                         foreach (var pos in face.Pos)
                         {
@@ -333,22 +326,22 @@ namespace SS14.Client
                     }
 
                     // drawing all 3 points, and we have 3 verts / face
-                    _model.Vao = new VAO(PrimitiveType.Triangles, 36);
-                    _model.Vao.Use();
+                    mesh.Vao = new VAO(PrimitiveType.Triangles, 36);
+                    mesh.Vao.Use();
 
                     // make a VBO array to hold the actual triangle verts
                     var vertexVbo = new VBO();
-                    vertexVbo.Buffer(BufferTarget.ArrayBuffer, mesh.CoordVerts.ToArray(), 3);
+                    vertexVbo.Buffer(BufferTarget.ArrayBuffer, objMesh.CoordVerts.ToArray(), 3);
                     // add the VBO to the VAO at attribute location 0 in shader
-                    _model.Vao.AddVBO(0, vertexVbo);
+                    mesh.Vao.AddVBO(0, vertexVbo);
 
                     var colVbo = new VBO();
-                    colVbo.Buffer(BufferTarget.ArrayBuffer, mesh.CoordNorm.ToArray(), 3);
-                    _model.Vao.AddVBO(1, colVbo);
+                    colVbo.Buffer(BufferTarget.ArrayBuffer, objMesh.CoordNorm.ToArray(), 3);
+                    mesh.Vao.AddVBO(1, colVbo);
 
                     var uvVbo = new VBO();
-                    uvVbo.Buffer(BufferTarget.ArrayBuffer, mesh.CoordTex.ToArray(), 2);
-                    _model.Vao.AddVBO(2, uvVbo);
+                    uvVbo.Buffer(BufferTarget.ArrayBuffer, objMesh.CoordTex.ToArray(), 2);
+                    mesh.Vao.AddVBO(2, uvVbo);
 
                     // Other state
                     GL.Enable(EnableCap.DepthTest);
@@ -358,52 +351,52 @@ namespace SS14.Client
             // called from the GameWindow main loop, this is for updating logic.
             Wind.Update += (sender, args) =>
             {
-                _cam.Think(args.Time);
-                
-                var viewMatrix = _cam.ViewMatrix;
-                var projMatrix = _cam.ProjectionMatrix;
-                
+                _mapRend.Update();
+
+                var cam = Wind.Context.Camera;
+                cam.Think(args.Time);
+                var viewMatrix = cam.ViewMatrix;
+                var projMatrix = cam.ProjectionMatrix;
+
                 // apply matrix to the shader
                 // OPENTK MATRICES ARE ROW MAJOR, NOT COLUMN MAJOR, MULTIPLY THEM PROPERLY
-                //var MvpMatrix = projMatrix * viewMatrix * modelMatrix;
-               _vpMatrix = viewMatrix * projMatrix;
+                // GLSL:   MVP = P * V * M
+                // OpenTK: MVP = M * V * P
 
-                //_shader.SetUniformMatrix4("transform", false, ref MvpMatrix);
+                Wind.Context.VPMatrix = Matrix4.Identity * viewMatrix * projMatrix;
             };
 
             // called from the GameWindow main loop, this is for drawing the frame to the screen.
             Wind.Draw += (sender, args) =>
             {
-                var texID = _model.Texture.ID;
-                _model.Texture.BindTexture2d(ref texID, Wind.Context.GetTexUnit(0));
-                _shader.SetUniformTexture("ourTexture", Wind.Context.GetTexUnit(0));
-                _model.Vao.Use();
+                var mesh = _model.Meshes[0];
+                mesh.Texture.BindTexture2d(Wind.Context.GetTexUnit(0));
+                Wind.Context.CurrentShader.SetUniformTexture("ourTexture", Wind.Context.GetTexUnit(0));
+                mesh.Vao.Use();
 
                 GL.FrontFace(FrontFaceDirection.Cw);
                 //GL.Disable(EnableCap.CullFace);
 
-                for(var i = 0; i < cubePositions.Length;i++)
+                _mapRend.DrawGrid(_mapManager.DefaultGridId, new Box2(-32,-32,32,32));
+                
+                for(var i = 0; i < cubePositions.Length; i++)
                 {
                     var modelMatrix = Matrix4.Identity;
-
                     modelMatrix = Matrix4.CreateTranslation(cubePositions[i]) * modelMatrix;
+                    modelMatrix = Matrix4.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), MathHelper.DegreesToRadians(20.0f * i)) * modelMatrix;
+                    modelMatrix = Matrix4.CreateScale(1.0f) * modelMatrix;
 
-                    float angle = 20.0f * i;
-                    modelMatrix = Matrix4.CreateFromAxisAngle(new Vector3(1.0f, 0.3f, 0.5f), MathHelper.DegreesToRadians(angle)) * modelMatrix;
-
-                    var mvpMatrix = modelMatrix * _vpMatrix;
-                    _shader.SetUniformMatrix4("transform", false, ref mvpMatrix);
-                    _model.Vao.Render();
+                    _model.ModelMatrix = modelMatrix;
+                    _model.Draw();
                 }
                 
                 //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                 //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                _model.Vao.Render();
+                //_mesh.Vao.Render();
                 
                 //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
                 //GL.PointSize(4);
-                //_model.Vao.Render();
-
+                //_mesh.Vao.Render();
             };
 
             // called from GameWindow when it is about to be destroyed, clean up stuff here.

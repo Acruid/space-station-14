@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics;
@@ -94,6 +95,11 @@ namespace Mike.System
         private void OnResize(object sender, EventArgs eventArgs)
         {
             GL.Viewport(0, 0, _window.Width, _window.Height);
+
+            if (Context?.Camera != null)
+            {
+                Context.Camera.ViewportSize = new Size(_window.Width, _window.Height);
+            }
         }
 
         // this is called when the window is about to be destroyed
