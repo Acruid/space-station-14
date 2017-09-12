@@ -9,6 +9,9 @@ namespace Mike.Graphics
 {
     public class Texture
     {
+        // no point binding the texture twice
+        private static Texture LastTexture;
+
         private Texture() { }
 
         public int ID { get; private set; }
@@ -74,8 +77,12 @@ namespace Mike.Graphics
 
         public void BindTexture2d(TextureUnit textureUnit)
         {
-            GL.ActiveTexture(textureUnit);
-            GL.BindTexture(TextureTarget.Texture2D, ID);
+            if(LastTexture != this)
+            {
+                LastTexture = this;
+                GL.ActiveTexture(textureUnit);
+                GL.BindTexture(TextureTarget.Texture2D, ID);
+            }
         }
     }
 }

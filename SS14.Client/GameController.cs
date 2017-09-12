@@ -26,6 +26,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using Mike.Graphics;
+using Mike.Particles;
 using OpenTK.Graphics.OpenGL;
 using Render.Loader;
 using SS14.Shared.ContentPack;
@@ -127,9 +128,10 @@ namespace SS14.Client
 
         public static Vector3 Up = new Vector3(0, 1, 0);
         public static Vector3 Center = new Vector3(0, 0, 0);
-        public static Vector3 Spawn = new Vector3(0, 0, 3);
+        public static Vector3 Spawn = new Vector3(0, 0, 20);
 
         private Voxel.MapRender _mapRend;
+        private Mike.Particles.ParticleRender _particles;
 
         private TimeSpan _lastAnnounce = TimeSpan.Zero;
 
@@ -267,6 +269,7 @@ namespace SS14.Client
             // the GraphicsContext is created at this point, so set it up how you want it
             Wind.Load += (sender, args) =>
             {
+                /*
                 _mapRend = new MapRender(Wind.Context, _mapManager.DefaultGridId);
 
                 // make a new shader program
@@ -284,9 +287,14 @@ namespace SS14.Client
                 // but for now we just have one, so no point re-binding it every frame.
                 shader.Use();
                 Wind.Context.CurrentShader = shader;
+                */
 
                 Wind.Context.Camera = new Mike.Graphics.Camera(new Size(settings.Width, settings.Height),  Spawn, Center, Up);
 
+                _particles = new ParticleRender(Wind.Context.Camera);
+                _particles.Initialize();
+
+                /*
                 // parse in an OBJ model
                 var model = LoaderOBJ.Create(new FileInfo(@"Loader/Examples/cube.obj"));
 
@@ -352,17 +360,20 @@ namespace SS14.Client
                     uvVbo.Buffer(BufferTarget.ArrayBuffer, objMesh.CoordTex.ToArray(), 2);
                     mesh.Vao.AddVBO(2, uvVbo);
 
-                    // Other state
-                    GL.Enable(EnableCap.DepthTest);
-
-                    timing.ResetRealTime();
                 }
+                */
+
+                // Other state
+                GL.Enable(EnableCap.DepthTest);
+
+                timing.ResetRealTime();
             };
 
             // called from the GameWindow main loop, this is for updating logic.
             Wind.Update += (sender, args) =>
             {
-                _mapRend.Update();
+                //_mapRend.Update();
+                _particles.Update((float) args.Time);
 
                 var cam = Wind.Context.Camera;
                 cam.Think(args.Time);
@@ -374,7 +385,7 @@ namespace SS14.Client
                 // GLSL:   MVP = P * V * M
                 // OpenTK: MVP = M * V * P
 
-                Wind.Context.VPMatrix = Matrix4.Identity * viewMatrix * projMatrix;
+                Wind.Context.VPMatrix = viewMatrix * projMatrix;
             };
 
             // called from the GameWindow main loop, this is for drawing the frame to the screen.
@@ -385,20 +396,32 @@ namespace SS14.Client
                 if ((timing.RealTime - _lastAnnounce).TotalSeconds > 5.0f)
                 {
                     _lastAnnounce = timing.RealTime;
-                    System.Console.WriteLine($"FT: {Math.Round(timing.RealFrameTimeAvg.TotalMilliseconds, 2)}ms ({Math.Round(timing.FramesPerSecondAvg, 2)} FPS) SD: {Math.Round(timing.RealFrameTimeStdDev.TotalMilliseconds, 2)}ms");
+                    System.Console.WriteLine("FT: {0}ms ({1} FPS) SD: {2}ms BDGT: {3}%",
+                        Math.Round(timing.RealFrameTimeAvg.TotalMilliseconds, 2),
+                        Math.Round(timing.FramesPerSecondAvg, 2),
+                        Math.Round(timing.RealFrameTimeStdDev.TotalMilliseconds, 2),
+                        Math.Round((timing.RealFrameTimeAvg.TotalMilliseconds / 16.666667) * 100, 2));
                 }
-
-
+                /*
                 var mesh = _model.Meshes[0];
                 mesh.Texture.BindTexture2d(Wind.Context.GetTexUnit(0));
                 Wind.Context.CurrentShader.SetUniformTexture("ourTexture", Wind.Context.GetTexUnit(0));
                 mesh.Vao.Use();
-
+                */
                 GL.FrontFace(FrontFaceDirection.Cw);
-                //GL.Disable(EnableCap.CullFace);
+                GL.Disable(EnableCap.CullFace);
 
+                // Particle Fountain
+                var mvpMatrix = Wind.Context.VPMatrix;
+                _particles._shader.SetUniformMatrix4("transform", false, ref mvpMatrix);
+
+                _particles.Draw();
+
+                /* cube map
                 _mapRend.DrawGrid(_mapManager.DefaultGridId, new Box2(-32,-32,32,32));
-                
+                */
+
+                /* cube cloud
                 for(var i = 0; i < cubePositions.Length; i++)
                 {
                     var modelMatrix = Matrix4.Identity;
@@ -409,11 +432,12 @@ namespace SS14.Client
                     _model.ModelMatrix = modelMatrix;
                     _model.Draw();
                 }
-                
+                */
+
                 //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                 //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 //_mesh.Vao.Render();
-                
+
                 //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
                 //GL.PointSize(4);
                 //_mesh.Vao.Render();

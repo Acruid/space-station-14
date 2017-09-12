@@ -98,7 +98,6 @@ namespace SS14.Client.Voxel
                         var worldPosCenter = worldPos + new Vector2(0.5f, 0.5f);
                         CubeModel.ModelMatrix = Matrix4.CreateTranslation(new Vector3(worldPosCenter));
                         CubeModel.Draw();
-
                     }
 
                 }

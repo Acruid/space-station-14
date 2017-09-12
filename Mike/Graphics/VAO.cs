@@ -5,6 +5,8 @@ namespace Mike.Graphics
 {
     public class VAO
     {
+        private static VAO _currentVAO;
+
         private readonly bool _indexed;
 
         public VAO(PrimitiveType drawType, int numVerts)
@@ -23,6 +25,11 @@ namespace Mike.Graphics
 
         public void Use()
         {
+            if(_currentVAO == this)
+                return;
+
+            _currentVAO = this;
+
             if (Handle != 0)
                 GL.BindVertexArray(Handle);
             else

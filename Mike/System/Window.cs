@@ -24,7 +24,7 @@ namespace Mike.System
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            _window = new GameWindow(settings.Width, settings.Height, GraphicsMode.Default, settings.Title);
+            _window = new GameWindow(settings.Width, settings.Height, GraphicsMode.Default, settings.Title, GameWindowFlags.Default, DisplayDevice.Default, 3, 3, GraphicsContextFlags.Default);
 
             Console.WriteLine("gl version: " + GL.GetString(StringName.Version));
 
