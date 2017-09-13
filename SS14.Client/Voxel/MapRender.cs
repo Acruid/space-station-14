@@ -95,7 +95,7 @@ namespace SS14.Client.Voxel
                     foreach (var tile in chunk.GetAllTiles())
                     {
                         var worldPos = tile.WorldPos;
-                        var worldPosCenter = worldPos + new Vector2(0.5f, 0.5f);
+                        var worldPosCenter = worldPos + new OpenTK.Vector2(0.5f, 0.5f);
                         CubeModel.ModelMatrix = Matrix4.CreateTranslation(new Vector3(worldPosCenter));
                         CubeModel.Draw();
                     }

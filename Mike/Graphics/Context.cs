@@ -1,4 +1,5 @@
 ﻿using System;
+using Mike.Debug;
 using Mike.Graphics;
 using OpenTK;
 using OpenTK.Graphics;
@@ -12,6 +13,9 @@ namespace Mike
         public Matrix4 VPMatrix { get; set; }
         public Camera Camera { get; set; }
 
+        public IDebugManager Debug2D { get; }
+        public IDebugManager Debug { get; }
+
         private GameWindow _wind;
         private Color4 _clearColor;
 
@@ -19,6 +23,8 @@ namespace Mike
         {
             _wind = window;
             ClearColor = new Color4(51, 76, 76, 255);
+
+            Debug2D = new DebugManager();
         }
 
         public Color4 ClearColor
