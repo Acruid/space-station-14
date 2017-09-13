@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SS14.Shared.Configuration;
 using Vector2i = SS14.Shared.Maths.Vector2i;
+using Vector2 = SS14.Shared.Maths.Vector2;
 
 namespace SS14.Client.UserInterface
 {
@@ -48,7 +49,7 @@ namespace SS14.Client.UserInterface
 
         public void PostInject()
         {
-            _config.RegisterCVar("key.keyboard.console", Keyboard.Key.Home, CVarFlags.ARCHIVE);
+            _config.RegisterCVar("key.keyboard.console", Keyboard.Key.Home, CVar.ARCHIVE);
         }
 
         public void Initialize()

@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using YamlDotNet.RepresentationModel;
+using Vector2 = SS14.Shared.Maths.Vector2;
 
 namespace SS14.Client.GameObjects
 {
@@ -67,7 +68,7 @@ namespace SS14.Client.GameObjects
             }
         }
 
-        public override Box2 AABB
+        public override Box2 LocalAABB
         {
             get
             {
@@ -76,7 +77,7 @@ namespace SS14.Client.GameObjects
                     var bounds = GetCurrentSprite().GetLocalBounds();
                     return Box2.FromDimensions(0, 0, bounds.Width, bounds.Height);
                 }
-                return base.AABB;
+                return base.LocalAABB;
             }
         }
 
@@ -140,7 +141,7 @@ namespace SS14.Client.GameObjects
             }
 
             //Draw AABB
-            var aabb = AABB;
+            var aabb = LocalAABB;
             if (CluwneLib.Debug.DebugColliders)
                 CluwneLib.drawRectangle((int)(renderPos.X - aabb.Width / 2), (int)(renderPos.Y - aabb.Height / 2), aabb.Width, aabb.Height, Color4.Blue);
 

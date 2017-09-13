@@ -10,6 +10,7 @@ using SS14.Shared.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vector2 = SS14.Shared.Maths.Vector2;
 
 namespace SS14.Shared.GameObjects
 {
@@ -139,7 +140,7 @@ namespace SS14.Shared.GameObjects
 
         public void DeleteEntity(int entityUid)
         {
-            if (!TryGetEntity(entityUid, out var entity))
+            if (TryGetEntity(entityUid, out var entity))
             {
                 DeleteEntity(entity);
             }

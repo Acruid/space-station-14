@@ -26,6 +26,7 @@ using SS14.Shared.ContentPack;
 using SS14.Shared.Interfaces;
 using SS14.Shared.Maths;
 using Vector2u = SS14.Shared.Maths.Vector2u;
+using Vector2 = SS14.Shared.Maths.Vector2;
 
 namespace SS14.Client.Resources
 {
@@ -90,7 +91,7 @@ namespace SS14.Client.Resources
         {
             var cfgMgr = _config;
 
-            cfgMgr.RegisterCVar("res.pack", Path.Combine("..","..","Resources","ResourcePack.zip"), CVarFlags.ARCHIVE);
+            cfgMgr.RegisterCVar("res.pack", Path.Combine("..","..","Resources","ResourcePack.zip"), CVar.ARCHIVE);
 
             string zipPath = path ?? _config.GetCVar<string>("res.pack");
 

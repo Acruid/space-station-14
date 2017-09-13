@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SS14.Shared.Utility;
+using Vector2 = SS14.Shared.Maths.Vector2;
 
 namespace SS14.Client.GameObjects
 {
@@ -29,9 +30,9 @@ namespace SS14.Client.GameObjects
         #endregion Variables.
 
         #region Properties
-        public Box2 AverageAABB => AABB;
+        public Box2 AverageAABB => LocalAABB;
 
-        public Box2 AABB => new Box2();
+        public Box2 LocalAABB => new Box2();
 
         #endregion Properties
 
