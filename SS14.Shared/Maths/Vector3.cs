@@ -123,85 +123,6 @@ namespace SS14.Shared.Maths
 
         #region Instance
 
-        #region public void Add()
-
-        /// <summary>Add the Vector passed as parameter to this instance.</summary>
-        /// <param name="right">Right operand. This parameter is only read from.</param>
-        [Obsolete("Use static Add() method instead.")]
-        public void Add(Vector3 right)
-        {
-            this.X += right.X;
-            this.Y += right.Y;
-            this.Z += right.Z;
-        }
-
-        /// <summary>Add the Vector passed as parameter to this instance.</summary>
-        /// <param name="right">Right operand. This parameter is only read from.</param>
-        [CLSCompliant(false)]
-        [Obsolete("Use static Add() method instead.")]
-        public void Add(ref Vector3 right)
-        {
-            this.X += right.X;
-            this.Y += right.Y;
-            this.Z += right.Z;
-        }
-
-        #endregion public void Add()
-
-        #region public void Sub()
-
-        /// <summary>Subtract the Vector passed as parameter from this instance.</summary>
-        /// <param name="right">Right operand. This parameter is only read from.</param>
-        [Obsolete("Use static Subtract() method instead.")]
-        public void Sub(Vector3 right)
-        {
-            this.X -= right.X;
-            this.Y -= right.Y;
-            this.Z -= right.Z;
-        }
-
-        /// <summary>Subtract the Vector passed as parameter from this instance.</summary>
-        /// <param name="right">Right operand. This parameter is only read from.</param>
-        [CLSCompliant(false)]
-        [Obsolete("Use static Subtract() method instead.")]
-        public void Sub(ref Vector3 right)
-        {
-            this.X -= right.X;
-            this.Y -= right.Y;
-            this.Z -= right.Z;
-        }
-
-        #endregion public void Sub()
-
-        #region public void Mult()
-
-        /// <summary>Multiply this instance by a scalar.</summary>
-        /// <param name="f">Scalar operand.</param>
-        [Obsolete("Use static Multiply() method instead.")]
-        public void Mult(float f)
-        {
-            this.X *= f;
-            this.Y *= f;
-            this.Z *= f;
-        }
-
-        #endregion public void Mult()
-
-        #region public void Div()
-
-        /// <summary>Divide this instance by a scalar.</summary>
-        /// <param name="f">Scalar operand.</param>
-        [Obsolete("Use static Divide() method instead.")]
-        public void Div(float f)
-        {
-            float mult = 1.0f / f;
-            this.X *= mult;
-            this.Y *= mult;
-            this.Z *= mult;
-        }
-
-        #endregion public void Div()
-
         #region public float Length
 
         /// <summary>
@@ -254,45 +175,6 @@ namespace SS14.Shared.Maths
         }
 
         #endregion
-        
-        #region public void Scale()
-
-        /// <summary>
-        /// Scales the current Vector3 by the given amounts.
-        /// </summary>
-        /// <param name="sx">The scale of the X component.</param>
-        /// <param name="sy">The scale of the Y component.</param>
-        /// <param name="sz">The scale of the Z component.</param>
-        [Obsolete("Use static Multiply() method instead.")]
-        public void Scale(float sx, float sy, float sz)
-        {
-            this.X = X * sx;
-            this.Y = Y * sy;
-            this.Z = Z * sz;
-        }
-
-        /// <summary>Scales this instance by the given parameter.</summary>
-        /// <param name="scale">The scaling of the individual components.</param>
-        [Obsolete("Use static Multiply() method instead.")]
-        public void Scale(Vector3 scale)
-        {
-            this.X *= scale.X;
-            this.Y *= scale.Y;
-            this.Z *= scale.Z;
-        }
-
-        /// <summary>Scales this instance by the given parameter.</summary>
-        /// <param name="scale">The scaling of the individual components.</param>
-        [CLSCompliant(false)]
-        [Obsolete("Use static Multiply() method instead.")]
-        public void Scale(ref Vector3 scale)
-        {
-            this.X *= scale.X;
-            this.Y *= scale.Y;
-            this.Z *= scale.Z;
-        }
-
-        #endregion public void Scale()
 
         #endregion
 
@@ -329,111 +211,6 @@ namespace SS14.Shared.Maths
         /// Defines the size of the Vector3 struct in bytes.
         /// </summary>
         public static readonly int SizeInBytes = Marshal.SizeOf(new Vector3());
-
-        #endregion
-
-        #region Obsolete
-
-        #region Sub
-
-        /// <summary>
-        /// Subtract one Vector from another
-        /// </summary>
-        /// <param name="a">First operand</param>
-        /// <param name="b">Second operand</param>
-        /// <returns>Result of subtraction</returns>
-        [Obsolete("Use static Subtract() method instead.")]
-        public static Vector3 Sub(Vector3 a, Vector3 b)
-        {
-            a.X -= b.X;
-            a.Y -= b.Y;
-            a.Z -= b.Z;
-            return a;
-        }
-
-        /// <summary>
-        /// Subtract one Vector from another
-        /// </summary>
-        /// <param name="a">First operand</param>
-        /// <param name="b">Second operand</param>
-        /// <param name="result">Result of subtraction</param>
-        [Obsolete("Use static Subtract() method instead.")]
-        public static void Sub(ref Vector3 a, ref Vector3 b, out Vector3 result)
-        {
-            result.X = a.X - b.X;
-            result.Y = a.Y - b.Y;
-            result.Z = a.Z - b.Z;
-        }
-
-        #endregion
-
-        #region Mult
-
-        /// <summary>
-        /// Multiply a vector and a scalar
-        /// </summary>
-        /// <param name="a">Vector operand</param>
-        /// <param name="f">Scalar operand</param>
-        /// <returns>Result of the multiplication</returns>
-        [Obsolete("Use static Multiply() method instead.")]
-        public static Vector3 Mult(Vector3 a, float f)
-        {
-            a.X *= f;
-            a.Y *= f;
-            a.Z *= f;
-            return a;
-        }
-
-        /// <summary>
-        /// Multiply a vector and a scalar
-        /// </summary>
-        /// <param name="a">Vector operand</param>
-        /// <param name="f">Scalar operand</param>
-        /// <param name="result">Result of the multiplication</param>
-        [Obsolete("Use static Multiply() method instead.")]
-        public static void Mult(ref Vector3 a, float f, out Vector3 result)
-        {
-            result.X = a.X * f;
-            result.Y = a.Y * f;
-            result.Z = a.Z * f;
-        }
-
-        #endregion
-
-        #region Div
-
-        /// <summary>
-        /// Divide a vector by a scalar
-        /// </summary>
-        /// <param name="a">Vector operand</param>
-        /// <param name="f">Scalar operand</param>
-        /// <returns>Result of the division</returns>
-        [Obsolete("Use static Divide() method instead.")]
-        public static Vector3 Div(Vector3 a, float f)
-        {
-            float mult = 1.0f / f;
-            a.X *= mult;
-            a.Y *= mult;
-            a.Z *= mult;
-            return a;
-        }
-
-        /// <summary>
-        /// Divide a vector by a scalar
-        /// </summary>
-        /// <param name="a">Vector operand</param>
-        /// <param name="f">Scalar operand</param>
-        /// <param name="result">Result of the division</param>
-        [Obsolete("Use static Divide() method instead.")]
-        public static void Div(ref Vector3 a, float f, out Vector3 result)
-        {
-            float mult = 1.0f / f;
-            result.X = a.X * mult;
-            result.Y = a.Y * mult;
-            result.Z = a.Z * mult;
-        }
-
-        #endregion
 
         #endregion
 
@@ -783,8 +560,7 @@ namespace SS14.Shared.Maths
         /// <returns>The cross product of the two inputs</returns>
         public static Vector3 Cross(Vector3 left, Vector3 right)
         {
-            Vector3 result;
-            Cross(ref left, ref right, out result);
+            Cross(ref left, ref right, out var result);
             return result;
         }
 
@@ -1024,8 +800,7 @@ namespace SS14.Shared.Maths
         /// <returns>The transformed vector</returns>
         public static Vector3 Transform(Vector3 vec, Matrix4 mat)
         {
-            Vector3 result;
-            Transform(ref vec, ref mat, out result);
+            Transform(ref vec, ref mat, out Vector3 result);
             return result;
         }
 
@@ -1058,8 +833,7 @@ namespace SS14.Shared.Maths
         /// <returns>The result of the operation.</returns>
         public static Vector3 Transform(Vector3 vec, Quaternion quat)
         {
-            Vector3 result;
-            Transform(ref vec, ref quat, out result);
+            Transform(ref vec, ref quat, out var result);
             return result;
         }
 
@@ -1073,9 +847,9 @@ namespace SS14.Shared.Maths
         {
             // Since vec.W == 0, we can optimize quat * vec * quat^-1 as follows:
             // vec + 2.0 * cross(quat.xyz, cross(quat.xyz, vec) + quat.w * vec)
-            Vector3 xyz = quat.Xyz, temp, temp2;
-            Vector3.Cross(ref xyz, ref vec, out temp);
-            Vector3.Multiply(ref vec, quat.W, out temp2);
+            Vector3 xyz = quat.Xyz;
+            Vector3.Cross(ref xyz, ref vec, out var temp);
+            Vector3.Multiply(ref vec, quat.W, out var temp2);
             Vector3.Add(ref temp, ref temp2, out temp);
             Vector3.Cross(ref xyz, ref temp, out temp);
             Vector3.Multiply(ref temp, 2, out temp);
@@ -1088,8 +862,7 @@ namespace SS14.Shared.Maths
         /// <returns>The transformed vector</returns>
         public static Vector3 TransformPerspective(Vector3 vec, Matrix4 mat)
         {
-            Vector3 result;
-            TransformPerspective(ref vec, ref mat, out result);
+            TransformPerspective(ref vec, ref mat, out var result);
             return result;
         }
 
@@ -1129,8 +902,7 @@ namespace SS14.Shared.Maths
         /// <remarks>Note that the returned angle is never bigger than the constant Pi.</remarks>
         public static void CalculateAngle(ref Vector3 first, ref Vector3 second, out float result)
         {
-            float temp;
-            Vector3.Dot(ref first, ref second, out temp);
+            Vector3.Dot(ref first, ref second, out var temp);
             result = (float)System.Math.Acos(temp / (first.Length * second.Length));
         }
 

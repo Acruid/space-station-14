@@ -94,15 +94,6 @@ namespace SS14.Shared.Maths
         /// <summary>
         /// Gets or sets an OpenTK.Vector3 with the X, Y and Z components of this instance.
         /// </summary>
-        [Obsolete("Use Xyz property instead.")]
-        [CLSCompliant(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [XmlIgnore]
-        public Vector3 XYZ { get { return Xyz; } set { Xyz = value; } }
-
-        /// <summary>
-        /// Gets or sets an OpenTK.Vector3 with the X, Y and Z components of this instance.
-        /// </summary>
         public Vector3 Xyz { get { return xyz; } set { xyz = value; } }
 
         /// <summary>
@@ -141,7 +132,7 @@ namespace SS14.Shared.Maths
         /// <param name="angle">The resultant angle</param>
         public void ToAxisAngle(out Vector3 axis, out float angle)
         {
-            Vector4 result = ToAxisAngle();
+            var result = ToAxisAngle();
             axis = result.Xyz;
             angle = result.W;
         }
@@ -152,14 +143,14 @@ namespace SS14.Shared.Maths
         /// <returns>A Vector4 that is the axis-angle representation of this quaternion.</returns>
         public Vector4 ToAxisAngle()
         {
-            Quaternion q = this;
+            var q = this;
             if (Math.Abs(q.W) > 1.0f)
                 q.Normalize();
 
-            Vector4 result = new Vector4();
+            var result = new Vector4();
 
-            result.W = 2.0f * (float)System.Math.Acos(q.W); // angle
-            float den = (float)System.Math.Sqrt(1.0 - q.W * q.W);
+            result.W = 2.0f * (float)Math.Acos(q.W); // angle
+            float den = (float)Math.Sqrt(1.0 - q.W * q.W);
             if (den > 0.0001f)
             {
                 result.Xyz = q.Xyz / den;
@@ -314,38 +305,9 @@ namespace SS14.Shared.Maths
         /// <param name="left">The first instance.</param>
         /// <param name="right">The second instance.</param>
         /// <returns>A new instance containing the result of the calculation.</returns>
-        [Obsolete("Use Multiply instead.")]
-        public static Quaternion Mult(Quaternion left, Quaternion right)
-        {
-            return new Quaternion(
-                right.W * left.Xyz + left.W * right.Xyz + Vector3.Cross(left.Xyz, right.Xyz),
-                left.W * right.W - Vector3.Dot(left.Xyz, right.Xyz));
-        }
-
-        /// <summary>
-        /// Multiplies two instances.
-        /// </summary>
-        /// <param name="left">The first instance.</param>
-        /// <param name="right">The second instance.</param>
-        /// <param name="result">A new instance containing the result of the calculation.</param>
-        [Obsolete("Use Multiply instead.")]
-        public static void Mult(ref Quaternion left, ref Quaternion right, out Quaternion result)
-        {
-            result = new Quaternion(
-                right.W * left.Xyz + left.W * right.Xyz + Vector3.Cross(left.Xyz, right.Xyz),
-                left.W * right.W - Vector3.Dot(left.Xyz, right.Xyz));
-        }
-
-        /// <summary>
-        /// Multiplies two instances.
-        /// </summary>
-        /// <param name="left">The first instance.</param>
-        /// <param name="right">The second instance.</param>
-        /// <returns>A new instance containing the result of the calculation.</returns>
         public static Quaternion Multiply(Quaternion left, Quaternion right)
         {
-            Quaternion result;
-            Multiply(ref left, ref right, out result);
+            Multiply(ref left, ref right, out var result);
             return result;
         }
 
@@ -369,12 +331,6 @@ namespace SS14.Shared.Maths
         /// <param name="scale">The scalar.</param>
         /// <param name="result">A new instance containing the result of the calculation.</param>
         public static void Multiply(ref Quaternion quaternion, float scale, out Quaternion result)
-        {
-            result = new Quaternion(quaternion.X * scale, quaternion.Y * scale, quaternion.Z * scale, quaternion.W * scale);
-        }
-
-        [Obsolete("Use the overload without the 'ref float scale'.")]
-        public static void Multiply(ref Quaternion quaternion, ref float scale, out Quaternion result)
         {
             result = new Quaternion(quaternion.X * scale, quaternion.Y * scale, quaternion.Z * scale, quaternion.W * scale);
         }
@@ -425,8 +381,7 @@ namespace SS14.Shared.Maths
         /// <returns>The inverse of the given quaternion</returns>
         public static Quaternion Invert(Quaternion q)
         {
-            Quaternion result;
-            Invert(ref q, out result);
+            Invert(ref q, out var result);
             return result;
         }
 
@@ -460,8 +415,7 @@ namespace SS14.Shared.Maths
         /// <returns>The normalized quaternion</returns>
         public static Quaternion Normalize(Quaternion q)
         {
-            Quaternion result;
-            Normalize(ref q, out result);
+            Normalize(ref q, out var result);
             return result;
         }
 

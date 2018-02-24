@@ -318,7 +318,6 @@ namespace SS14.Shared.Maths
         /// <summary>Indicates whether the current matrix is equal to another matrix.</summary>
         /// <param name="matrix">The Matrix3 structure to compare with.</param>
         /// <returns>true if the current matrix is equal to the matrix parameter; otherwise, false.</returns>
-        [CLSCompliant(false)]
         public bool Equals(Matrix3 matrix)
         {
             return
