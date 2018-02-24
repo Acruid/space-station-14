@@ -7,8 +7,6 @@ using SS14.Shared.Interfaces.Physics;
 using SS14.Shared.IoC;
 using SS14.Shared.Map;
 using SS14.Shared.Maths;
-using SS14.Shared.Utility;
-using YamlDotNet.RepresentationModel;
 
 namespace SS14.Client.GameObjects
 {
@@ -21,8 +19,8 @@ namespace SS14.Client.GameObjects
 
         public Color DebugColor
         {
-            get { return _debugColor; }
-            private set { _debugColor = value; }
+            get => _debugColor;
+            private set => _debugColor = value;
         }
 
         /// <inheritdoc />
@@ -49,8 +47,6 @@ namespace SS14.Client.GameObjects
         void ICollidable.Bump(IEntity ent)
         {
             SendMessage(new BumpedEntMsg(ent));
-
-            OnBump?.Invoke(this, new BumpEventArgs(this.Owner, ent));
         }
 
         /// <inheritdoc />
@@ -129,9 +125,6 @@ namespace SS14.Client.GameObjects
             return IoCManager.Resolve<ICollisionManager>().TryCollide(Owner, offset, bump);
         }
 
-        [Obsolete("Handle BumpEntMsg")]
-        public event EventHandler<BumpEventArgs> OnBump;
-
         /// <summary>
         ///     Enables collidable
         /// </summary>
@@ -157,16 +150,6 @@ namespace SS14.Client.GameObjects
             base.ExposeData(serializer);
 
             serializer.DataField(ref _debugColor, "DebugColor", Color.Red);
-        }
-
-        public override void LoadParameters(YamlMappingNode mapping)
-        {
-            base.LoadParameters(mapping);
-
-            if (mapping.TryGetNode("DebugColor", out var node))
-            {
-                DebugColor = node.AsHexColor();
-            }
         }
     }
 }

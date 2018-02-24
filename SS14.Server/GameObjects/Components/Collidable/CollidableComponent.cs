@@ -1,5 +1,4 @@
-﻿using System;
-using SS14.Shared.GameObjects;
+﻿using SS14.Shared.GameObjects;
 using SS14.Shared.GameObjects.Serialization;
 using SS14.Shared.Interfaces.GameObjects;
 using SS14.Shared.Interfaces.GameObjects.Components;
@@ -15,8 +14,6 @@ namespace SS14.Server.GameObjects
         private bool _collisionEnabled;
         private bool _isHardCollidable;
 
-        public event EventHandler<BumpEventArgs> OnBump;
-
         /// <inheritdoc />
         public override string Name => "Collidable";
 
@@ -25,7 +22,6 @@ namespace SS14.Server.GameObjects
 
         /// <inheritdoc />
         public MapId MapID => Owner.GetComponent<ITransformComponent>().MapID;
-        
 
         public override void ExposeData(EntitySerializer serializer)
         {
@@ -57,7 +53,7 @@ namespace SS14.Server.GameObjects
         /// <inheritdoc />
         void ICollidable.Bump(IEntity ent)
         {
-            OnBump?.Invoke(this, new BumpEventArgs(Owner, ent));
+            SendMessage(new BumpedEntMsg(ent));
         }
 
         /// <summary>
@@ -71,7 +67,7 @@ namespace SS14.Server.GameObjects
         }
 
         /// <summary>
-        ///     Removes the AABB from the collisionmanager.
+        ///     Removes the AABB from the collision manager.
         /// </summary>
         public override void Shutdown()
         {
