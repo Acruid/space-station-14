@@ -9,12 +9,11 @@ namespace SS14.Shared.Enums
         public EntityUid MobUid { get; set; }
         public string PlacementOption { get; set; }
         public int Range { get; set; }
+
+        //Tile Type if tile.
         public ushort TileType { get; set; }
+
+        //How many objects of this type may be placed.
         public int Uses { get; set; } = 1;
-
-        private ushort tileType; //Tile Type if tile.
-        private int uses = 1; //How many objects of this type may be placed.
-
-       
     }
 }

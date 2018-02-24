@@ -14,7 +14,6 @@ namespace SS14.Client.GameObjects
         public override uint? NetID => NetIDs.ITEM_SPRITE;
         private bool _isInHand;
         private string _basename = "";
-        private InventoryLocation _holdingHand = InventoryLocation.None;
 
         public ItemSpriteComponent()
         {

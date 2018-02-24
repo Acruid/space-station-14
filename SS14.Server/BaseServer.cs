@@ -31,7 +31,6 @@ using SS14.Shared.Network;
 using SS14.Shared.Network.Messages;
 using SS14.Shared.Prototypes;
 using SS14.Shared.Map;
-using SS14.Server.Interfaces.Maps;
 using SS14.Shared.Enums;
 
 namespace SS14.Server
@@ -57,10 +56,6 @@ namespace SS14.Server
         private readonly IGameTiming _time;
         [Dependency]
         private readonly IResourceManager _resources;
-        [Dependency]
-        private readonly IMapLoader _mapLoader;
-        [Dependency]
-        private readonly IMapManager _mapManager;
         [Dependency]
         private readonly ITimerManager timerManager;
 
@@ -151,7 +146,7 @@ namespace SS14.Server
                 netMan.Initialize(true);
                 netMan.Startup();
             }
-            catch (System.Net.Sockets.SocketException e)
+            catch (System.Net.Sockets.SocketException)
             {
                 var port = netMan.Port;
                 Logger.Log($"Unable to setup networking manager. Check port {port} is not already in use!, shutting down...", LogLevel.Fatal);

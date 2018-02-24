@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using System.Linq;
 using YamlDotNet.RepresentationModel;
 using SS14.Shared.Map;
-using SS14.Shared.Console;
 using SS14.Shared.Enums;
 
 namespace SS14.Client.GameObjects
@@ -30,7 +29,6 @@ namespace SS14.Client.GameObjects
         protected List<IRenderableComponent> slaves = new List<IRenderableComponent>();
         protected bool visible = true;
         public DrawDepth DrawDepth { get; set; }
-        private SpeechBubble _speechBubble;
         public Color Color { get; set; } = Color.White;
         public MapId MapID { get; private set; }
 

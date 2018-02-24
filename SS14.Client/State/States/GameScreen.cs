@@ -67,9 +67,6 @@ namespace SS14.Client.State.States
 
         private Screen _uiScreen;
 
-        private int _prevScreenWidth = 0;
-        private int _prevScreenHeight = 0;
-
         private MenuWindow _menu;
         private Chatbox _gameChat;
         #endregion UI Variables
