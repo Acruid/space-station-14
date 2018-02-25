@@ -13,6 +13,7 @@ namespace SS14.Server.GameObjects
         private LightState _state;
         private int _radius;
         private Vector2 _offset;
+        private string _mask;
 
         public override string Name => "PointLight";
         public override uint? NetID => NetIDs.POINT_LIGHT;
@@ -57,6 +58,7 @@ namespace SS14.Server.GameObjects
             serializer.DataField(ref _mode, "mode", LightModeClass.Constant);
             serializer.DataField(ref _radius, "radius", 512);
             serializer.DataField(ref _offset, "offset", Vector2.Zero);
+            serializer.DataField(ref _mask, "mask", null);
         }
 
         public override ComponentState GetComponentState()

@@ -1,20 +1,19 @@
-﻿using SS14.Client.Graphics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using SS14.Client.Graphics;
 using SS14.Client.Graphics.Sprites;
 using SS14.Client.Graphics.TexHelpers;
 using SS14.Client.Interfaces.GameObjects;
 using SS14.Client.Interfaces.Resource;
+using SS14.Shared.Enums;
 using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Serialization;
 using SS14.Shared.Interfaces.GameObjects;
 using SS14.Shared.Interfaces.GameObjects.Components;
 using SS14.Shared.IoC;
-using SS14.Shared.Maths;
-using SS14.Shared.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using YamlDotNet.RepresentationModel;
 using SS14.Shared.Map;
-using SS14.Shared.Enums;
+using SS14.Shared.Maths;
 
 namespace SS14.Client.GameObjects
 {
@@ -28,8 +27,21 @@ namespace SS14.Client.GameObjects
         protected IRenderableComponent master;
         protected List<IRenderableComponent> slaves = new List<IRenderableComponent>();
         protected bool visible = true;
-        public DrawDepth DrawDepth { get; set; }
-        public Color Color { get; set; } = Color.White;
+        private Color _color = Color.White;
+        private DrawDepth _drawDepth;
+
+        public DrawDepth DrawDepth
+        {
+            get => _drawDepth;
+            set => _drawDepth = value;
+        }
+
+        public Color Color
+        {
+            get => _color;
+            set => _color = value;
+        }
+
         public MapId MapID { get; private set; }
 
         public override Type StateType => typeof(AnimatedSpriteComponentState);
@@ -47,7 +59,7 @@ namespace SS14.Client.GameObjects
                 return Box2.FromDimensions(
                     aaabb.Left, aaabb.Top,
                     aaabb.Width, aaabb.Height
-                    );
+                );
             }
         }
 
@@ -69,6 +81,8 @@ namespace SS14.Client.GameObjects
         public override void Initialize()
         {
             base.Initialize();
+
+            SetSprite(baseSprite);
             var transform = Owner.GetComponent<ITransformComponent>();
             transform.OnMove += OnMove;
             MapID = transform.MapID;
@@ -86,14 +100,6 @@ namespace SS14.Client.GameObjects
             MapID = args.NewPosition.MapID;
         }
 
-        public void SetSprite()
-        {
-            if (baseSprite != null)
-            {
-                SetSprite(baseSprite);
-            }
-        }
-
         public void SetSprite(string name)
         {
             currentSprite = name;
@@ -103,9 +109,9 @@ namespace SS14.Client.GameObjects
         public void SetAnimationState(string state, bool loop = true)
         {
             sprite.SetAnimationState(state);
-            sprite.SetLoop(loop);
+            sprite.Loop = loop;
         }
-        
+
         protected void SetDrawDepth(DrawDepth p)
         {
             DrawDepth = p;
@@ -149,7 +155,7 @@ namespace SS14.Client.GameObjects
             var texRect = spriteToCheck.TextureRect;
 
             // Get the clicked position relative to the texture (World to Texture)
-            var pixelPos = new Vector2i((int)((worldPos.X - worldBounds.Left) * screenScale), (int)((worldPos.Y - worldBounds.Top) * screenScale));
+            var pixelPos = new Vector2i((int) ((worldPos.X - worldBounds.Left) * screenScale), (int) ((worldPos.Y - worldBounds.Top) * screenScale));
 
             // offset pos by texture sub-rectangle
             pixelPos = pixelPos + new Vector2i(texRect.Left, texRect.Top);
@@ -160,47 +166,33 @@ namespace SS14.Client.GameObjects
 
             // fetch texture key of the sprite
             var resCache = IoCManager.Resolve<IResourceCache>();
-            if (!resCache.TextureToKey.TryGetValue(spriteToCheck.Texture, out string textureKey))
+            if (!resCache.TextureToKey.TryGetValue(spriteToCheck.Texture, out var textureKey))
                 throw new InvalidOperationException("Trying to look up a texture that does not exist in the ResourceCache.");
 
             // use the texture key to fetch the Image of the sprite
-            if (!TextureCache.Textures.TryGetValue(textureKey, out TextureInfo texInfo))
+            if (!TextureCache.Textures.TryGetValue(textureKey, out var texInfo))
                 throw new InvalidOperationException("The texture exists in the ResourceCache, but not in the CluwneLib TextureCache?");
 
             // Check if the clicked pixel is transparent enough in the Image
-            return texInfo.Image[(uint)pixelPos.X, (uint)pixelPos.Y].AByte >= Limits.ClickthroughLimit;
+            return texInfo.Image[(uint) pixelPos.X, (uint) pixelPos.Y].AByte >= Limits.ClickthroughLimit;
         }
 
-        public override void LoadParameters(YamlMappingNode mapping)
+        public override void ExposeData(EntitySerializer serializer)
         {
-            YamlNode node;
-            if (mapping.TryGetNode("drawdepth", out node))
-            {
-                SetDrawDepth(node.AsEnum<DrawDepth>());
-            }
+            base.ExposeData(serializer);
 
-            if (mapping.TryGetNode("color", out node))
-            {
-                try
-                {
-                    Color = System.Drawing.Color.FromName(node.ToString());
-                }
-                catch
-                {
-                    Color = node.AsHexColor();
-                }
-            }
+            serializer.DataField(ref visible, "vis", true);
+            serializer.DataField(ref _drawDepth, "drawdepth", DrawDepth.FloorTiles);
+            serializer.DataField(ref _color, "color", Color.White);
 
-            if (mapping.TryGetNode("sprite", out node))
-            {
-                baseSprite = node.AsString();
-                SetSprite(baseSprite);
-            }
-            else
-            {
-                baseSprite = "";
-                SetSprite(""); //Use default sprite
-            }
+            serializer.DataGetFunction<string>("sprite", null, () => baseSprite);
+            serializer.DataSetFunction<string>("sprite", null, value => SetSprite(value));
+
+            serializer.DataGetFunction("curAnm", null, () => sprite.CurrentAnimationStateKey);
+            serializer.DataSetFunction<string>("curAnm", null, value => sprite.SetAnimationState(value));
+
+            serializer.DataGetFunction("loop", true, () => sprite.Loop);
+            serializer.DataSetFunction("loop", true, value => sprite.Loop = value);
         }
 
         public virtual void Render(Vector2 topLeft, Vector2 bottomRight)
@@ -208,13 +200,13 @@ namespace SS14.Client.GameObjects
             UpdateSlaves();
 
             //Render slaves beneath
-            IEnumerable<IRenderableComponent> renderablesBeneath = from IRenderableComponent c in slaves
-                                                                       //FIXTHIS
-                                                                   orderby c.DrawDepth ascending
-                                                                   where c.DrawDepth < DrawDepth
-                                                                   select c;
+            var renderablesBeneath = from IRenderableComponent c in slaves
+                //FIXTHIS
+                orderby c.DrawDepth
+                where c.DrawDepth < DrawDepth
+                select c;
 
-            foreach (IRenderableComponent component in renderablesBeneath.ToList())
+            foreach (var component in renderablesBeneath.ToList())
             {
                 component.Render(topLeft, bottomRight);
             }
@@ -238,13 +230,13 @@ namespace SS14.Client.GameObjects
             sprite.Draw(Color);
 
             //Render slaves above
-            IEnumerable<IRenderableComponent> renderablesAbove = from IRenderableComponent c in slaves
-                                                                     //FIXTHIS
-                                                                 orderby c.DrawDepth ascending
-                                                                 where c.DrawDepth >= DrawDepth
-                                                                 select c;
+            var renderablesAbove = from IRenderableComponent c in slaves
+                //FIXTHIS
+                orderby c.DrawDepth
+                where c.DrawDepth >= DrawDepth
+                select c;
 
-            foreach (IRenderableComponent component in renderablesAbove.ToList())
+            foreach (var component in renderablesAbove.ToList())
             {
                 component.Render(topLeft, bottomRight);
             }
@@ -294,8 +286,8 @@ namespace SS14.Client.GameObjects
 
         public void SetSpriteCenter(Vector2 center)
         {
-            sprite.SetPosition(center.X - (sprite.TextureRect.Width / 2),
-                               center.Y - (sprite.TextureRect.Height / 2));
+            sprite.SetPosition(center.X - sprite.TextureRect.Width / 2,
+                center.Y - sprite.TextureRect.Height / 2);
         }
 
         public bool IsSlaved()
@@ -363,7 +355,7 @@ namespace SS14.Client.GameObjects
         /// <inheritdoc />
         public override void HandleComponentState(ComponentState state)
         {
-            var newState = (AnimatedSpriteComponentState)state;
+            var newState = (AnimatedSpriteComponentState) state;
             DrawDepth = newState.DrawDepth;
             visible = newState.Visible;
             if (currentSprite != newState.Name)
@@ -372,9 +364,9 @@ namespace SS14.Client.GameObjects
             if (sprite.CurrentAnimationStateKey != newState.CurrentAnimation)
                 sprite.SetAnimationState(newState.CurrentAnimation ?? "idle");
 
-            SetMaster((EntityUid?) newState.MasterUid);
-            
-            sprite.SetLoop(newState.Loop);
+            SetMaster(newState.MasterUid);
+
+            sprite.Loop = newState.Loop;
         }
     }
 }

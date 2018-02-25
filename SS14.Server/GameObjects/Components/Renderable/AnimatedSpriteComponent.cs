@@ -1,9 +1,9 @@
-﻿using SS14.Server.Interfaces.GameObjects;
+﻿using System.Collections.Generic;
+using SS14.Server.Interfaces.GameObjects;
 using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Serialization;
 using SS14.Shared.Interfaces.GameObjects;
-using SS14.Shared.Utility;
-using System.Collections.Generic;
-using YamlDotNet.RepresentationModel;
+using SS14.Shared.Maths;
 
 namespace SS14.Server.GameObjects
 {
@@ -12,42 +12,58 @@ namespace SS14.Server.GameObjects
         public override string Name => "AnimatedSprite";
         public override uint? NetID => NetIDs.ANIMATED_SPRITE;
         protected IRenderableComponent master;
-        protected List<IRenderableComponent> slaves;
-        public string SpriteName { get; set; }
+        protected readonly List<IRenderableComponent> slaves = new List<IRenderableComponent>();
+
+        public string SpriteName
+        {
+            get => _spriteName;
+            set => _spriteName = value;
+        }
+
         private string _currentAnimation;
+
         public string CurrentAnimation
         {
             get
             {
                 if (master != null && master.GetType() == typeof(AnimatedSpriteComponent))
                 {
-                    return ((AnimatedSpriteComponent)master).CurrentAnimation;
+                    return ((AnimatedSpriteComponent) master).CurrentAnimation;
                 }
                 return _currentAnimation;
             }
-            set { _currentAnimation = value; }
+            set => _currentAnimation = value;
         }
 
+        private Color _color;
         private bool _loop = true;
+        private DrawDepth _drawDepth = DrawDepth.FloorTiles;
+        private bool _visible = true;
+        private string _spriteName;
+
         public bool Loop
         {
             get
             {
                 if (master != null && master.GetType() == typeof(AnimatedSpriteComponent))
                 {
-                    return ((AnimatedSpriteComponent)master).Loop;
+                    return ((AnimatedSpriteComponent) master).Loop;
                 }
                 return _loop;
             }
-            set { _loop = value; }
+            set => _loop = value;
         }
-        public DrawDepth DrawDepth { get; set; } = DrawDepth.FloorTiles;
-        public bool Visible { get; set; }
 
-        public AnimatedSpriteComponent()
+        public DrawDepth DrawDepth
         {
-            slaves = new List<IRenderableComponent>();
-            Visible = true;
+            get => _drawDepth;
+            set => _drawDepth = value;
+        }
+
+        public bool Visible
+        {
+            get => _visible;
+            set => _visible = value;
         }
 
         public override ComponentState GetComponentState()
@@ -56,18 +72,16 @@ namespace SS14.Server.GameObjects
             return new AnimatedSpriteComponentState(Visible, DrawDepth, SpriteName, CurrentAnimation, Loop, masterUid);
         }
 
-        public override void LoadParameters(YamlMappingNode mapping)
+        public override void ExposeData(EntitySerializer serializer)
         {
-            YamlNode node;
-            if (mapping.TryGetNode("drawdepth", out node))
-            {
-                DrawDepth = node.AsEnum<DrawDepth>();
-            }
+            base.ExposeData(serializer);
 
-            if (mapping.TryGetNode("sprite", out node))
-            {
-                SpriteName = node.AsString();
-            }
+            serializer.DataField(ref _visible, "vis", true);
+            serializer.DataField(ref _drawDepth, "drawdepth", DrawDepth.FloorTiles);
+            serializer.DataField(ref _spriteName, "sprite", null);
+            serializer.DataField(ref _currentAnimation, "curAnm", null);
+            serializer.DataField(ref _loop, "loop", true);
+            serializer.DataField(ref _color, "color", Color.White);
         }
 
         public void SetAnimationState(string state, bool loop = true)

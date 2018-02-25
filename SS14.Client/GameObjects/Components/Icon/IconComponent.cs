@@ -1,28 +1,35 @@
 ﻿using SS14.Client.Graphics.Sprites;
 using SS14.Client.Interfaces.Resource;
 using SS14.Shared.GameObjects;
+using SS14.Shared.GameObjects.Serialization;
 using SS14.Shared.IoC;
-using SS14.Shared.Utility;
-using System.Collections.Generic;
-using YamlDotNet.RepresentationModel;
 
 namespace SS14.Client.GameObjects
 {
     public class IconComponent : Component
     {
+        private string _iconName;
         public override string Name => "Icon";
 
-        public Sprite Icon { get; set; }
+        public Sprite Icon { get; private set; }
 
-        public override void LoadParameters(YamlMappingNode mapping)
+        /// <inheritdoc />
+        public override void Initialize()
         {
-            if (mapping.TryGetNode("icon", out YamlNode node))
-            {
-                SetIcon(node.AsString());
-            }
+            base.Initialize();
+
+            SetIcon(_iconName);
         }
 
-        public void SetIcon(string name)
+        /// <inheritdoc />
+        public override void ExposeData(EntitySerializer serializer)
+        {
+            base.ExposeData(serializer);
+
+            serializer.DataField(ref _iconName, "icon", null);
+        }
+
+        private void SetIcon(string name)
         {
             Icon = IoCManager.Resolve<IResourceCache>().GetSprite(name);
         }

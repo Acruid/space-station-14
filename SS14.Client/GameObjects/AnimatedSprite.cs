@@ -170,11 +170,12 @@ namespace SS14.Client.Graphics.Sprites
             _currentSprite = _sprites[_currentAnimationState.Name][Direction][_currentAnimationState.CurrentFrame];
         }
 
-        public void SetLoop(bool loop)
+        public bool Loop
         {
-            _currentAnimationState.Loop = loop;
+            get => _currentAnimationState.Loop;
+            set => _currentAnimationState.Loop = value;
         }
-
+        
         public void SetTime(float time)
         {
             _currentAnimationState.SetTime(time);
@@ -186,7 +187,7 @@ namespace SS14.Client.Graphics.Sprites
             SetAnimationState(sprite.CurrentAnimationStateKey);
             Direction = sprite.Direction;
             var otherAnimationState = sprite._currentAnimationState;
-            SetLoop(otherAnimationState.Loop);
+            Loop = otherAnimationState.Loop;
             SetTime(otherAnimationState.CurrentTime);
         }
 
@@ -232,10 +233,8 @@ namespace SS14.Client.Graphics.Sprites
             LoadSprites(collection, resourceCache);
             if (AnimationStates.ContainsKey("idle"))
                 SetAnimationState("idle");
-            SetLoop(true);
+            Loop = true;
             SetCurrentSprite();
-
-            //IoCManager.Resolve<IResourceCache>().
         }
 
         #endregion Constructor

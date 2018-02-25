@@ -1000,7 +1000,7 @@ namespace SS14.Client.State.States
                 }
                 var transform = t.GetComponent<ITransformComponent>().WorldPosition;
                 Vector2 pos = area.ToRelativePosition(CluwneLib.WorldToScreen(transform));
-                MapRenderer.RenderPos(occluder.BoundingBox, pos.X, pos.Y);
+                MapRenderer.RenderPos(occluder.BoundingBox.Scale(CluwneLib.Camera.PixelsPerMeter), pos.X, pos.Y);
             }
         }
 

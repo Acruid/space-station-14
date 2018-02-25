@@ -1,8 +1,10 @@
-﻿using SS14.Shared.GameObjects;
+﻿using SS14.Client.Graphics;
+using SS14.Shared.GameObjects;
 using SS14.Shared.Utility;
 using YamlDotNet.RepresentationModel;
 using SS14.Client.Graphics.Lighting;
 using SS14.Shared.Enums;
+using SS14.Shared.GameObjects.Serialization;
 using SS14.Shared.IoC;
 using SS14.Shared.Interfaces.GameObjects.Components;
 using SS14.Shared.Maths;
@@ -13,7 +15,12 @@ namespace SS14.Client.GameObjects
     {
         public override string Name => "Occluder";
 
-        public Box2 BoundingBox { get; private set; } = new Box2(-16, -16, 16, 16);
+        public Box2 BoundingBox
+        {
+            get => _boundingBox;
+            private set => _boundingBox = value;
+        }
+
         private bool enabled = true;
         public bool Enabled
         {
@@ -31,6 +38,7 @@ namespace SS14.Client.GameObjects
         }
 
         private ITransformComponent transform;
+        private Box2 _boundingBox;
 
         public override void Initialize()
         {
@@ -68,9 +76,10 @@ namespace SS14.Client.GameObjects
         private void RedrawRelevantLights(Vector2 position)
         {
             var mgr = IoCManager.Resolve<ILightManager>();
-            mgr.RecalculateLightsInView(transform.MapID, BoundingBox.Translated(position));
+            mgr.RecalculateLightsInView(transform.MapID, BoundingBox.Scale(CluwneLib.Camera.PixelsPerMeter).Translated(position));
         }
 
+        /*
         public override void LoadParameters(YamlMappingNode mapping)
         {
             base.LoadParameters(mapping);
@@ -104,6 +113,15 @@ namespace SS14.Client.GameObjects
             {
                 enabled = node.AsBool();
             }
+        }
+        */
+
+        public override void ExposeData(EntitySerializer serializer)
+        {
+            base.ExposeData(serializer);
+
+            serializer.DataField(ref enabled, "enabled", true);
+            serializer.DataField(ref _boundingBox, "aabb", new Box2(-0.5f, -0.5f, 0.5f, 0.5f));
         }
     }
 }

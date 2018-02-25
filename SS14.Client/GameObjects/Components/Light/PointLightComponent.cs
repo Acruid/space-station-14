@@ -6,6 +6,7 @@ using System;
 using SS14.Client.Graphics.Lighting;
 using SS14.Client.Interfaces.Resource;
 using SS14.Shared.Enums;
+using SS14.Shared.GameObjects.Serialization;
 using SS14.Shared.Log;
 using YamlDotNet.RepresentationModel;
 using SS14.Shared.Map;
