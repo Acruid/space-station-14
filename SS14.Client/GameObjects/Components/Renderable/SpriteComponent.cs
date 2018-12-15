@@ -168,8 +168,9 @@ namespace SS14.Client.GameObjects
         public RSI BaseRSI
         {
             get => _baseRsi;
-            set
+            private set
             {
+                // figure out how you are going to keep _baseRSIPath in sync with this.
                 _baseRsi = value;
                 if (Layers == null)
                 {
@@ -199,8 +200,15 @@ namespace SS14.Client.GameObjects
             }
         }
 
-        [ViewVariables] private Dictionary<object, int> LayerMap = new Dictionary<object, int>();
-        [ViewVariables] private bool _layerMapShared;
+        private string _baseRSIPath;
+
+        [ViewVariables(VVAccess.ReadOnly)]
+        public string BaseRSIPath => _baseRSIPath;
+
+        [ViewVariables]
+        private Dictionary<object, int> LayerMap = new Dictionary<object, int>();
+        [ViewVariables]
+        private bool _layerMapShared;
 
         // To a future Clusterfack:
         // REALLY BIG OPTIMIZATION POTENTIAL:
@@ -1310,6 +1318,7 @@ namespace SS14.Client.GameObjects
 
             {
                 var rsi = serializer.ReadDataField<string>("sprite", null);
+                _baseRSIPath = rsi;
                 if (!string.IsNullOrWhiteSpace(rsi))
                 {
                     var rsiPath = TextureRoot / rsi;
@@ -1583,6 +1592,7 @@ namespace SS14.Client.GameObjects
 
             if (thestate.BaseRsiPath != null && BaseRSI != null)
             {
+                _baseRSIPath = thestate.BaseRsiPath;
                 if (resourceCache.TryGetResource<RSIResource>(TextureRoot / thestate.BaseRsiPath, out var res))
                 {
                     if (BaseRSI != res.RSI)

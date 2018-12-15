@@ -56,7 +56,12 @@ namespace SS14.Client.Interfaces.GameObjects.Components
         ///     The RSI that is currently used as "base".
         ///     Layers will fall back to this RSI if they do not have their own RSI set.
         /// </summary>
-        RSI BaseRSI { get; set; }
+        RSI BaseRSI { get; }
+
+        /// <summary>
+        ///     The path in the file system to the BaseRSI.
+        /// </summary>
+        string BaseRSIPath { get; }
 
         /// <summary>
         ///     Sets a layer key to the layer map, creating it if it does not exist.
