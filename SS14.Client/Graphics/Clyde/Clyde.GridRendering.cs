@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
@@ -100,10 +100,11 @@ namespace SS14.Client.Graphics.Clyde
                     var region = regionMaybe.Value;
 
                     var vIdx = i * 4;
-                    vertexBuffer[vIdx + 0] = new Vertex2D(tile.X + 1, tile.Y, region.Right, region.Top);
-                    vertexBuffer[vIdx + 1] = new Vertex2D(tile.X, tile.Y, region.Left, region.Top);
-                    vertexBuffer[vIdx + 2] = new Vertex2D(tile.X + 1, tile.Y - 1f, region.Right, region.Bottom);
-                    vertexBuffer[vIdx + 3] = new Vertex2D(tile.X, tile.Y - 1f, region.Left, region.Bottom);
+                    var pos = tile.GridIndices;
+                    vertexBuffer[vIdx + 0] = new Vertex2D(pos.X + 1, pos.Y, region.Right, region.Top);
+                    vertexBuffer[vIdx + 1] = new Vertex2D(pos.X, pos.Y, region.Left, region.Top);
+                    vertexBuffer[vIdx + 2] = new Vertex2D(pos.X + 1, pos.Y - 1f, region.Right, region.Bottom);
+                    vertexBuffer[vIdx + 3] = new Vertex2D(pos.X, pos.Y - 1f, region.Left, region.Bottom);
                     var nIdx = i * 5;
                     var tIdx = (ushort) (i * 4);
                     indexBuffer[nIdx + 0] = tIdx;
@@ -196,7 +197,7 @@ namespace SS14.Client.Graphics.Clyde
         private void _updateTileMapOnUpdate(object sender, TileChangedEventArgs args)
         {
             var grid = _mapManager.GetGrid(args.NewTile.GridIndex);
-            var chunk = grid.GridTileToGridChunk(new MapIndices(args.NewTile.X, args.NewTile.Y));
+            var chunk = grid.GridTileToGridChunk(new MapIndices(args.NewTile.GridIndices.X, args.NewTile.GridIndices.Y));
             _setChunkDirty(grid, chunk);
         }
 

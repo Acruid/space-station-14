@@ -316,7 +316,11 @@ namespace SS14.Client.Placement
 
         private void HandleTileChanged(object sender, TileChangedEventArgs args)
         {
-            var coords = args.NewTile.LocalPos;
+            var newTile = args.NewTile;
+            var coords = IoCManager.Resolve<IMapManager>()
+                .GetMap(newTile.MapIndex)
+                .GetGrid(newTile.GridIndex)
+                .GridTileToLocal(newTile.GridIndices);
             _pendingTileChanges.RemoveAll(c => c.Item1 == coords);
         }
 

@@ -42,7 +42,7 @@ namespace SS14.Client.Map
         private void UpdateTileMapOnUpdate(object sender, TileChangedEventArgs args)
         {
             var tilemap = RenderTileMaps[args.NewTile.GridIndex];
-            tilemap.SetCell(args.NewTile.X, args.NewTile.Y, args.NewTile.Tile.TileId);
+            tilemap.SetCell(args.NewTile.GridIndices.X, args.NewTile.GridIndices.Y, args.NewTile.Tile.TileId);
         }
 
         private void UpdateOnGridCreated(GridId gridId)

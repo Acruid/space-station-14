@@ -22,14 +22,14 @@ namespace SS14.Client.Placement.Modes
 
             if (pManager.CurrentPermission.IsTile)
             {
-                MouseCoords = new GridCoordinates(CurrentTile.X + tileSize / 2,
-                                                  CurrentTile.Y + tileSize / 2,
+                MouseCoords = new GridCoordinates(CurrentTile.GridIndices.X + tileSize / 2,
+                                                  CurrentTile.GridIndices.Y + tileSize / 2,
                                                   MouseCoords.Grid);
             }
             else
             {
-                MouseCoords = new GridCoordinates(CurrentTile.X + tileSize / 2 + pManager.PlacementOffset.X,
-                                                  CurrentTile.Y + tileSize / 2 + pManager.PlacementOffset.Y,
+                MouseCoords = new GridCoordinates(CurrentTile.GridIndices.X + tileSize / 2 + pManager.PlacementOffset.X,
+                                                  CurrentTile.GridIndices.Y + tileSize / 2 + pManager.PlacementOffset.Y,
                                                   MouseCoords.Grid);
             }
         }
@@ -43,7 +43,7 @@ namespace SS14.Client.Placement.Modes
 
             var entitymanager = IoCManager.Resolve<IClientEntityManager>();
             return !(entitymanager.AnyEntitiesIntersecting(MouseCoords.MapID,
-                new Box2(new Vector2(CurrentTile.X, CurrentTile.Y), new Vector2(CurrentTile.X + 0.99f, CurrentTile.Y + 0.99f))));
+                new Box2(new Vector2(CurrentTile.GridIndices.X, CurrentTile.GridIndices.Y), new Vector2(CurrentTile.GridIndices.X + 0.99f, CurrentTile.GridIndices.Y + 0.99f))));
         }
     }
 }

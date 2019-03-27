@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Maths;

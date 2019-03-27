@@ -1,93 +1,96 @@
-﻿using SS14.Shared.Interfaces.Map;
-using SS14.Shared.IoC;
-using SS14.Shared.Maths;
+﻿using System;
 
 namespace SS14.Shared.Map
 {
     /// <summary>
     /// A reference to a tile.
     /// </summary>
-    public struct TileRef
+    public readonly struct TileRef : IEquatable<TileRef>
     {
+        /// <summary>
+        /// Map index that the tile is on.
+        /// </summary>
         public readonly MapId MapIndex;
+
+        /// <summary>
+        /// Grid index that the tile is on.
+        /// </summary>
         public readonly GridId GridIndex;
-        private readonly Tile _tile;
-        private readonly MapIndices _gridTile;
 
-        internal TileRef(MapId argMap, GridId gridIndex, int xIndex, int yIndex, Tile tile)
+        /// <summary>
+        /// Location indices of the tile on the grid.
+        /// </summary>
+        public readonly MapIndices GridIndices;
+
+        /// <summary>
+        /// Data of the tile.
+        /// </summary>
+        public readonly Tile Tile;
+
+        /// <summary>
+        ///     Constructs a new instance of <see cref="TileRef"/>.
+        /// </summary>
+        /// <param name="mapIndex">Map index that the tile is on.</param>
+        /// <param name="gridIndex">Grid index that the tile is on.</param>
+        /// <param name="xIndex">X location index of the tile on the grid.</param>
+        /// <param name="yIndex">Y location index of the tile on the grid.</param>
+        /// <param name="tile">Data of this tile.</param>
+        internal TileRef(MapId mapIndex, GridId gridIndex, int xIndex, int yIndex, Tile tile)
+            : this(mapIndex, gridIndex, new MapIndices(xIndex, yIndex), tile) { }
+
+        /// <summary>
+        ///     Constructs a new instance of <see cref="TileRef"/>.
+        /// </summary>
+        /// <param name="mapIndex">Map index that the tile is on.</param>
+        /// <param name="gridIndex">Grid index that the tile is on.</param>
+        /// <param name="gridIndices">Location indices of the tile on the grid.</param>
+        /// <param name="tile">Data of this tile.</param>
+        internal TileRef(MapId mapIndex, GridId gridIndex, MapIndices gridIndices, Tile tile)
         {
-            MapIndex = argMap;
-            _gridTile = new MapIndices(xIndex, yIndex);
+            MapIndex = mapIndex;
+            GridIndices = gridIndices;
             GridIndex = gridIndex;
-            _tile = tile;
+            Tile = tile;
         }
-
-        internal TileRef(MapId argMap, GridId gridIndex, MapIndices gridTile, Tile tile)
-        {
-            MapIndex = argMap;
-            _gridTile = gridTile;
-            GridIndex = gridIndex;
-            _tile = tile;
-        }
-
-        public int X => _gridTile.X;
-        public int Y => _gridTile.Y;
-        public GridCoordinates LocalPos => IoCManager.Resolve<IMapManager>().GetMap(MapIndex).GetGrid(GridIndex).GridTileToLocal(_gridTile);
-        public ushort TileSize => IoCManager.Resolve<IMapManager>().GetMap(MapIndex).GetGrid(GridIndex).TileSize;
-        public Tile Tile
-        {
-            get => _tile;
-            set
-            {
-                IMapGrid grid = IoCManager.Resolve<IMapManager>().GetMap(MapIndex).GetGrid(GridIndex);
-                grid.SetTile(new GridCoordinates(_gridTile.X, _gridTile.Y, grid), value);
-            }
-        }
-
-        public ITileDefinition TileDef => IoCManager.Resolve<ITileDefinitionManager>()[Tile.TileId];
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"TileRef: {X},{Y}";
+            return $"map={MapIndex},grid={GridIndex},indices={GridIndices},tile={Tile}";
         }
 
-        public bool GetStep(Direction dir, out TileRef steptile)
+        #region IEquatable
+
+        /// <inheritdoc />
+        public bool Equals(TileRef other)
         {
-            MapIndices currenttile = _gridTile;
-            MapIndices shift;
-            switch (dir)
-            {
-                case Direction.East:
-                    shift = new MapIndices(1, 0);
-                    break;
-                case Direction.West:
-                    shift = new MapIndices(-1, 0);
-                    break;
-                case Direction.North:
-                    shift = new MapIndices(0, 1);
-                    break;
-                case Direction.South:
-                    shift = new MapIndices(0, -1);
-                    break;
-                case Direction.NorthEast:
-                    shift = new MapIndices(1, 1);
-                    break;
-                case Direction.SouthEast:
-                    shift = new MapIndices(1, -1);
-                    break;
-                case Direction.NorthWest:
-                    shift = new MapIndices(-1, 1);
-                    break;
-                case Direction.SouthWest:
-                    shift = new MapIndices(-1, -1);
-                    break;
-                default:
-                    steptile = new TileRef();
-                    return false;
-            }
-            currenttile += shift;
-            return IoCManager.Resolve<IMapManager>().GetMap(MapIndex).GetGrid(GridIndex).IndicesToTile(currenttile, out steptile);
+            return MapIndex.Equals(other.MapIndex)
+                   && GridIndex.Equals(other.GridIndex)
+                   && GridIndices.Equals(other.GridIndices)
+                   && Tile.Equals(other.Tile);
         }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+                return false;
+            return obj is TileRef other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = MapIndex.GetHashCode();
+                hashCode = (hashCode * 397) ^ GridIndex.GetHashCode();
+                hashCode = (hashCode * 397) ^ GridIndices.GetHashCode();
+                hashCode = (hashCode * 397) ^ Tile.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        #endregion
     }
 }

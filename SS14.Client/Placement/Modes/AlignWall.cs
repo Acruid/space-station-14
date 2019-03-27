@@ -25,13 +25,13 @@ namespace SS14.Client.Placement.Modes
             {
                 nodes.AddRange(
                     pManager.CurrentPrototype.MountingPoints.Select(
-                        current => new Vector2(MouseCoords.X, CurrentTile.Y + current)));
+                        current => new Vector2(MouseCoords.X, CurrentTile.GridIndices.Y + current)));
             }
             else
             {
-                nodes.Add(new Vector2(MouseCoords.X, CurrentTile.Y + 0.5f));
-                nodes.Add(new Vector2(MouseCoords.X, CurrentTile.Y + 1.0f));
-                nodes.Add(new Vector2(MouseCoords.X, CurrentTile.Y + 1.5f));
+                nodes.Add(new Vector2(MouseCoords.X, CurrentTile.GridIndices.Y + 0.5f));
+                nodes.Add(new Vector2(MouseCoords.X, CurrentTile.GridIndices.Y + 1.0f));
+                nodes.Add(new Vector2(MouseCoords.X, CurrentTile.GridIndices.Y + 1.5f));
             }
 
             Vector2 closestNode = (from Vector2 node in nodes
