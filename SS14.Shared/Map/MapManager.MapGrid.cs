@@ -8,29 +8,56 @@ namespace SS14.Shared.Map
 {
     public partial class MapManager
     {
+        /// <inheritdoc />
         public class MapGrid : IMapGrid
         {
+            /// <summary>
+            ///     Game tick that the map was created.
+            /// </summary>
             public uint CreatedTick { get; }
+
+            /// <summary>
+            ///     Last game tick that the map was modified.
+            /// </summary>
             public uint LastModifiedTick { get; internal set; }
-            public bool IsDefaultGrid => Map.DefaultGrid == this;
-            public IMap Map => _mapManager.GetMap(MapID);
-            public MapId MapID { get; private set; }
+
+            /// <inheritdoc />
+            public bool IsDefaultGrid => ParentMap.DefaultGrid == this;
+
+            /// <inheritdoc />
+            public IMap ParentMap => _mapManager.GetMap(MapId);
+
+            /// <inheritdoc />
+            public MapId MapId { get; }
+
+            /// <summary>
+            ///     Grid chunks than make up this grid.
+            /// </summary>
+            internal readonly Dictionary<MapIndices, Chunk> Chunks = new Dictionary<MapIndices, Chunk>();
+
             private readonly MapManager _mapManager;
-            internal readonly Dictionary<MapIndices, Chunk> _chunks = new Dictionary<MapIndices, Chunk>();
             private Vector2 _worldPosition;
 
-            internal MapGrid(MapManager mapManager, GridId gridIndex, ushort chunkSize, float snapsize, MapId mapID)
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="MapGrid"/> class.
+            /// </summary>
+            /// <param name="mapManager">Reference to the <see cref="MapManager"/> that will manage this grid.</param>
+            /// <param name="gridIndex">Index identifier of this grid.</param>
+            /// <param name="chunkSize">The dimension of this square chunk.</param>
+            /// <param name="snapSize"></param>
+            /// <param name="mapId"></param>
+            internal MapGrid(MapManager mapManager, GridId gridIndex, ushort chunkSize, float snapSize, MapId mapId)
             {
                 _mapManager = mapManager;
                 Index = gridIndex;
                 ChunkSize = chunkSize;
-                SnapSize = snapsize;
-                MapID = mapID;
+                SnapSize = snapSize;
+                MapId = mapId;
                 LastModifiedTick = CreatedTick = _mapManager._gameTiming.CurTick;
             }
 
             /// <summary>
-            /// Disposes the grid.
+            ///     Disposes the grid.
             /// </summary>
             public void Dispose()
             {
@@ -45,12 +72,11 @@ namespace SS14.Shared.Map
 
             /// <inheritdoc />
             public float SnapSize { get; }
-
+            
+            /// <inheritdoc />
             public GridId Index { get; }
 
-            /// <summary>
-            ///     The length of the side of a square tile in world units.
-            /// </summary>
+            /// <inheritdoc />
             public ushort TileSize { get; } = 1;
 
             /// <inheritdoc />
@@ -80,20 +106,22 @@ namespace SS14.Shared.Map
                 var a = AABBWorld;
                 var b = worldPos;
 
-                var min_x = Math.Min(a.Left, b.X);
-                var max_x = Math.Max(a.Right, b.X);
+                var minX = Math.Min(a.Left, b.X);
+                var maxX = Math.Max(a.Right, b.X);
 
-                var min_y = Math.Min(a.Bottom, b.Y);
-                var max_y = Math.Max(a.Top, b.Y);
+                var minY = Math.Min(a.Bottom, b.Y);
+                var maxY = Math.Max(a.Top, b.Y);
 
-                AABBWorld = Box2.FromDimensions(min_x, min_y, max_x - min_x, max_y - min_y);
+                AABBWorld = Box2.FromDimensions(minX, minY, maxX - minX, maxY - minY);
             }
 
+            /// <inheritdoc />
             public bool OnSnapCenter(Vector2 position)
             {
                 return (FloatMath.CloseTo(position.X % SnapSize, 0) && FloatMath.CloseTo(position.Y % SnapSize, 0));
             }
 
+            /// <inheritdoc />
             public bool OnSnapBorder(Vector2 position)
             {
                 return (FloatMath.CloseTo(position.X % SnapSize, SnapSize / 2) && FloatMath.CloseTo(position.Y % SnapSize, SnapSize / 2));
@@ -107,27 +135,22 @@ namespace SS14.Shared.Map
                 var chunkIndices = WorldToChunk(worldPos);
                 var gridTileIndices = WorldToTile(worldPos);
 
-                Chunk output;
-                if (_chunks.TryGetValue(chunkIndices, out output))
-                {
-                    var chunkTileIndices = output.GridTileToChunkTile(gridTileIndices);
-                    return output.GetTile((ushort)chunkTileIndices.X, (ushort)chunkTileIndices.Y);
-                }
-                return new TileRef(MapID, Index, gridTileIndices.X, gridTileIndices.Y, default);
+                if (!Chunks.TryGetValue(chunkIndices, out var output))
+                    return new TileRef(MapId, Index, gridTileIndices.X, gridTileIndices.Y, default);
+
+                var chunkTileIndices = output.GridTileToChunkTile(gridTileIndices);
+                return output.GetTile((ushort)chunkTileIndices.X, (ushort)chunkTileIndices.Y);
             }
 
             /// <inheritdoc />
             public IEnumerable<TileRef> GetAllTiles(bool ignoreSpace = true)
             {
-                ushort nth = 0;
-                foreach (var kvChunk in _chunks)
+                foreach (var kvChunk in Chunks)
                 {
                     foreach (var tileRef in kvChunk.Value)
                     {
                         if (!tileRef.Tile.IsEmpty)
                             yield return tileRef;
-                        nth++;
-
                     }
                 }
             }
@@ -139,8 +162,7 @@ namespace SS14.Shared.Map
                 SetTile(localTile.X, localTile.Y, tile);
             }
 
-            /// <inheritdoc />
-            public void SetTile(int xIndex, int yIndex, Tile tile)
+            private void SetTile(int xIndex, int yIndex, Tile tile)
             {
                 var (chunk, chunkTile) = ChunkAndOffsetForTile(new MapIndices(xIndex, yIndex));
                 chunk.SetTile((ushort)chunkTile.X, (ushort)chunkTile.Y, tile);
@@ -166,8 +188,7 @@ namespace SS14.Shared.Map
                     for (var y = gridTileLb.Y; y <= gridTileRt.Y; y++)
                     {
                         var gridChunk = GridTileToGridChunk(new MapIndices(x, y));
-                        Chunk chunk;
-                        if (_chunks.TryGetValue(gridChunk, out chunk))
+                        if (Chunks.TryGetValue(gridChunk, out var chunk))
                         {
                             var chunkTile = chunk.GridTileToChunkTile(new MapIndices(x, y));
                             var tile = chunk.GetTile((ushort)chunkTile.X, (ushort)chunkTile.Y);
@@ -182,7 +203,7 @@ namespace SS14.Shared.Map
                         }
                         else if (!ignoreEmpty)
                         {
-                            var tile = new TileRef(MapID, Index, x, y, new Tile());
+                            var tile = new TileRef(MapId, Index, x, y, new Tile());
 
                             if (predicate == null || predicate(tile))
                             {
@@ -201,7 +222,7 @@ namespace SS14.Shared.Map
             /// <summary>
             /// The total number of allocated chunks in the grid.
             /// </summary>
-            public int ChunkCount => _chunks.Count;
+            public int ChunkCount => Chunks.Count;
 
             /// <inheritdoc />
             public IMapChunk GetChunk(int xIndex, int yIndex)
@@ -212,17 +233,16 @@ namespace SS14.Shared.Map
             /// <inheritdoc />
             public IMapChunk GetChunk(MapIndices chunkIndices)
             {
-                Chunk output;
-                if (_chunks.TryGetValue(chunkIndices, out output))
+                if (Chunks.TryGetValue(chunkIndices, out var output))
                     return output;
 
-                return _chunks[chunkIndices] = new Chunk(_mapManager, this, chunkIndices.X, chunkIndices.Y, ChunkSize);
+                return Chunks[chunkIndices] = new Chunk(_mapManager, this, chunkIndices.X, chunkIndices.Y, ChunkSize);
             }
 
             /// <inheritdoc />
             public IEnumerable<IMapChunk> GetMapChunks()
             {
-                foreach (var kvChunk in _chunks)
+                foreach (var kvChunk in Chunks)
                 {
                     yield return kvChunk.Value;
                 }
@@ -232,17 +252,20 @@ namespace SS14.Shared.Map
 
             #region SnapGridAccess
 
+            /// <inheritdoc />
             public IEnumerable<SnapGridComponent> GetSnapGridCell(GridCoordinates worldPos, SnapGridOffset offset)
             {
                 return GetSnapGridCell(SnapGridCellFor(worldPos, offset), offset);
             }
 
+            /// <inheritdoc />
             public IEnumerable<SnapGridComponent> GetSnapGridCell(MapIndices pos, SnapGridOffset offset)
             {
                 var (chunk, chunkTile) = ChunkAndOffsetForTile(pos);
                 return chunk.GetSnapGridCell((ushort)chunkTile.X, (ushort)chunkTile.Y, offset);
             }
 
+            /// <inheritdoc />
             public MapIndices SnapGridCellFor(GridCoordinates worldPos, SnapGridOffset offset)
             {
                 var local = worldPos.ConvertToGrid(this);
@@ -255,30 +278,33 @@ namespace SS14.Shared.Map
                 return new MapIndices(x, y);
             }
 
+            /// <inheritdoc />
             public void AddToSnapGridCell(MapIndices pos, SnapGridOffset offset, SnapGridComponent snap)
             {
                 var (chunk, chunkTile) = ChunkAndOffsetForTile(pos);
                 chunk.AddToSnapGridCell((ushort)chunkTile.X, (ushort)chunkTile.Y, offset, snap);
             }
 
+            /// <inheritdoc />
             public void AddToSnapGridCell(GridCoordinates worldPos, SnapGridOffset offset, SnapGridComponent snap)
             {
                 AddToSnapGridCell(SnapGridCellFor(worldPos, offset), offset, snap);
             }
 
+            /// <inheritdoc />
             public void RemoveFromSnapGridCell(MapIndices pos, SnapGridOffset offset, SnapGridComponent snap)
             {
                 var (chunk, chunkTile) = ChunkAndOffsetForTile(pos);
                 chunk.RemoveFromSnapGridCell((ushort)chunkTile.X, (ushort)chunkTile.Y, offset, snap);
             }
 
+            /// <inheritdoc />
             public void RemoveFromSnapGridCell(GridCoordinates worldPos, SnapGridOffset offset, SnapGridComponent snap)
             {
                 RemoveFromSnapGridCell(SnapGridCellFor(worldPos, offset), offset, snap);
             }
-
-
-            (IMapChunk, MapIndices) ChunkAndOffsetForTile(MapIndices pos)
+            
+            private (IMapChunk, MapIndices) ChunkAndOffsetForTile(MapIndices pos)
             {
                 var gridChunkIndices = GridTileToGridChunk(pos);
                 var chunk = GetChunk(gridChunkIndices);
@@ -299,19 +325,20 @@ namespace SS14.Shared.Map
             /// <inheritdoc />
             public GridCoordinates LocalToWorld(GridCoordinates posLocal)
             {
-                return new GridCoordinates(posLocal.Position + WorldPosition, posLocal.MapID);
+                return new GridCoordinates(posLocal.Position + WorldPosition, posLocal.MapId);
             }
 
-            public Vector2 ConvertToWorld(Vector2 localpos)
+            /// <inheritdoc />
+            public Vector2 ConvertToWorld(Vector2 localPos)
             {
-                return localpos + WorldPosition;
+                return localPos + WorldPosition;
             }
 
             /// <summary>
             /// Transforms global world coordinates to tile indices relative to grid origin.
             /// </summary>
             /// <returns></returns>
-            public MapIndices WorldToTile(GridCoordinates posWorld)
+            private MapIndices WorldToTile(GridCoordinates posWorld)
             {
                 var local = posWorld.ConvertToGrid(this);
                 var x = (int)Math.Floor(local.X / TileSize);
@@ -322,9 +349,9 @@ namespace SS14.Shared.Map
             /// <summary>
             /// Transforms global world coordinates to chunk indices relative to grid origin.
             /// </summary>
-            /// <param name="localPos">The position in the world.</param>
+            /// <param name="posWorld">The position in the world.</param>
             /// <returns></returns>
-            public MapIndices WorldToChunk(GridCoordinates posWorld)
+            private MapIndices WorldToChunk(GridCoordinates posWorld)
             {
                 var local = posWorld.ConvertToGrid(this);
                 var x = (int)Math.Floor(local.X / (TileSize * ChunkSize));
@@ -332,6 +359,7 @@ namespace SS14.Shared.Map
                 return new MapIndices(x, y);
             }
 
+            /// <inheritdoc />
             public MapIndices GridTileToGridChunk(MapIndices gridTile)
             {
                 var x = (int)Math.Floor(gridTile.X / (float)ChunkSize);
@@ -349,13 +377,13 @@ namespace SS14.Shared.Map
             /// <inheritdoc />
             public bool IndicesToTile(MapIndices indices, out TileRef tile)
             {
-                MapIndices chunkindices = new MapIndices(indices.X / ChunkSize, indices.Y / ChunkSize);
-                if (!_chunks.ContainsKey(chunkindices))
+                var chunkIndices = new MapIndices(indices.X / ChunkSize, indices.Y / ChunkSize);
+                if (!Chunks.ContainsKey(chunkIndices))
                 {
                     tile = new TileRef(); //Nothing should ever use or access this, bool check should occur first
                     return false;
                 }
-                Chunk chunk = _chunks[chunkindices];
+                Chunk chunk = Chunks[chunkIndices];
                 tile = chunk.GetTile(new MapIndices(indices.X % ChunkSize, indices.Y % ChunkSize));
                 return true;
             }

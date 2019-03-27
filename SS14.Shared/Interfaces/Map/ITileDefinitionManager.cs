@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using SS14.Shared.Network.Messages;
 
 namespace SS14.Shared.Interfaces.Map
 {
@@ -27,6 +26,9 @@ namespace SS14.Shared.Interfaces.Map
         /// </summary>
         int Count { get; }
 
+        /// <summary>
+        ///     Call this once to initialize the TileDefinitionManager.
+        /// </summary>
         void Initialize();
 
         /// <summary>

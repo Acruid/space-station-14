@@ -24,7 +24,7 @@ namespace SS14.Client.GameObjects
         public IEnumerable<IEntity> GetEntitiesInRange(GridCoordinates position, float Range)
         {
             var AABB = new Box2(position.Position - new Vector2(Range / 2, Range / 2), position.Position + new Vector2(Range / 2, Range / 2));
-            return GetEntitiesIntersecting(position.MapID, AABB);
+            return GetEntitiesIntersecting(position.MapId, AABB);
         }
 
         public IEnumerable<IEntity> GetEntitiesIntersecting(MapId mapId, Box2 position)

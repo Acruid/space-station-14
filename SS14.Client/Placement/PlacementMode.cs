@@ -202,7 +202,7 @@ namespace SS14.Client.Placement
                 bounds.Width,
                 bounds.Height);
 
-            if (pManager.PhysicsManager.IsColliding(collisionbox, coordinates.MapID))
+            if (pManager.PhysicsManager.IsColliding(collisionbox, coordinates.MapId))
                 return true;
 
             return false;

@@ -3,8 +3,11 @@ using SS14.Shared.Serialization;
 
 namespace SS14.Shared.Map
 {
+    /// <summary>
+    /// Represents a grid index on a map.
+    /// </summary>
     [Serializable, NetSerializable]
-    public struct GridId : IEquatable<GridId>
+    public readonly struct GridId : IEquatable<GridId>
     {
         public static readonly GridId Nullspace = new GridId(0);
 

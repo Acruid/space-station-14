@@ -161,7 +161,7 @@ namespace SS14.Server.Console.Commands
 
             var pos = player.AttachedEntity.Transform.GridPosition;
 
-            shell.SendText(player, $"MapID:{pos.MapID} GridID:{pos.GridID} X:{pos.X:N2} Y:{pos.Y:N2}");
+            shell.SendText(player, $"MapID:{pos.MapId} GridID:{pos.GridID} X:{pos.X:N2} Y:{pos.Y:N2}");
         }
     }
 

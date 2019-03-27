@@ -192,7 +192,7 @@ namespace SS14.Server.GameObjects
         /// <inheritdoc />
         public IEnumerable<IEntity> GetEntitiesIntersecting(GridCoordinates position)
         {
-            return GetEntitiesIntersecting(position.MapID, position.ToWorld().Position);
+            return GetEntitiesIntersecting(position.MapId, position.ToWorld().Position);
         }
 
         /// <inheritdoc />
@@ -210,7 +210,7 @@ namespace SS14.Server.GameObjects
         public IEnumerable<IEntity> GetEntitiesInRange(GridCoordinates position, float range)
         {
             var aabb = new Box2(position.Position - new Vector2(range / 2, range / 2), position.Position + new Vector2(range / 2, range / 2));
-            return GetEntitiesIntersecting(position.MapID, aabb);
+            return GetEntitiesIntersecting(position.MapId, aabb);
         }
 
         /// <inheritdoc />

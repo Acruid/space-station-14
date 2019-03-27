@@ -577,14 +577,14 @@ namespace SS14.Client.Placement
 
         private void RequestPlacement(GridCoordinates coordinates)
         {
-            if (coordinates.MapID == MapId.Nullspace) return;
+            if (coordinates.MapId == MapId.Nullspace) return;
             if (CurrentPermission == null) return;
             if (!CurrentMode.IsValidPosition(coordinates)) return;
             if (Hijack != null && Hijack.HijackPlacementRequest(coordinates)) return;
 
             if (CurrentPermission.IsTile)
             {
-                var grid = _mapMan.GetMap(coordinates.MapID).GetGrid(coordinates.GridID);
+                var grid = _mapMan.GetMap(coordinates.MapId).GetGrid(coordinates.GridID);
                 var worldPos = coordinates.ToWorld();
                 var localPos = worldPos.ConvertToGrid(grid);
 

@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Text;
 using SS14.Server.Interfaces.Console;
-using SS14.Server.Interfaces.GameObjects;
 using SS14.Server.Interfaces.Player;
 using SS14.Shared.Enums;
-using SS14.Shared.Interfaces.GameObjects.Components;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.IoC;
 using SS14.Shared.Map;
 using SS14.Shared.Maths;
 using SS14.Shared.Network;
-using SS14.Shared.Players;
 
 namespace SS14.Server.Console.Commands
 {
@@ -45,7 +42,7 @@ namespace SS14.Server.Console.Commands
 
             transform.GridPosition = new GridCoordinates(position, grid);
 
-            shell.SendText(player, $"Teleported {player} to {grid.MapID}:{posX},{posY}.");
+            shell.SendText(player, $"Teleported {player} to {grid.MapId}:{posX},{posY}.");
         }
     }
 

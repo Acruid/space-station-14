@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using SS14.Shared.Serialization;
 
 namespace SS14.Shared.Map
@@ -7,7 +7,7 @@ namespace SS14.Shared.Map
     /// Internal structure to store 2 indices of a chunk or tile.
     /// </summary>
     [Serializable, NetSerializable]
-    public struct MapIndices : IEquatable<MapIndices>
+    public readonly struct MapIndices : IEquatable<MapIndices>
     {
         /// <summary>
         /// The X index.

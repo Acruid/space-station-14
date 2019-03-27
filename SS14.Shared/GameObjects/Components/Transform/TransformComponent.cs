@@ -53,7 +53,7 @@ namespace SS14.Shared.GameObjects.Components.Transform
                 // Eh.
                 if (IoCManager.Resolve<IMapManager>().TryGetGrid(GridID, out var grid))
                 {
-                    return grid.MapID;
+                    return grid.MapId;
                 }
                 return MapId.Nullspace;
             }
@@ -483,7 +483,7 @@ namespace SS14.Shared.GameObjects.Components.Transform
                 // transform localPosition from parent coords to world coords
                 var worldPos = Parent.WorldMatrix.Transform(localPosition);
                 var grid = IoCManager.Resolve<IMapManager>().GetGrid(gridId);
-                var lc = new GridCoordinates(worldPos, grid.MapID);
+                var lc = new GridCoordinates(worldPos, grid.MapId);
 
                 // then to parent grid coords
                 return lc.ConvertToGrid(Parent.GridPosition.Grid);

@@ -3,17 +3,17 @@
 namespace SS14.Shared.Map
 {
     [Serializable]
-    public struct Tile
+    public readonly struct Tile
     {
         /// <summary>
         ///     Internal type ID of this tile.
         /// </summary>
-        public ushort TileId { get; }
+        public readonly ushort TileId;
 
         /// <summary>
         ///     Optional per-tile data of this tile.
         /// </summary>
-        public ushort Data { get; }
+        public readonly ushort Data;
 
         /// <summary>
         ///     Is this tile space (empty)?

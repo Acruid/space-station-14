@@ -299,7 +299,7 @@ namespace SS14.Client.GameObjects
 
                 foreach (var effect in _owner._Effects)
                 {
-                    if (effect.Coordinates.MapID != map)
+                    if (effect.Coordinates.MapId != map)
                     {
                         continue;
                     }

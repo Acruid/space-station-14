@@ -7,10 +7,13 @@ using SS14.Shared.Prototypes;
 
 namespace SS14.Shared.Map
 {
+    /// <summary>
+    ///     This class manages a collection of <see cref="MapManager"/> tile definitions.
+    /// </summary>
     internal class TileDefinitionManager : ITileDefinitionManager
     {
         [Dependency]
-        IPrototypeManager PrototypeManager;
+        private readonly IPrototypeManager PrototypeManager;
 
         protected readonly List<ITileDefinition> TileDefs;
         private readonly Dictionary<string, ITileDefinition> _tileNames;
@@ -26,14 +29,16 @@ namespace SS14.Shared.Map
             _tileIds = new Dictionary<ITileDefinition, ushort>();
         }
 
+        /// <inheritdoc />
         public virtual void Initialize()
         {
-            foreach (var prototype in PrototypeManager.EnumeratePrototypes<PrototypeTileDefinition>().OrderBy(p => p.FutureID))
+            foreach (var prototype in PrototypeManager.EnumeratePrototypes<PrototypeTileDefinition>().OrderBy(p => p.FutureId))
             {
                 prototype.Register(this);
             }
         }
 
+        /// <inheritdoc />
         public virtual ushort Register(ITileDefinition tileDef)
         {
             if (_tileIds.TryGetValue(tileDef, out ushort id))
@@ -54,12 +59,16 @@ namespace SS14.Shared.Map
             return id;
         }
 
+        /// <inheritdoc />
         public ITileDefinition this[string name] => _tileNames[name];
 
+        /// <inheritdoc />
         public ITileDefinition this[int id] => TileDefs[id];
 
+        /// <inheritdoc />
         public int Count => TileDefs.Count;
 
+        /// <inheritdoc />
         public IEnumerator<ITileDefinition> GetEnumerator()
         {
             return TileDefs.GetEnumerator();

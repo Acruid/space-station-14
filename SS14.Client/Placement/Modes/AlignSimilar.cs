@@ -32,7 +32,7 @@ namespace SS14.Client.Placement.Modes
             var manager = IoCManager.Resolve<IClientEntityManager>();
 
             var snapToEntities = manager.GetEntitiesInRange(MouseCoords, SnapToRange)
-                .Where(entity => entity.Prototype == pManager.CurrentPrototype && entity.Transform.MapID == MouseCoords.MapID)
+                .Where(entity => entity.Prototype == pManager.CurrentPrototype && entity.Transform.MapID == MouseCoords.MapId)
                 .OrderBy(entity => (entity.Transform.WorldPosition - MouseCoords.ToWorld().Position).LengthSquared)
                 .ToList();
 

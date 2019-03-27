@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using SS14.Shared.Enums;
 using SS14.Shared.GameStates;
-using SS14.Shared.Interfaces.GameObjects;
-using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.IoC;
-using SS14.Shared.Log;
-using SS14.Shared.Network.Messages;
 using SS14.Shared.Utility;
 
 namespace SS14.Shared.Map
 {
     public partial class MapManager
     {
-        [Dependency] private readonly INetManager _netManager;
+        [Dependency]
+        private readonly INetManager _netManager;
 
+        /// <inheritdoc />
         public GameStateMapData GetStateData(uint fromTick)
         {
             var gridDatums = new Dictionary<GridId, GameStateMapData.GridDatum>();
@@ -29,7 +25,7 @@ namespace SS14.Shared.Map
                 }
 
                 var chunkData = new List<GameStateMapData.ChunkDatum>();
-                foreach (var (index, chunk) in grid._chunks)
+                foreach (var (index, chunk) in grid.Chunks)
                 {
                     if (chunk.LastModifiedTick < fromTick)
                     {
@@ -51,7 +47,7 @@ namespace SS14.Shared.Map
                 }
 
                 var gridDatum =
-                    new GameStateMapData.GridDatum(chunkData, new MapCoordinates(grid.WorldPosition, grid.MapID));
+                    new GameStateMapData.GridDatum(chunkData, new MapCoordinates(grid.WorldPosition, grid.MapId));
 
                 gridDatums.Add(grid.Index, gridDatum);
             }
@@ -67,12 +63,14 @@ namespace SS14.Shared.Map
             return new GameStateMapData(gridDatums, gridDeletionsData, mapDeletionsData, mapCreations, gridCreations);
         }
 
-        public void CullDeletionHistory(uint uptoTick)
+        /// <inheritdoc />
+        public void CullDeletionHistory(uint upToTick)
         {
-            _mapDeletionHistory.RemoveAll(t => t.tick < uptoTick);
-            _gridDeletionHistory.RemoveAll(t => t.tick < uptoTick);
+            _mapDeletionHistory.RemoveAll(t => t.tick < upToTick);
+            _gridDeletionHistory.RemoveAll(t => t.tick < upToTick);
         }
 
+        /// <inheritdoc />
         public void ApplyGameStatePre(GameStateMapData data)
         {
             DebugTools.Assert(_netManager.IsClient, "Only the client should call this.");
@@ -107,11 +105,11 @@ namespace SS14.Shared.Map
             }
 
             SuppressOnTileChanged = true;
-            // Ok good all the grids and maps exist now.
+            // OK good all the grids and maps exist now.
             foreach (var (gridId, gridDatum) in data.GridData)
             {
                 var grid = _grids[gridId];
-                if (grid.MapID != gridDatum.Coordinates.MapId)
+                if (grid.MapId != gridDatum.Coordinates.MapId)
                 {
                     throw new NotImplementedException("Moving grids between maps is not yet implemented");
                 }
@@ -146,6 +144,7 @@ namespace SS14.Shared.Map
             SuppressOnTileChanged = false;
         }
 
+        /// <inheritdoc />
         public void ApplyGameStatePost(GameStateMapData data)
         {
             DebugTools.Assert(_netManager.IsClient, "Only the client should call this.");

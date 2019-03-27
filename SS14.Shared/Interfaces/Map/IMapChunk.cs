@@ -15,6 +15,11 @@ namespace SS14.Shared.Interfaces.Map
         ushort ChunkSize { get; }
 
         /// <summary>
+        ///     The indices of this chunk inside the grid.
+        /// </summary>
+        MapIndices ChunkIndices { get; }
+
+        /// <summary>
         ///     The X index of this chunk.
         /// </summary>
         int X { get; }
@@ -23,17 +28,15 @@ namespace SS14.Shared.Interfaces.Map
         ///     The Y index of this chunk.
         /// </summary>
         int Y { get; }
-
-        MapIndices Index { get; }
-
+        
         /// <summary>
         ///     Returns the tile at the given indices. The tile indices are relative locations to the
         ///     chunk origin, NOT the grid origin.
         /// </summary>
-        /// <param name="xTile">The X tile index relative to the chunk.</param>
-        /// <param name="yTile">The Y tile index relative to the chunk.</param>
+        /// <param name="xIndex">The X tile index relative to the chunk.</param>
+        /// <param name="yIndex">The Y tile index relative to the chunk.</param>
         /// <returns>A reference to a tile.</returns>
-        TileRef GetTile(ushort xTile, ushort yTile);
+        TileRef GetTile(ushort xIndex, ushort yIndex);
 
         /// <summary>
         ///     Returns all of the tiles in the chunk.
@@ -45,10 +48,10 @@ namespace SS14.Shared.Interfaces.Map
         /// <summary>
         ///     Replaces a single tile inside of the chunk.
         /// </summary>
-        /// <param name="xChunkTile">The X tile index relative to the chunk.</param>
-        /// <param name="yChunkTile">The Y tile index relative to the chunk.</param>
+        /// <param name="xIndex">The X tile index relative to the chunk.</param>
+        /// <param name="yIndex">The Y tile index relative to the chunk.</param>
         /// <param name="tile">The new tile to insert.</param>
-        void SetTile(ushort xChunkTile, ushort yChunkTile, Tile tile);
+        void SetTile(ushort xIndex, ushort yIndex, in Tile tile);
 
         /// <summary>
         ///     Transforms Tile indices relative to the grid into tile indices relative to this chunk.

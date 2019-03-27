@@ -27,12 +27,12 @@ namespace SS14.Shared.Map
         /// <summary>
         ///     The map the grid is currently on. This value is not persistent and may change!
         /// </summary>
-        public IMap Map => Grid.Map;
+        public IMap Map => Grid.ParentMap;
 
         /// <summary>
         ///     The map ID the grid is currently on. This value is not persistent and may change!
         /// </summary>
-        public MapId MapID => Map.Index;
+        public MapId MapId => Map.Index;
 
         /// <summary>
         ///     True if these coordinates are relative to a map itself.
@@ -42,7 +42,7 @@ namespace SS14.Shared.Map
             get
             {
                 var grid = Grid;
-                return grid == grid.Map.DefaultGrid;
+                return grid == grid.ParentMap.DefaultGrid;
             }
         }
 
@@ -77,29 +77,29 @@ namespace SS14.Shared.Map
             GridID = argMap.DefaultGrid.Index;
         }
 
-        public GridCoordinates(float X, float Y, IMapGrid argGrid)
+        public GridCoordinates(float x, float y, IMapGrid argGrid)
         {
-            Position = new Vector2(X, Y);
+            Position = new Vector2(x, y);
             GridID = argGrid.Index;
         }
 
-        public GridCoordinates(float X, float Y, GridId argGrid)
+        public GridCoordinates(float x, float y, GridId argGrid)
         {
-            Position = new Vector2(X, Y);
+            Position = new Vector2(x, y);
             GridID = argGrid;
         }
 
         /// <summary>
         ///     Construct new grid local coordinates relative to the default grid of a map.
         /// </summary>
-        public GridCoordinates(float X, float Y, MapId argMap) : this(new Vector2(X, Y), argMap)
+        public GridCoordinates(float x, float y, MapId argMap) : this(new Vector2(x, y), argMap)
         {
         }
 
         /// <summary>
         ///     Construct new grid local coordinates relative to the default grid of a map.
         /// </summary>
-        public GridCoordinates(float X, float Y, IMap argMap) : this(new Vector2(X, Y), argMap)
+        public GridCoordinates(float x, float y, IMap argMap) : this(new Vector2(x, y), argMap)
         {
         }
 
@@ -126,7 +126,7 @@ namespace SS14.Shared.Map
 
         public bool InRange(GridCoordinates localpos, float range)
         {
-            if (localpos.MapID != MapID)
+            if (localpos.MapId != MapId)
             {
                 return false;
             }
@@ -191,10 +191,6 @@ namespace SS14.Shared.Map
     public readonly struct ScreenCoordinates
     {
         public readonly Vector2 Position;
-
-        public float X => Position.X;
-
-        public float Y => Position.Y;
 
         public ScreenCoordinates(Vector2 argPosition)
         {

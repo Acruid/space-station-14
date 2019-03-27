@@ -6,7 +6,7 @@ namespace SS14.Shared.Map
 {
     public partial class MapManager
     {
-        class Map : IMap
+        private class Map : IMap
         {
             public uint CreatedTick { get; }
             public IMapGrid DefaultGrid { get; set; }
@@ -14,9 +14,9 @@ namespace SS14.Shared.Map
             private readonly MapManager _mapManager;
             private readonly Dictionary<GridId, MapGrid> _grids = new Dictionary<GridId, MapGrid>();
 
-            public Map(MapManager mapManager, MapId mapID)
+            public Map(MapManager mapManager, MapId mapId)
             {
-                Index = mapID;
+                Index = mapId;
                 _mapManager = mapManager;
                 CreatedTick = _mapManager._gameTiming.CurTick;
             }
