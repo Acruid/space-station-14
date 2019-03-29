@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SS14.Shared.Map
 {
@@ -54,6 +55,7 @@ namespace SS14.Shared.Map
         }
 
         /// <inheritdoc />
+        [ExcludeFromCodeCoverage]
         public override string ToString()
         {
             return $"map={MapIndex},grid={GridIndex},indices={GridIndices},tile={Tile}";
@@ -62,6 +64,7 @@ namespace SS14.Shared.Map
         #region IEquatable
 
         /// <inheritdoc />
+        [ExcludeFromCodeCoverage]
         public bool Equals(TileRef other)
         {
             return MapIndex.Equals(other.MapIndex)
@@ -71,6 +74,7 @@ namespace SS14.Shared.Map
         }
 
         /// <inheritdoc />
+        [ExcludeFromCodeCoverage]
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
@@ -79,6 +83,7 @@ namespace SS14.Shared.Map
         }
 
         /// <inheritdoc />
+        [ExcludeFromCodeCoverage]
         public override int GetHashCode()
         {
             unchecked
@@ -89,6 +94,24 @@ namespace SS14.Shared.Map
                 hashCode = (hashCode * 397) ^ Tile.GetHashCode();
                 return hashCode;
             }
+        }
+
+        /// <summary>
+        ///     Checks for the equality between two <c>Tile</c>s.
+        /// </summary>
+        [ExcludeFromCodeCoverage]
+        public static bool operator ==(TileRef a, TileRef b)
+        {
+            return a.Equals(b);
+        }
+
+        /// <summary>
+        ///     Checks for the inequality between two <c>Tile</c>s.
+        /// </summary>
+        [ExcludeFromCodeCoverage]
+        public static bool operator !=(TileRef a, TileRef b)
+        {
+            return !a.Equals(b);
         }
 
         #endregion
