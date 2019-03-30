@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Interfaces.Map;
-using SS14.Shared.IoC;
 using SS14.Shared.Maths;
 
 namespace SS14.Shared.Map

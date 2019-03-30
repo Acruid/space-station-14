@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using SS14.Shared.Serialization;
 
 namespace SS14.Shared.Map
@@ -41,32 +42,37 @@ namespace SS14.Shared.Map
             return new MapIndices(indices.X * multiplier, indices.Y * multiplier);
         }
 
+        [ExcludeFromCodeCoverage]
         public static bool operator ==(MapIndices a, MapIndices b)
         {
             return a.Equals(b);
         }
 
+        [ExcludeFromCodeCoverage]
         public static bool operator !=(MapIndices a, MapIndices b)
         {
             return !(a == b);
         }
-
-
+        
+        [ExcludeFromCodeCoverage]
         public override bool Equals(object obj)
         {
             return obj is MapIndices idx && Equals(idx);
         }
 
+        [ExcludeFromCodeCoverage]
         public bool Equals(MapIndices other)
         {
             return other.X == X && other.Y == Y;
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString()
         {
             return $"{{{X},{Y}}}";
         }
 
+        [ExcludeFromCodeCoverage]
         public override int GetHashCode()
         {
             return X ^ (Y * 23011);
