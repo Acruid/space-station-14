@@ -1,6 +1,7 @@
 ﻿using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Maths;
 using System.Collections.Generic;
+using SS14.Shared.IoC;
 
 namespace SS14.Shared.Map
 {
@@ -66,7 +67,7 @@ namespace SS14.Shared.Map
             /// <inheritdoc />
             public IMapGrid FindGridAt(GridCoordinates worldPos)
             {
-                var pos = worldPos.ToWorld().Position;
+                var pos = worldPos.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(worldPos.GridID)).Position;
                 return FindGridAt(pos);
             }
 

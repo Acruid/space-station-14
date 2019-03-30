@@ -577,16 +577,16 @@ namespace SS14.Client.Placement
 
         private void RequestPlacement(GridCoordinates coordinates)
         {
-            if (coordinates.MapId == MapId.Nullspace) return;
+            if (IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridID).ParentMap.Index == MapId.Nullspace) return;
             if (CurrentPermission == null) return;
             if (!CurrentMode.IsValidPosition(coordinates)) return;
             if (Hijack != null && Hijack.HijackPlacementRequest(coordinates)) return;
 
             if (CurrentPermission.IsTile)
             {
-                var grid = _mapMan.GetMap(coordinates.MapId).GetGrid(coordinates.GridID);
-                var worldPos = coordinates.ToWorld();
-                var localPos = worldPos.ConvertToGrid(grid);
+                var grid = _mapMan.GetMap(IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridID).ParentMap.Index).GetGrid(coordinates.GridID);
+                var worldPos = coordinates.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridID));
+                var localPos = worldPos.ConvertToGrid(IoCManager.Resolve<IMapManager>(), grid);
 
                 // no point changing the tile to the same thing.
                 if (grid.GetTile(localPos).Tile.TileId == CurrentPermission.TileType)
@@ -615,8 +615,8 @@ namespace SS14.Client.Placement
                 message.EntityTemplateName = CurrentPermission.EntityType;
 
             // world x and y
-            message.XValue = coordinates.X;
-            message.YValue = coordinates.Y;
+            message.XValue = coordinates.Position.X;
+            message.YValue = coordinates.Position.Y;
 
             message.DirRcv = Direction;
 

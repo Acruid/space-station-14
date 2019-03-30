@@ -45,7 +45,7 @@ namespace SS14.Server.GameObjects
         public override bool TrySpawnEntityAt(string entityType, GridCoordinates coordinates, out IEntity entity)
         {
             var prototype = _protoManager.Index<EntityPrototype>(entityType);
-            if (prototype.CanSpawnAt(coordinates.Grid, coordinates.Position))
+            if (prototype.CanSpawnAt(IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridID), coordinates.Position))
             {
                 Entity result = SpawnEntity(entityType);
                 result.Transform.GridPosition = coordinates;
@@ -181,7 +181,7 @@ namespace SS14.Server.GameObjects
                 }
                 else
                 {
-                    if (FloatMath.CloseTo(transform.GridPosition.X, position.X) && FloatMath.CloseTo(transform.GridPosition.Y, position.Y))
+                    if (FloatMath.CloseTo(transform.GridPosition.Position.X, position.X) && FloatMath.CloseTo(transform.GridPosition.Position.Y, position.Y))
                     {
                         yield return entity;
                     }
@@ -192,7 +192,7 @@ namespace SS14.Server.GameObjects
         /// <inheritdoc />
         public IEnumerable<IEntity> GetEntitiesIntersecting(GridCoordinates position)
         {
-            return GetEntitiesIntersecting(position.MapId, position.ToWorld().Position);
+            return GetEntitiesIntersecting(IoCManager.Resolve<IMapManager>().GetGrid(position.GridID).ParentMap.Index, position.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(position.GridID)).Position);
         }
 
         /// <inheritdoc />
@@ -210,7 +210,7 @@ namespace SS14.Server.GameObjects
         public IEnumerable<IEntity> GetEntitiesInRange(GridCoordinates position, float range)
         {
             var aabb = new Box2(position.Position - new Vector2(range / 2, range / 2), position.Position + new Vector2(range / 2, range / 2));
-            return GetEntitiesIntersecting(position.MapId, aabb);
+            return GetEntitiesIntersecting(IoCManager.Resolve<IMapManager>().GetGrid(position.GridID).ParentMap.Index, aabb);
         }
 
         /// <inheritdoc />
@@ -241,7 +241,7 @@ namespace SS14.Server.GameObjects
 
             foreach (var entity in entities)
             {
-                var angle = new Angle(entity.Transform.WorldPosition - coordinates.ToWorld().Position);
+                var angle = new Angle(entity.Transform.WorldPosition - coordinates.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridID)).Position);
                 if (angle.Degrees < direction.Degrees + arcwidth / 2 && angle.Degrees > direction.Degrees - arcwidth / 2)
                     yield return entity;
             }

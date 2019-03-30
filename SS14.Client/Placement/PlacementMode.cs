@@ -124,7 +124,9 @@ namespace SS14.Client.Placement
 
         public IEnumerable<GridCoordinates> LineCoordinates()
         {
-            var placementdiff = MouseCoords.ToWorld().Position - pManager.StartPoint.ToWorld().Position;
+            GridCoordinates tempQualifier = MouseCoords;
+            GridCoordinates tempQualifier1 = pManager.StartPoint;
+            var placementdiff = MouseCoords.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(tempQualifier.GridID)).Position - pManager.StartPoint.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(tempQualifier1.GridID)).Position;
             var iterations = 0f;
             Vector2 distance;
             if (Math.Abs(placementdiff.X) > Math.Abs(placementdiff.Y))
@@ -140,13 +142,15 @@ namespace SS14.Client.Placement
 
             for (var i = 0; i <= iterations; i++)
             {
-                yield return new GridCoordinates(pManager.StartPoint.Position + distance * i, pManager.StartPoint.Grid);
+                yield return new GridCoordinates(pManager.StartPoint.Position + distance * i, IoCManager.Resolve<IMapManager>().GetGrid(pManager.StartPoint.GridID));
             }
         }
 
         public IEnumerable<GridCoordinates> GridCoordinates()
         {
-            var placementdiff = MouseCoords.ToWorld().Position - pManager.StartPoint.ToWorld().Position;
+            GridCoordinates tempQualifier = MouseCoords;
+            GridCoordinates tempQualifier1 = pManager.StartPoint;
+            var placementdiff = MouseCoords.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(tempQualifier.GridID)).Position - pManager.StartPoint.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(tempQualifier1.GridID)).Position;
             var distanceX = new Vector2(placementdiff.X > 0 ? 1 : -1, 0) * GridDistancing;
             var distanceY = new Vector2(0, placementdiff.Y > 0 ? 1 : -1) * GridDistancing;
 
@@ -157,7 +161,7 @@ namespace SS14.Client.Placement
             {
                 for (var y = 0; y <= iterationsY; y++)
                 {
-                    yield return new GridCoordinates(pManager.StartPoint.Position + distanceX * x + distanceY * y, pManager.StartPoint.Grid);
+                    yield return new GridCoordinates(pManager.StartPoint.Position + distanceX * x + distanceY * y, IoCManager.Resolve<IMapManager>().GetGrid(pManager.StartPoint.GridID));
                 }
             }
         }
@@ -186,7 +190,7 @@ namespace SS14.Client.Placement
             if (!RangeRequired)
                 return true;
             var range = pManager.CurrentPermission.Range;
-            if (range > 0 && !pManager.PlayerManager.LocalPlayer.ControlledEntity.Transform.GridPosition.InRange(coordinates, range))
+            if (range > 0 && !pManager.PlayerManager.LocalPlayer.ControlledEntity.Transform.GridPosition.InRange(IoCManager.Resolve<IMapManager>(), coordinates, range))
                 return false;
             return true;
         }
@@ -194,7 +198,7 @@ namespace SS14.Client.Placement
         public bool IsColliding(GridCoordinates coordinates)
         {
             var bounds = pManager.ColliderAABB;
-            var worldcoords = coordinates.ToWorld();
+            var worldcoords = coordinates.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridID));
 
             var collisionbox = Box2.FromDimensions(
                 bounds.Left + worldcoords.Position.X,
@@ -202,7 +206,7 @@ namespace SS14.Client.Placement
                 bounds.Width,
                 bounds.Height);
 
-            if (pManager.PhysicsManager.IsColliding(collisionbox, coordinates.MapId))
+            if (pManager.PhysicsManager.IsColliding(collisionbox, IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridID).ParentMap.Index))
                 return true;
 
             return false;

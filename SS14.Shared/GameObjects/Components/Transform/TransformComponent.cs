@@ -179,7 +179,7 @@ namespace SS14.Shared.GameObjects.Components.Transform
                         throw new ArgumentException("Cannot change grid ID of parented entity.");
                     }
                     // grid coords to world coords
-                    var worldCoords = value.ToWorld();
+                    var worldCoords = value.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(value.GridID));
 
                     // world coords to parent coords
                     var newPos = Parent.InvWorldMatrix.Transform(worldCoords.Position);
@@ -482,11 +482,12 @@ namespace SS14.Shared.GameObjects.Components.Transform
             {
                 // transform localPosition from parent coords to world coords
                 var worldPos = Parent.WorldMatrix.Transform(localPosition);
-                var grid = IoCManager.Resolve<IMapManager>().GetGrid(gridId);
-                var lc = new GridCoordinates(worldPos, grid.MapId);
+                var mapManager = IoCManager.Resolve<IMapManager>();
+                var grid = mapManager.GetGrid(gridId);
+                var lc = new GridCoordinates(worldPos, grid.ParentMap);
 
                 // then to parent grid coords
-                return lc.ConvertToGrid(Parent.GridPosition.Grid);
+                return lc.ConvertToGrid(mapManager, mapManager.GetGrid(Parent.GridPosition.GridID));
             }
             else
             {

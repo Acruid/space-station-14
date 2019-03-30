@@ -4,6 +4,8 @@ using SS14.Shared.Map;
 using SS14.Shared.Maths;
 using SS14.Client.Graphics.ClientEye;
 using SS14.Client.Graphics.Drawing;
+using SS14.Shared.Interfaces.Map;
+using SS14.Shared.IoC;
 
 namespace SS14.Client.Placement.Modes
 {
@@ -24,8 +26,8 @@ namespace SS14.Client.Placement.Modes
                 var viewportSize = (Vector2)pManager.DisplayManager.ScreenSize;
                 var position = pManager.eyeManager.ScreenToWorld(Vector2.Zero);
                 var gridstart = pManager.eyeManager.WorldToScreen(new Vector2( //Find snap grid closest to screen origin and convert back to screen coords
-                    (float)(Math.Round(position.X / snapSize - 0.5f, MidpointRounding.AwayFromZero) + 0.5f) * snapSize,
-                    (float)(Math.Round(position.Y / snapSize - 0.5f, MidpointRounding.AwayFromZero) + 0.5f) * snapSize));
+                    (float)(Math.Round(position.Position.X / snapSize - 0.5f, MidpointRounding.AwayFromZero) + 0.5f) * snapSize,
+                    (float)(Math.Round(position.Position.Y / snapSize - 0.5f, MidpointRounding.AwayFromZero) + 0.5f) * snapSize));
                 for (var a = gridstart.X; a < viewportSize.X; a += snapSize * 32) //Iterate through screen creating gridlines
                 {
                     var from = ScreenToWorld(new Vector2(a, 0));
@@ -48,7 +50,7 @@ namespace SS14.Client.Placement.Modes
         {
             MouseCoords = ScreenToPlayerGrid(mouseScreen);
 
-            snapSize = MouseCoords.Grid.SnapSize; //Find snap size.
+            snapSize = IoCManager.Resolve<IMapManager>().GetGrid(MouseCoords.GridID).SnapSize; //Find snap size.
             GridDistancing = snapSize;
             onGrid = true;
 
@@ -57,7 +59,7 @@ namespace SS14.Client.Placement.Modes
                 (float)(Math.Round((MouseCoords.Position.Y / (double)snapSize - 0.5f), MidpointRounding.AwayFromZero) + 0.5) * snapSize);
 
             //Adjust mouseCoords to new calculated position
-            MouseCoords = new GridCoordinates(mouseLocal + new Vector2(pManager.PlacementOffset.X, pManager.PlacementOffset.Y), MouseCoords.Grid);
+            MouseCoords = new GridCoordinates(mouseLocal + new Vector2(pManager.PlacementOffset.X, pManager.PlacementOffset.Y), IoCManager.Resolve<IMapManager>().GetGrid(MouseCoords.GridID));
         }
 
         public override bool IsValidPosition(GridCoordinates position)

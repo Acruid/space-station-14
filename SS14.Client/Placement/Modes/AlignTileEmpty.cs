@@ -1,5 +1,6 @@
 ﻿using SS14.Shared.IoC;
 using SS14.Client.Interfaces.GameObjects;
+using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Map;
 using SS14.Shared.Maths;
 
@@ -16,21 +17,22 @@ namespace SS14.Client.Placement.Modes
         {
             MouseCoords = ScreenToPlayerGrid(mouseScreen);
 
-            CurrentTile = MouseCoords.Grid.GetTile(MouseCoords);
-            float tileSize = MouseCoords.Grid.TileSize; //convert from ushort to float
+            var mapGrid = IoCManager.Resolve<IMapManager>().GetGrid(MouseCoords.GridID);
+            CurrentTile = mapGrid.GetTile(MouseCoords);
+            float tileSize = mapGrid.TileSize; //convert from ushort to float
             GridDistancing = tileSize;
 
             if (pManager.CurrentPermission.IsTile)
             {
                 MouseCoords = new GridCoordinates(CurrentTile.GridIndices.X + tileSize / 2,
                                                   CurrentTile.GridIndices.Y + tileSize / 2,
-                                                  MouseCoords.Grid);
+                                                  mapGrid);
             }
             else
             {
                 MouseCoords = new GridCoordinates(CurrentTile.GridIndices.X + tileSize / 2 + pManager.PlacementOffset.X,
                                                   CurrentTile.GridIndices.Y + tileSize / 2 + pManager.PlacementOffset.Y,
-                                                  MouseCoords.Grid);
+                                                  mapGrid);
             }
         }
 
@@ -42,7 +44,7 @@ namespace SS14.Client.Placement.Modes
             }
 
             var entitymanager = IoCManager.Resolve<IClientEntityManager>();
-            return !(entitymanager.AnyEntitiesIntersecting(MouseCoords.MapId,
+            return !(entitymanager.AnyEntitiesIntersecting(IoCManager.Resolve<IMapManager>().GetGrid(MouseCoords.GridID).ParentMap.Index,
                 new Box2(new Vector2(CurrentTile.GridIndices.X, CurrentTile.GridIndices.Y), new Vector2(CurrentTile.GridIndices.X + 0.99f, CurrentTile.GridIndices.Y + 0.99f))));
         }
     }

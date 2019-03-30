@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using SS14.Client.Graphics.Overlays;
 using SS14.Client.Graphics.Shaders;
 using SS14.Client.Interfaces.Graphics.Overlays;
+using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Prototypes;
 using SS14.Shared.Utility;
 
@@ -91,7 +92,7 @@ namespace SS14.Client.GameObjects
 
         public override void FrameUpdate(float frameTime)
         {
-            lasttimeprocessed = IoCManager.Resolve<IGameTiming>().CurTime;
+            lasttimeprocessed = gameTiming.CurTime;
 
             for (int i = 0; i < _Effects.Count; i++)
             {
@@ -239,11 +240,11 @@ namespace SS14.Client.GameObjects
                 var deltaPosition = new Vector2(0f, 0f);
 
                 //If we have an emitter we can do special effects around that emitter position
-                if (EmitterCoordinates.IsValidLocation())
+                if (EmitterCoordinates.IsValidLocation(IoCManager.Resolve<IMapManager>()))
                 {
                     //Calculate delta p due to radial velocity
                     var positionRelativeToEmitter =
-                        Coordinates.ToWorld().Position - EmitterCoordinates.ToWorld().Position;
+                        Coordinates.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(Coordinates.GridID)).Position - EmitterCoordinates.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(EmitterCoordinates.GridID)).Position;
                     var deltaRadial = RadialVelocity * frameTime;
                     deltaPosition = positionRelativeToEmitter * (deltaRadial / positionRelativeToEmitter.Length);
 
@@ -260,7 +261,7 @@ namespace SS14.Client.GameObjects
 
                 //Calculate new position from our velocity as well as possible rotation/movement around emitter
                 deltaPosition += Velocity * frameTime;
-                Coordinates = new GridCoordinates(Coordinates.Position + deltaPosition, Coordinates.Grid);
+                Coordinates = new GridCoordinates(Coordinates.Position + deltaPosition, IoCManager.Resolve<IMapManager>().GetGrid(Coordinates.GridID));
 
                 //Finish calculating new rotation, size, color
                 Rotation += RotationRate * frameTime;
@@ -299,7 +300,7 @@ namespace SS14.Client.GameObjects
 
                 foreach (var effect in _owner._Effects)
                 {
-                    if (effect.Coordinates.MapId != map)
+                    if (IoCManager.Resolve<IMapManager>().GetGrid(effect.Coordinates.GridID).ParentMap.Index != map)
                     {
                         continue;
                     }
@@ -310,7 +311,7 @@ namespace SS14.Client.GameObjects
                     var usingHandle = effect.Shaded ? shaded : unshaded;
 
                     usingHandle.SetTransform(
-                        effect.Coordinates.ToWorld().Position,
+                        effect.Coordinates.ToWorld(IoCManager.Resolve<IMapManager>(), IoCManager.Resolve<IMapManager>().GetGrid(effect.Coordinates.GridID)).Position,
                         new Angle(-effect.Rotation), effect.Size);
                     var effectSprite = effect.EffectSprite;
                     usingHandle.DrawTexture(effectSprite, -((Vector2) effectSprite.Size / EyeManager.PIXELSPERMETER) / 2, ToColor(effect.Color));

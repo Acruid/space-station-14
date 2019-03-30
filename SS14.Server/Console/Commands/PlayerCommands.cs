@@ -38,7 +38,7 @@ namespace SS14.Server.Console.Commands
             if (args.Length == 3 && int.TryParse(args[2], out var mapId) && mapMgr.TryGetMap(new MapId(mapId), out var map))
                 grid = map.FindGridAt(position);
             else
-                grid = transform.GridPosition.Map.FindGridAt(position);
+                grid = IoCManager.Resolve<IMapManager>().GetGrid(transform.GridPosition.GridID).ParentMap.FindGridAt(position);
 
             transform.GridPosition = new GridCoordinates(position, grid);
 

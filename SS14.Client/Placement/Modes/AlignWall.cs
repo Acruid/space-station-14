@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using SS14.Shared.Interfaces.Map;
+using SS14.Shared.IoC;
 using SS14.Shared.Map;
 using Vector2 = SS14.Shared.Maths.Vector2;
 
@@ -12,7 +14,7 @@ namespace SS14.Client.Placement.Modes
         public override void AlignPlacementMode(ScreenCoordinates mouseScreen)
         {
             MouseCoords = ScreenToPlayerGrid(mouseScreen);
-            CurrentTile = MouseCoords.Grid.GetTile(MouseCoords);
+            CurrentTile = IoCManager.Resolve<IMapManager>().GetGrid(MouseCoords.GridID).GetTile(MouseCoords);
 
             if (pManager.CurrentPermission.IsTile)
             {
@@ -25,13 +27,13 @@ namespace SS14.Client.Placement.Modes
             {
                 nodes.AddRange(
                     pManager.CurrentPrototype.MountingPoints.Select(
-                        current => new Vector2(MouseCoords.X, CurrentTile.GridIndices.Y + current)));
+                        current => new Vector2(MouseCoords.Position.X, CurrentTile.GridIndices.Y + current)));
             }
             else
             {
-                nodes.Add(new Vector2(MouseCoords.X, CurrentTile.GridIndices.Y + 0.5f));
-                nodes.Add(new Vector2(MouseCoords.X, CurrentTile.GridIndices.Y + 1.0f));
-                nodes.Add(new Vector2(MouseCoords.X, CurrentTile.GridIndices.Y + 1.5f));
+                nodes.Add(new Vector2(MouseCoords.Position.X, CurrentTile.GridIndices.Y + 0.5f));
+                nodes.Add(new Vector2(MouseCoords.Position.X, CurrentTile.GridIndices.Y + 1.0f));
+                nodes.Add(new Vector2(MouseCoords.Position.X, CurrentTile.GridIndices.Y + 1.5f));
             }
 
             Vector2 closestNode = (from Vector2 node in nodes
@@ -40,7 +42,7 @@ namespace SS14.Client.Placement.Modes
 
             MouseCoords = new GridCoordinates(closestNode + new Vector2(pManager.PlacementOffset.X,
                                                                          pManager.PlacementOffset.Y),
-                                               MouseCoords.Grid);
+                                               IoCManager.Resolve<IMapManager>().GetGrid(MouseCoords.GridID));
         }
 
         public override bool IsValidPosition(GridCoordinates position)

@@ -1,4 +1,6 @@
-﻿using SS14.Shared.Map;
+﻿using SS14.Shared.Interfaces.Map;
+using SS14.Shared.IoC;
+using SS14.Shared.Map;
 
 namespace SS14.Client.Placement.Modes
 {
@@ -11,7 +13,7 @@ namespace SS14.Client.Placement.Modes
         public override void AlignPlacementMode(ScreenCoordinates mouseScreen)
         {
             MouseCoords = ScreenToPlayerGrid(mouseScreen);
-            CurrentTile = MouseCoords.Grid.GetTile(MouseCoords);
+            CurrentTile = IoCManager.Resolve<IMapManager>().GetGrid(MouseCoords.GridID).GetTile(MouseCoords);
         }
 
         public override bool IsValidPosition(GridCoordinates position)

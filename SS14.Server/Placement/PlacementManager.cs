@@ -132,7 +132,7 @@ namespace SS14.Server.Placement
             }
             else
             {
-                coordinates.Grid.SetTile(coordinates, new Tile(tileType));
+                IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridID).SetTile(coordinates, new Tile(tileType));
             }
         }
 

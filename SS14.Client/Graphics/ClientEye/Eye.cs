@@ -114,8 +114,8 @@ namespace SS14.Client.Graphics.ClientEye
             var matrix = Matrix3.Identity;
             matrix.R0C0 = 1 / eye.Zoom.X;
             matrix.R1C1 = 1 / eye.Zoom.Y;
-            matrix.R0C2 = -eye.Position.X / eye.Zoom.X;
-            matrix.R1C2 = -eye.Position.Y / eye.Zoom.Y;
+            matrix.R0C2 = -eye.Position.Position.X / eye.Zoom.X;
+            matrix.R1C2 = -eye.Position.Position.Y / eye.Zoom.Y;
             return matrix;
         }
     }

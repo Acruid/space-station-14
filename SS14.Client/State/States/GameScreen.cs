@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SS14.Client.GameObjects.EntitySystems;
 using SS14.Client.Player;
+using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Interfaces.Timing;
 
 namespace SS14.Client.State.States
@@ -166,7 +167,7 @@ namespace SS14.Client.State.States
             GridCoordinates coordinates)
         {
             // Find all the entities intersecting our click
-            var entities = entityMan.GetEntitiesIntersecting(coordinates.MapId, coordinates.Position);
+            var entities = entityMan.GetEntitiesIntersecting(IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridID).ParentMap.Index, coordinates.Position);
 
             // Check the entities against whether or not we can click them
             var foundEntities = new List<(IEntity clicked, int drawDepth)>();
@@ -200,7 +201,7 @@ namespace SS14.Client.State.States
                 }
                 var transx = x.clicked.Transform;
                 var transy = y.clicked.Transform;
-                return transx.GridPosition.Y.CompareTo(transy.GridPosition.Y);
+                return transx.GridPosition.Position.Y.CompareTo(transy.GridPosition.Position.Y);
             }
         }
 

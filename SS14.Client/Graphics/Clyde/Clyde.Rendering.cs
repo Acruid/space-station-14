@@ -157,8 +157,8 @@ namespace SS14.Client.Graphics.Clyde
             var viewMatrixWorld = Matrix3.Identity;
             viewMatrixWorld.R0C0 = 1 / eye.Zoom.X;
             viewMatrixWorld.R1C1 = 1 / eye.Zoom.Y;
-            viewMatrixWorld.R0C2 = -eye.Position.X / eye.Zoom.X;
-            viewMatrixWorld.R1C2 = -eye.Position.Y / eye.Zoom.Y;
+            viewMatrixWorld.R0C2 = -eye.Position.Position.X / eye.Zoom.X;
+            viewMatrixWorld.R1C2 = -eye.Position.Position.Y / eye.Zoom.Y;
 
             _combinedDefaultMatricesWorld = new ProjViewMatrices(projMatrixWorld, viewMatrixWorld);
 

@@ -1,5 +1,4 @@
 ﻿using SS14.Shared.Interfaces.Map;
-using SS14.Shared.IoC;
 using SS14.Shared.Maths;
 using SS14.Shared.Serialization;
 using System;
@@ -16,35 +15,7 @@ namespace SS14.Shared.Map
         public readonly GridId GridID;
         public readonly Vector2 Position;
 
-        public float X => Position.X;
-
-        public float Y => Position.Y;
-
-        public IMapGrid Grid => IoCManager.Resolve<IMapManager>().GetGrid(GridID);
-
         public static readonly GridCoordinates Nullspace = new GridCoordinates(0, 0, GridId.Nullspace);
-
-        /// <summary>
-        ///     The map the grid is currently on. This value is not persistent and may change!
-        /// </summary>
-        public IMap Map => Grid.ParentMap;
-
-        /// <summary>
-        ///     The map ID the grid is currently on. This value is not persistent and may change!
-        /// </summary>
-        public MapId MapId => Map.Index;
-
-        /// <summary>
-        ///     True if these coordinates are relative to a map itself.
-        /// </summary>
-        public bool IsWorld
-        {
-            get
-            {
-                var grid = Grid;
-                return grid == grid.ParentMap.DefaultGrid;
-            }
-        }
 
         public GridCoordinates(Vector2 argPosition, IMapGrid argGrid)
         {
@@ -56,16 +27,6 @@ namespace SS14.Shared.Map
         {
             Position = argPosition;
             GridID = argGrid;
-        }
-
-        /// <summary>
-        ///     Construct new grid local coordinates relative to the default grid of a map.
-        /// </summary>
-        public GridCoordinates(Vector2 argPosition, MapId argMap)
-        {
-            Position = argPosition;
-            var mapManager = IoCManager.Resolve<IMapManager>();
-            GridID = mapManager.GetMap(argMap).DefaultGrid.Index;
         }
 
         /// <summary>
@@ -92,31 +53,23 @@ namespace SS14.Shared.Map
         /// <summary>
         ///     Construct new grid local coordinates relative to the default grid of a map.
         /// </summary>
-        public GridCoordinates(float x, float y, MapId argMap) : this(new Vector2(x, y), argMap)
-        {
-        }
-
-        /// <summary>
-        ///     Construct new grid local coordinates relative to the default grid of a map.
-        /// </summary>
         public GridCoordinates(float x, float y, IMap argMap) : this(new Vector2(x, y), argMap)
         {
         }
 
-        public bool IsValidLocation()
+        public bool IsValidLocation(IMapManager mapManager)
         {
-            var mapMan = IoCManager.Resolve<IMapManager>();
-            return mapMan.GridExists(GridID);
+            return mapManager.GridExists(GridID);
         }
 
-        public GridCoordinates ConvertToGrid(IMapGrid argGrid)
+        public GridCoordinates ConvertToGrid(IMapManager mapManager, IMapGrid newGrid)
         {
-            return new GridCoordinates(Position + Grid.WorldPosition - argGrid.WorldPosition, argGrid);
+            return new GridCoordinates(Position + mapManager.GetGrid(GridID).WorldPosition - newGrid.WorldPosition, newGrid);
         }
 
-        public GridCoordinates ToWorld()
+        public GridCoordinates ToWorld(IMapManager mapManager, IMapGrid grid)
         {
-            return ConvertToGrid(Map.DefaultGrid);
+            return ConvertToGrid(mapManager, grid.ParentMap.DefaultGrid);
         }
 
         public GridCoordinates Offset(Vector2 offset)
@@ -124,19 +77,19 @@ namespace SS14.Shared.Map
             return new GridCoordinates(Position + offset, GridID);
         }
 
-        public bool InRange(GridCoordinates localpos, float range)
+        public bool InRange(IMapManager mapManager, GridCoordinates localPos, float range)
         {
-            if (localpos.MapId != MapId)
+            if (mapManager.GetGrid(localPos.GridID).ParentMap.Index != mapManager.GetGrid(GridID).ParentMap.Index)
             {
                 return false;
             }
 
-            return ((localpos.ToWorld().Position - ToWorld().Position).LengthSquared < range * range);
+            return ((localPos.ToWorld(mapManager, mapManager.GetGrid(localPos.GridID)).Position - ToWorld(mapManager, mapManager.GetGrid(GridID)).Position).LengthSquared < range * range);
         }
 
-        public bool InRange(GridCoordinates localpos, int range)
+        public bool InRange(IMapManager mapManager, GridCoordinates localPos, int range)
         {
-            return InRange(localpos, (float) range);
+            return InRange(mapManager, localPos, (float) range);
         }
 
         public GridCoordinates Translated(Vector2 offset)
@@ -218,23 +171,18 @@ namespace SS14.Shared.Map
         public readonly Vector2 Position;
         public readonly MapId MapId;
 
-        public float X => Position.X;
-        public float Y => Position.Y;
-        public IMap Map => IoCManager.Resolve<IMapManager>().GetMap(MapId);
-
         public MapCoordinates(Vector2 position, MapId mapId)
         {
             Position = position;
             MapId = mapId;
         }
 
-        public MapCoordinates(float x, float y, MapId mapId) : this(new Vector2(x, y), mapId)
-        {
-        }
+        public MapCoordinates(float x, float y, MapId mapId)
+            : this(new Vector2(x, y), mapId) { }
 
         public override string ToString()
         {
-            return $"({X}, {Y}, map: {MapId})";
+            return $"({Position.X}, {Position.Y}, map: {MapId})";
         }
     }
 }

@@ -2,6 +2,8 @@
 using SS14.Client.Graphics.ClientEye;
 using SS14.Client.Graphics.Drawing;
 using SS14.Client.Utility;
+using SS14.Shared.Interfaces.Map;
+using SS14.Shared.IoC;
 using SS14.Shared.Map;
 using SS14.Shared.Maths;
 
@@ -26,8 +28,8 @@ namespace SS14.Client.Placement.Modes
                 const int ppm = EyeManager.PIXELSPERMETER;
                 var viewportSize = (Vector2)pManager.DisplayManager.ScreenSize;
                 var position = pManager.eyeManager.ScreenToWorld(Vector2.Zero);
-                var gridstartx = (float) Math.Round(position.X / snapSize, MidpointRounding.AwayFromZero) * snapSize;
-                var gridstarty = (float) Math.Round(position.Y / snapSize, MidpointRounding.AwayFromZero) * snapSize;
+                var gridstartx = (float) Math.Round(position.Position.X / snapSize, MidpointRounding.AwayFromZero) * snapSize;
+                var gridstarty = (float) Math.Round(position.Position.Y / snapSize, MidpointRounding.AwayFromZero) * snapSize;
                 var gridstart = pManager.eyeManager.WorldToScreen(
                     new Vector2( //Find snap grid closest to screen origin and convert back to screen coords
                         gridstartx,
@@ -57,18 +59,18 @@ namespace SS14.Client.Placement.Modes
         {
             MouseCoords = ScreenToPlayerGrid(mouseScreen);
 
-            snapSize = MouseCoords.Grid.SnapSize; //Find snap size.
+            snapSize = IoCManager.Resolve<IMapManager>().GetGrid(MouseCoords.GridID).SnapSize; //Find snap size.
             GridDistancing = snapSize;
             onGrid = true;
 
             var mouselocal = new Vector2( //Round local coordinates onto the snap grid
-                (float) Math.Round(MouseCoords.X / (double) snapSize, MidpointRounding.AwayFromZero) * snapSize,
-                (float) Math.Round(MouseCoords.Y / (double) snapSize, MidpointRounding.AwayFromZero) * snapSize);
+                (float) Math.Round(MouseCoords.Position.X / (double) snapSize, MidpointRounding.AwayFromZero) * snapSize,
+                (float) Math.Round(MouseCoords.Position.Y / (double) snapSize, MidpointRounding.AwayFromZero) * snapSize);
 
             //Convert back to original world and screen coordinates after applying offset
             MouseCoords =
                 new GridCoordinates(
-                    mouselocal + new Vector2(pManager.PlacementOffset.X, pManager.PlacementOffset.Y), MouseCoords.Grid);
+                    mouselocal + new Vector2(pManager.PlacementOffset.X, pManager.PlacementOffset.Y), IoCManager.Resolve<IMapManager>().GetGrid(MouseCoords.GridID));
         }
 
         public override bool IsValidPosition(GridCoordinates position)

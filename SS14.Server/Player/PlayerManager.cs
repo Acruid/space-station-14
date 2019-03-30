@@ -10,6 +10,7 @@ using SS14.Shared.GameStates;
 using SS14.Shared.Input;
 using SS14.Shared.Interfaces.GameObjects;
 using SS14.Shared.Interfaces.GameObjects.Components;
+using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.Interfaces.Reflection;
 using SS14.Shared.IoC;
@@ -204,9 +205,7 @@ namespace SS14.Server.Player
             {
                 return
                     _sessions.Values.Where(x => x.AttachedEntity != null &&
-                                                worldPos.InRange(
-                                                    x.AttachedEntity.Transform.GridPosition,
-                                                    range))
+                                                worldPos.InRange(IoCManager.Resolve<IMapManager>(), x.AttachedEntity.Transform.GridPosition, range))
                         .Cast<IPlayerSession>()
                         .ToList();
             }

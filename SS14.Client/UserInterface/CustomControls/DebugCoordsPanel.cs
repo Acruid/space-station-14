@@ -16,6 +16,7 @@ using SS14.Client.Interfaces.State;
 using SS14.Client.Player;
 using SS14.Client.State.States;
 using SS14.Shared.Interfaces.GameObjects;
+using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Utility;
 
 namespace SS14.Client.UserInterface.CustomControls
@@ -77,7 +78,7 @@ namespace SS14.Client.UserInterface.CustomControls
             try
             {
                 var coords = eyeManager.ScreenToWorld(new ScreenCoordinates(mouseScreenPos));
-                mouseWorldMap = (int) coords.MapId;
+                mouseWorldMap = (int) IoCManager.Resolve<IMapManager>().GetGrid(coords.GridID).ParentMap.Index;
                 mouseWorldGrid = (int) coords.GridID;
                 mouseWorldPos = coords;
                 worldToScreen = eyeManager.WorldToScreen(coords);

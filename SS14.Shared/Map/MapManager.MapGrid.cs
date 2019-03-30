@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Interfaces.Map;
+using SS14.Shared.IoC;
 using SS14.Shared.Maths;
 
 namespace SS14.Shared.Map
@@ -97,7 +98,8 @@ namespace SS14.Shared.Map
             /// <param name="gridTile">The new tile to check.</param>
             public void UpdateAABB(MapIndices gridTile)
             {
-                var worldPos = GridTileToLocal(gridTile).ToWorld();
+                GridCoordinates tempQualifier = GridTileToLocal(gridTile);
+                var worldPos = GridTileToLocal(gridTile).ToWorld(_mapManager, _mapManager.GetGrid(tempQualifier.GridID));
 
                 if (AABBWorld.Contains(worldPos.Position))
                     return;
@@ -106,11 +108,11 @@ namespace SS14.Shared.Map
                 var a = AABBWorld;
                 var b = worldPos;
 
-                var minX = Math.Min(a.Left, b.X);
-                var maxX = Math.Max(a.Right, b.X);
+                var minX = Math.Min(a.Left, b.Position.X);
+                var maxX = Math.Max(a.Right, b.Position.X);
 
-                var minY = Math.Min(a.Bottom, b.Y);
-                var maxY = Math.Max(a.Top, b.Y);
+                var minY = Math.Min(a.Bottom, b.Position.Y);
+                var maxY = Math.Max(a.Top, b.Position.Y);
 
                 AABBWorld = Box2.FromDimensions(minX, minY, maxX - minX, maxY - minY);
             }
@@ -268,13 +270,13 @@ namespace SS14.Shared.Map
             /// <inheritdoc />
             public MapIndices SnapGridCellFor(GridCoordinates worldPos, SnapGridOffset offset)
             {
-                var local = worldPos.ConvertToGrid(this);
+                var local = worldPos.ConvertToGrid(_mapManager, this);
                 if (offset == SnapGridOffset.Edge)
                 {
                     local = local.Offset(new Vector2(TileSize / 2f, TileSize / 2f));
                 }
-                var x = (int)Math.Floor(local.X / TileSize);
-                var y = (int)Math.Floor(local.Y / TileSize);
+                var x = (int)Math.Floor(local.Position.X / TileSize);
+                var y = (int)Math.Floor(local.Position.Y / TileSize);
                 return new MapIndices(x, y);
             }
 
@@ -325,7 +327,7 @@ namespace SS14.Shared.Map
             /// <inheritdoc />
             public GridCoordinates LocalToWorld(GridCoordinates posLocal)
             {
-                return new GridCoordinates(posLocal.Position + WorldPosition, posLocal.MapId);
+                return new GridCoordinates(posLocal.Position + WorldPosition, _mapManager.GetGrid(posLocal.GridID).ParentMap);
             }
 
             /// <inheritdoc />
@@ -340,9 +342,9 @@ namespace SS14.Shared.Map
             /// <returns></returns>
             private MapIndices WorldToTile(GridCoordinates posWorld)
             {
-                var local = posWorld.ConvertToGrid(this);
-                var x = (int)Math.Floor(local.X / TileSize);
-                var y = (int)Math.Floor(local.Y / TileSize);
+                var local = posWorld.ConvertToGrid(_mapManager, this);
+                var x = (int)Math.Floor(local.Position.X / TileSize);
+                var y = (int)Math.Floor(local.Position.Y / TileSize);
                 return new MapIndices(x, y);
             }
 
@@ -353,9 +355,9 @@ namespace SS14.Shared.Map
             /// <returns></returns>
             private MapIndices WorldToChunk(GridCoordinates posWorld)
             {
-                var local = posWorld.ConvertToGrid(this);
-                var x = (int)Math.Floor(local.X / (TileSize * ChunkSize));
-                var y = (int)Math.Floor(local.Y / (TileSize * ChunkSize));
+                var local = posWorld.ConvertToGrid(_mapManager, this);
+                var x = (int)Math.Floor(local.Position.X / (TileSize * ChunkSize));
+                var y = (int)Math.Floor(local.Position.Y / (TileSize * ChunkSize));
                 return new MapIndices(x, y);
             }
 

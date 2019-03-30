@@ -161,7 +161,8 @@ namespace SS14.Server.Console.Commands
 
             var pos = player.AttachedEntity.Transform.GridPosition;
 
-            shell.SendText(player, $"MapID:{pos.MapId} GridID:{pos.GridID} X:{pos.X:N2} Y:{pos.Y:N2}");
+            var mapGrid = IoCManager.Resolve<IMapManager>().GetGrid(pos.GridID);
+            shell.SendText(player, $"MapID:{mapGrid.ParentMap.Index} GridID:{pos.GridID} X:{pos.Position.X:N2} Y:{pos.Position.Y:N2}");
         }
     }
 
