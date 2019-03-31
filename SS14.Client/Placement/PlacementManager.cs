@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using SS14.Client.Interfaces;
-using SS14.Client.Interfaces.GameObjects.Components;
 using SS14.Client.Interfaces.Graphics.ClientEye;
 using SS14.Client.Interfaces.Input;
 using SS14.Client.Interfaces.Placement;
@@ -11,7 +10,6 @@ using SS14.Client.ResourceManagement;
 using SS14.Shared.Enums;
 using SS14.Shared.GameObjects;
 using SS14.Shared.Interfaces.GameObjects;
-using SS14.Shared.Interfaces.GameObjects.Components;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.Interfaces.Physics;
@@ -22,8 +20,6 @@ using SS14.Shared.Prototypes;
 using SS14.Shared.Maths;
 using SS14.Shared.Map;
 using SS14.Shared.Network.Messages;
-using SS14.Client.Utility;
-using SS14.Client.Graphics.ClientEye;
 using SS14.Client.Graphics;
 using SS14.Client.GameObjects;
 using SS14.Client.GameObjects.EntitySystems;
@@ -320,7 +316,8 @@ namespace SS14.Client.Placement
 
         private void HandleTileChanged(object sender, TileChangedEventArgs args)
         {
-            var coords = args.NewTile.LocalPos;
+            var newTile = args.NewTile;
+            var coords = _mapMan.GetMap(newTile.MapId).GetGrid(newTile.GridId).GridTileToLocal(newTile.GridIndices);
             _pendingTileChanges.RemoveAll(c => c.Item1 == coords);
         }
 

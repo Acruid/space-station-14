@@ -1,11 +1,10 @@
-using System;
+﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Map;
 using SS14.Shared.Maths;
-using SS14.Shared.Utility;
 
 namespace SS14.Client.Graphics.Clyde
 {
@@ -111,10 +110,10 @@ namespace SS14.Client.Graphics.Clyde
                     var region = regionMaybe.Value;
 
                     var vIdx = i * 4;
-                    vertexBuffer[vIdx + 0] = new Vertex2D(tile.X + 1, tile.Y + 1, region.Right, region.Top);
-                    vertexBuffer[vIdx + 1] = new Vertex2D(tile.X, tile.Y + 1, region.Left, region.Top);
-                    vertexBuffer[vIdx + 2] = new Vertex2D(tile.X + 1, tile.Y, region.Right, region.Bottom);
-                    vertexBuffer[vIdx + 3] = new Vertex2D(tile.X, tile.Y, region.Left, region.Bottom);
+                    vertexBuffer[vIdx + 0] = new Vertex2D(tile.GridIndices.X + 1, tile.GridIndices.Y + 1, region.Right, region.Top);
+                    vertexBuffer[vIdx + 1] = new Vertex2D(tile.GridIndices.X, tile.GridIndices.Y + 1, region.Left, region.Top);
+                    vertexBuffer[vIdx + 2] = new Vertex2D(tile.GridIndices.X + 1, tile.GridIndices.Y, region.Right, region.Bottom);
+                    vertexBuffer[vIdx + 3] = new Vertex2D(tile.GridIndices.X, tile.GridIndices.Y, region.Left, region.Bottom);
                     var nIdx = i * 5;
                     var tIdx = (ushort) (i * 4);
                     indexBuffer[nIdx + 0] = tIdx;
@@ -206,8 +205,8 @@ namespace SS14.Client.Graphics.Clyde
 
         private void _updateTileMapOnUpdate(object sender, TileChangedEventArgs args)
         {
-            var grid = _mapManager.GetGrid(args.NewTile.GridIndex);
-            var chunk = grid.GridTileToGridChunk(new MapIndices(args.NewTile.X, args.NewTile.Y));
+            var grid = _mapManager.GetGrid(args.NewTile.GridId);
+            var chunk = grid.GridTileToGridChunk(new MapIndices(args.NewTile.GridIndices.X, args.NewTile.GridIndices.Y));
             _setChunkDirty(grid, chunk);
         }
 

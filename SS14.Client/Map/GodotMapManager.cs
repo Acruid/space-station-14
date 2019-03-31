@@ -1,6 +1,5 @@
 ﻿using SS14.Shared.Map;
 using System.Collections.Generic;
-using SS14.Shared.Interfaces.Map;
 using SS14.Client.Interfaces.Map;
 using SS14.Shared.IoC;
 using SS14.Client.Interfaces;
@@ -41,8 +40,8 @@ namespace SS14.Client.Map
 
         private void UpdateTileMapOnUpdate(object sender, TileChangedEventArgs args)
         {
-            var tilemap = RenderTileMaps[args.NewTile.GridIndex];
-            tilemap.SetCell(args.NewTile.X, -1-args.NewTile.Y, args.NewTile.Tile.TileId);
+            var tilemap = RenderTileMaps[args.NewTile.GridId];
+            tilemap.SetCell(args.NewTile.GridIndices.X, -1-args.NewTile.GridIndices.Y, args.NewTile.Tile.TileId);
         }
 
         private void UpdateOnGridCreated(GridId gridId)

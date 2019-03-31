@@ -1,93 +1,110 @@
-﻿using SS14.Shared.Interfaces.Map;
-using SS14.Shared.IoC;
-using SS14.Shared.Maths;
+﻿using System;
+using JetBrains.Annotations;
 
 namespace SS14.Shared.Map
 {
     /// <summary>
-    /// A reference to a tile.
+    ///     All of the information needed to reference a tile in the game.
     /// </summary>
-    public struct TileRef
+    [PublicAPI]
+    public readonly struct TileRef : IEquatable<TileRef>
     {
-        public readonly MapId MapIndex;
-        public readonly GridId GridIndex;
-        private readonly Tile _tile;
-        private readonly MapIndices _gridTile;
+        /// <summary>
+        ///     Identifier of the map this tile belongs to.
+        /// </summary>
+        public readonly MapId MapId;
 
-        internal TileRef(MapId argMap, GridId gridIndex, int xIndex, int yIndex, Tile tile)
+        /// <summary>
+        ///     Identifier of the grid this tile belongs to.
+        /// </summary>
+        public readonly GridId GridId;
+
+        /// <summary>
+        ///     Actual data of this tile.
+        /// </summary>
+        public readonly Tile Tile;
+
+        /// <summary>
+        ///     Positional indices of this tile on the grid.
+        /// </summary>
+        public readonly MapIndices GridIndices;
+
+        /// <summary>
+        ///     Constructs a new instance of TileRef.
+        /// </summary>
+        /// <param name="mapId">Identifier of the map this tile belongs to.</param>
+        /// <param name="gridId">Identifier of the grid this tile belongs to.</param>
+        /// <param name="xIndex">Positional X index of this tile on the grid.</param>
+        /// <param name="yIndex">Positional Y index of this tile on the grid.</param>
+        /// <param name="tile">Actual data of this tile.</param>
+        internal TileRef(MapId mapId, GridId gridId, int xIndex, int yIndex, Tile tile)
+            : this(mapId, gridId, new MapIndices(xIndex, yIndex), tile) { }
+
+        /// <summary>
+        ///     Constructs a new instance of TileRef.
+        /// </summary>
+        /// <param name="mapId">Identifier of the map this tile belongs to.</param>
+        /// <param name="gridId">Identifier of the grid this tile belongs to.</param>
+        /// <param name="gridIndices">Positional indices of this tile on the grid.</param>
+        /// <param name="tile">Actual data of this tile.</param>
+        internal TileRef(MapId mapId, GridId gridId, MapIndices gridIndices, Tile tile)
         {
-            MapIndex = argMap;
-            _gridTile = new MapIndices(xIndex, yIndex);
-            GridIndex = gridIndex;
-            _tile = tile;
+            MapId = mapId;
+            GridIndices = gridIndices;
+            GridId = gridId;
+            Tile = tile;
         }
-
-        internal TileRef(MapId argMap, GridId gridIndex, MapIndices gridTile, Tile tile)
-        {
-            MapIndex = argMap;
-            _gridTile = gridTile;
-            GridIndex = gridIndex;
-            _tile = tile;
-        }
-
-        public int X => _gridTile.X;
-        public int Y => _gridTile.Y;
-        public GridCoordinates LocalPos => IoCManager.Resolve<IMapManager>().GetMap(MapIndex).GetGrid(GridIndex).GridTileToLocal(_gridTile);
-        public ushort TileSize => IoCManager.Resolve<IMapManager>().GetMap(MapIndex).GetGrid(GridIndex).TileSize;
-        public Tile Tile
-        {
-            get => _tile;
-            set
-            {
-                IMapGrid grid = IoCManager.Resolve<IMapManager>().GetMap(MapIndex).GetGrid(GridIndex);
-                grid.SetTile(new GridCoordinates(_gridTile.X, _gridTile.Y, grid), value);
-            }
-        }
-
-        public ITileDefinition TileDef => IoCManager.Resolve<ITileDefinitionManager>()[Tile.TileId];
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"TileRef: {X},{Y} ({Tile})";
+            return $"TileRef: {GridId}:{GridIndices} ({Tile})";
         }
 
-        public bool GetStep(Direction dir, out TileRef steptile)
+        /// <inheritdoc />
+        public bool Equals(TileRef other)
         {
-            MapIndices currenttile = _gridTile;
-            MapIndices shift;
-            switch (dir)
+            return MapId.Equals(other.MapId)
+                   && GridId.Equals(other.GridId)
+                   && Tile.Equals(other.Tile)
+                   && GridIndices.Equals(other.GridIndices);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+                return false;
+            return obj is TileRef other && Equals(other);
+        }
+
+        /// <summary>
+        ///     Check for equality by value between two objects.
+        /// </summary>
+        public static bool operator ==(TileRef a, TileRef b)
+        {
+            return a.Equals(b);
+        }
+
+        /// <summary>
+        ///     Check for inequality by value between two objects.
+        /// </summary>
+        public static bool operator !=(TileRef a, TileRef b)
+        {
+            return !a.Equals(b);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            unchecked
             {
-                case Direction.East:
-                    shift = new MapIndices(1, 0);
-                    break;
-                case Direction.West:
-                    shift = new MapIndices(-1, 0);
-                    break;
-                case Direction.North:
-                    shift = new MapIndices(0, 1);
-                    break;
-                case Direction.South:
-                    shift = new MapIndices(0, -1);
-                    break;
-                case Direction.NorthEast:
-                    shift = new MapIndices(1, 1);
-                    break;
-                case Direction.SouthEast:
-                    shift = new MapIndices(1, -1);
-                    break;
-                case Direction.NorthWest:
-                    shift = new MapIndices(-1, 1);
-                    break;
-                case Direction.SouthWest:
-                    shift = new MapIndices(-1, -1);
-                    break;
-                default:
-                    steptile = new TileRef();
-                    return false;
+                var hashCode = MapId.GetHashCode();
+                hashCode = (hashCode * 397) ^ GridId.GetHashCode();
+                hashCode = (hashCode * 397) ^ Tile.GetHashCode();
+                hashCode = (hashCode * 397) ^ GridIndices.GetHashCode();
+                return hashCode;
             }
-            currenttile += shift;
-            return IoCManager.Resolve<IMapManager>().GetMap(MapIndex).GetGrid(GridIndex).IndicesToTile(currenttile, out steptile);
         }
     }
 }
