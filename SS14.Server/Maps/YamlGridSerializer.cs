@@ -3,7 +3,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using SS14.Shared.Interfaces.Map;
-using SS14.Shared.IoC;
 using SS14.Shared.Map;
 using SS14.Shared.Maths;
 using SS14.Shared.Utility;
@@ -68,7 +67,7 @@ namespace SS14.Server.Maps
                     foreach (var tileRef in chunk)
                     {
                         // if you change these types, fix structSize!!!
-                        writer.Write(tileRef.Tile.TileId);
+                        writer.Write(tileRef.Tile.TileTypeId);
                         writer.Write(tileRef.Tile.Data);
                     }
                 }

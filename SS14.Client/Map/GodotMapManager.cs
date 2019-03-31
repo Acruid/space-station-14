@@ -34,14 +34,14 @@ namespace SS14.Client.Map
             var tilemap = RenderTileMaps[args.Grid.Index];
             foreach (var (index, tile) in args.Modified)
             {
-                tilemap.SetCell(index.X, -1-index.Y, tile.TileId);
+                tilemap.SetCell(index.X, -1-index.Y, tile.TileTypeId);
             }
         }
 
         private void UpdateTileMapOnUpdate(object sender, TileChangedEventArgs args)
         {
             var tilemap = RenderTileMaps[args.NewTile.GridId];
-            tilemap.SetCell(args.NewTile.GridIndices.X, -1-args.NewTile.GridIndices.Y, args.NewTile.Tile.TileId);
+            tilemap.SetCell(args.NewTile.GridIndices.X, -1-args.NewTile.GridIndices.Y, args.NewTile.Tile.TileTypeId);
         }
 
         private void UpdateOnGridCreated(GridId gridId)

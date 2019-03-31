@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using SixLabors.ImageSharp;
@@ -9,11 +9,9 @@ using SS14.Client.Graphics;
 using SS14.Client.Graphics.ClientEye;
 using SS14.Client.Interfaces.Map;
 using SS14.Client.Interfaces.ResourceManagement;
-using SS14.Shared.GameObjects.Components.Renderable;
 using SS14.Shared.IoC;
 using SS14.Shared.Map;
 using SS14.Shared.Maths;
-using SS14.Shared.Utility;
 using Image = SixLabors.ImageSharp.Image;
 
 namespace SS14.Client.Map
@@ -28,7 +26,7 @@ namespace SS14.Client.Map
 
         public UIBox2? TileAtlasRegion(Tile tile)
         {
-            if (_tileRegions.TryGetValue(tile.TileId, out var region))
+            if (_tileRegions.TryGetValue(tile.TileTypeId, out var region))
             {
                 return region;
             }

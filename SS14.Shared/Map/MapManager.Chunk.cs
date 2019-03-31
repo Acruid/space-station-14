@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using SS14.Shared.GameObjects.Components.Transform;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Maths;
@@ -101,7 +100,7 @@ namespace SS14.Shared.Map
                     throw new ArgumentException("Tile indices out of bounds.");
 
                 // same tile, no point to continue
-                if (_tiles[xChunkTile, yChunkTile].TileId == tile.TileId)
+                if (_tiles[xChunkTile, yChunkTile].TileTypeId == tile.TileTypeId)
                     return;
 
                 var gridTile = ChunkTileToGridTile(new MapIndices(xChunkTile, yChunkTile));
