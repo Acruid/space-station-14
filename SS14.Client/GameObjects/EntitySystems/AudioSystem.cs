@@ -16,6 +16,7 @@ using SS14.Shared.Map;
 using System.Collections.Generic;
 using System.IO;
 using SS14.Client.Interfaces.Graphics;
+using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Utility;
 
 namespace SS14.Client.GameObjects.EntitySystems
@@ -25,6 +26,8 @@ namespace SS14.Client.GameObjects.EntitySystems
         [Dependency] ISceneTreeHolder sceneTree;
 
         [Dependency] IResourceCache resourceCache;
+
+        [Dependency] private readonly IMapManager _mapManager;
 
         private IClyde _clyde;
 
@@ -73,7 +76,7 @@ namespace SS14.Client.GameObjects.EntitySystems
 
                 if (stream.TrackingCoordinates != null)
                 {
-                    stream.Source.SetPosition(stream.TrackingCoordinates.Value.ToWorld().Position);
+                    stream.Source.SetPosition(stream.TrackingCoordinates.Value.ToWorld(_mapManager).Position);
                 }
                 else if (stream.TrackingEntity != null)
                 {
@@ -223,7 +226,7 @@ namespace SS14.Client.GameObjects.EntitySystems
             if (GameController.Mode == GameController.DisplayMode.Clyde)
             {
                 var source = _clyde.CreateAudioSource(stream);
-                source.SetPosition(coordinates.ToWorld().Position);
+                source.SetPosition(coordinates.ToWorld(_mapManager).Position);
                 if (audioParams.HasValue)
                 {
                     source.SetPitch(audioParams.Value.PitchScale);

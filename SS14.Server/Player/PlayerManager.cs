@@ -3,20 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using SS14.Server.Interfaces;
-using SS14.Server.Interfaces.GameObjects;
 using SS14.Server.Interfaces.Player;
 using SS14.Shared.Enums;
 using SS14.Shared.GameStates;
 using SS14.Shared.Input;
-using SS14.Shared.Interfaces.GameObjects;
-using SS14.Shared.Interfaces.GameObjects.Components;
+using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.Interfaces.Reflection;
 using SS14.Shared.IoC;
 using SS14.Shared.Map;
 using SS14.Shared.Network;
 using SS14.Shared.Network.Messages;
-using SS14.Shared.Players;
 using SS14.Shared.Utility;
 
 namespace SS14.Server.Player
@@ -204,9 +201,7 @@ namespace SS14.Server.Player
             {
                 return
                     _sessions.Values.Where(x => x.AttachedEntity != null &&
-                                                worldPos.InRange(
-                                                    x.AttachedEntity.Transform.GridPosition,
-                                                    range))
+                                                worldPos.InRange(IoCManager.Resolve<IMapManager>(), x.AttachedEntity.Transform.GridPosition, range))
                         .Cast<IPlayerSession>()
                         .ToList();
             }

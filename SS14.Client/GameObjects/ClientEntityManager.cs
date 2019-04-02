@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using SS14.Client.Interfaces.GameObjects;
 using SS14.Shared.GameObjects;
 using SS14.Shared.Interfaces.GameObjects;
-using SS14.Shared.Interfaces.GameObjects.Components;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.IoC;
 using SS14.Shared.Map;
@@ -24,7 +23,7 @@ namespace SS14.Client.GameObjects
         public IEnumerable<IEntity> GetEntitiesInRange(GridCoordinates position, float Range)
         {
             var AABB = new Box2(position.Position - new Vector2(Range / 2, Range / 2), position.Position + new Vector2(Range / 2, Range / 2));
-            return GetEntitiesIntersecting(position.MapID, AABB);
+            return GetEntitiesIntersecting(_mapManager.GetGrid(position.GridId).Map.Index, AABB);
         }
 
         public IEnumerable<IEntity> GetEntitiesIntersecting(MapId mapId, Box2 position)
@@ -200,8 +199,7 @@ namespace SS14.Client.GameObjects
                 map = _mapManager.DefaultMap;
             }
 
-            return ForceSpawnEntityAt(entityType, new GridCoordinates(position, map.FindGridAt(position)));
-
+            return ForceSpawnEntityAt(entityType, new GridCoordinates(position, map.FindGridAt(position).Index));
         }
 
         public override bool TrySpawnEntityAt(string entityType, Vector2 position, MapId argMap, out IEntity entity)

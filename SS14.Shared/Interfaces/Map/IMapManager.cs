@@ -107,5 +107,10 @@ namespace SS14.Shared.Interfaces.Map
         // but old ones can be deleted after.
         void ApplyGameStatePre(GameStateMapData data);
         void ApplyGameStatePost(GameStateMapData data);
+
+        /// <summary>
+        ///     Checks that the coordinates resolve to a valid location on a map.
+        /// </summary>
+        bool IsValidLocation(GridCoordinates coords);
     }
 }

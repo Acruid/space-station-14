@@ -12,7 +12,7 @@ namespace SS14.Client.Placement.Modes
         public override void AlignPlacementMode(ScreenCoordinates mouseScreen)
         {
             MouseCoords = ScreenToPlayerGrid(mouseScreen);
-            CurrentTile = MouseCoords.Grid.GetTile(MouseCoords);
+            CurrentTile = pManager.MapManager.GetGrid(MouseCoords.GridId).GetTile(MouseCoords);
 
             if (pManager.CurrentPermission.IsTile)
             {
@@ -40,7 +40,7 @@ namespace SS14.Client.Placement.Modes
 
             MouseCoords = new GridCoordinates(closestNode + new Vector2(pManager.PlacementOffset.X,
                                                                          pManager.PlacementOffset.Y),
-                                               MouseCoords.Grid);
+                                               MouseCoords.GridId);
         }
 
         public override bool IsValidPosition(GridCoordinates position)

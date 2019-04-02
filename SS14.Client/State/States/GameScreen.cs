@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SS14.Client.GameObjects.EntitySystems;
 using SS14.Client.Player;
+using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Interfaces.Timing;
 
 namespace SS14.Client.State.States
@@ -41,6 +42,8 @@ namespace SS14.Client.State.States
         private readonly IEntitySystemManager entitySystemManager;
         [Dependency]
         private readonly IGameTiming timing;
+        [Dependency]
+        private readonly IMapManager _mapManager;
 
         private EscapeMenu escapeMenu;
         private IEntity lastHoveredEntity;
@@ -157,14 +160,14 @@ namespace SS14.Client.State.States
 
         public IList<IEntity> GetEntitiesUnderPosition(GridCoordinates coordinates)
         {
-            return GetEntitiesUnderPosition(_entityManager, coordinates);
+            return GetEntitiesUnderPosition(_entityManager, coordinates, _mapManager);
         }
 
         private static IList<IEntity> GetEntitiesUnderPosition(IClientEntityManager entityMan,
-            GridCoordinates coordinates)
+            GridCoordinates coordinates, IMapManager mapMan)
         {
             // Find all the entities intersecting our click
-            var entities = entityMan.GetEntitiesIntersecting(coordinates.MapID, coordinates.Position);
+            var entities = entityMan.GetEntitiesIntersecting(mapMan.GetGrid(coordinates.GridId).Map.Index, coordinates.Position);
 
             // Check the entities against whether or not we can click them
             var foundEntities = new List<(IEntity clicked, int drawDepth)>();

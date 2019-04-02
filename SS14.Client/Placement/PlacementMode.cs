@@ -4,8 +4,6 @@ using SS14.Client.Graphics;
 using SS14.Client.Graphics.ClientEye;
 using SS14.Client.Graphics.Drawing;
 using SS14.Client.ResourceManagement;
-using SS14.Client.Utility;
-using SS14.Shared.Interfaces.GameObjects.Components;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.IoC;
 using SS14.Shared.Map;
@@ -47,7 +45,7 @@ namespace SS14.Client.Placement
         /// Used for line and grid placement to determine how spaced apart the entities should be
         /// </summary>
         protected float GridDistancing = 1f;
-
+        
         /// <summary>
         /// Whether this mode requires us to verify the player is spawning within a certain range of themselves
         /// </summary>
@@ -124,7 +122,8 @@ namespace SS14.Client.Placement
 
         public IEnumerable<GridCoordinates> LineCoordinates()
         {
-            var placementdiff = MouseCoords.ToWorld().Position - pManager.StartPoint.ToWorld().Position;
+            var mapManager = IoCManager.Resolve<IMapManager>();
+            var placementdiff = MouseCoords.ToWorld(mapManager).Position - pManager.StartPoint.ToWorld(mapManager).Position;
             var iterations = 0f;
             Vector2 distance;
             if (Math.Abs(placementdiff.X) > Math.Abs(placementdiff.Y))
@@ -140,13 +139,14 @@ namespace SS14.Client.Placement
 
             for (var i = 0; i <= iterations; i++)
             {
-                yield return new GridCoordinates(pManager.StartPoint.Position + distance * i, pManager.StartPoint.Grid);
+                yield return new GridCoordinates(pManager.StartPoint.Position + distance * i, pManager.StartPoint.GridId);
             }
         }
 
         public IEnumerable<GridCoordinates> GridCoordinates()
         {
-            var placementdiff = MouseCoords.ToWorld().Position - pManager.StartPoint.ToWorld().Position;
+            var mapManager = IoCManager.Resolve<IMapManager>();
+            var placementdiff = MouseCoords.ToWorld(mapManager).Position - pManager.StartPoint.ToWorld(mapManager).Position;
             var distanceX = new Vector2(placementdiff.X > 0 ? 1 : -1, 0) * GridDistancing;
             var distanceY = new Vector2(0, placementdiff.Y > 0 ? 1 : -1) * GridDistancing;
 
@@ -157,7 +157,7 @@ namespace SS14.Client.Placement
             {
                 for (var y = 0; y <= iterationsY; y++)
                 {
-                    yield return new GridCoordinates(pManager.StartPoint.Position + distanceX * x + distanceY * y, pManager.StartPoint.Grid);
+                    yield return new GridCoordinates(pManager.StartPoint.Position + distanceX * x + distanceY * y, pManager.StartPoint.GridId);
                 }
             }
         }
@@ -186,7 +186,7 @@ namespace SS14.Client.Placement
             if (!RangeRequired)
                 return true;
             var range = pManager.CurrentPermission.Range;
-            if (range > 0 && !pManager.PlayerManager.LocalPlayer.ControlledEntity.Transform.GridPosition.InRange(coordinates, range))
+            if (range > 0 && !pManager.PlayerManager.LocalPlayer.ControlledEntity.Transform.GridPosition.InRange(IoCManager.Resolve<IMapManager>(), coordinates, range))
                 return false;
             return true;
         }
@@ -194,7 +194,8 @@ namespace SS14.Client.Placement
         public bool IsColliding(GridCoordinates coordinates)
         {
             var bounds = pManager.ColliderAABB;
-            var worldcoords = coordinates.ToWorld();
+            var mapManager = IoCManager.Resolve<IMapManager>();
+            var worldcoords = coordinates.ToWorld(mapManager);
 
             var collisionbox = Box2.FromDimensions(
                 bounds.Left + worldcoords.Position.X,
@@ -202,7 +203,7 @@ namespace SS14.Client.Placement
                 bounds.Width,
                 bounds.Height);
 
-            if (pManager.PhysicsManager.IsColliding(collisionbox, coordinates.MapID))
+            if (pManager.PhysicsManager.IsColliding(collisionbox, mapManager.GetGrid(coordinates.GridId).Map.Index))
                 return true;
 
             return false;

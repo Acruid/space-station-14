@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using SS14.Client.UserInterface;
 using SS14.Client.UserInterface.Controls;
 using SS14.Shared.Map;
@@ -24,7 +24,7 @@ namespace SS14.Client.ViewVariables.Editors
                 SizeFlagsHorizontal = Control.SizeFlags.FillExpand,
                 PlaceHolder = "Grid ID",
                 ToolTip = "Grid ID",
-                Text = coords.GridID.ToString()
+                Text = coords.GridId.ToString()
             };
 
             hBoxContainer.AddChild(gridId);

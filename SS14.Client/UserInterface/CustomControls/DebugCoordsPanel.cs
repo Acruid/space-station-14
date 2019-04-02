@@ -3,9 +3,7 @@ using SS14.Client.Graphics;
 using SS14.Client.Interfaces.Graphics.ClientEye;
 using SS14.Client.Interfaces.Input;
 using SS14.Client.UserInterface.Controls;
-using SS14.Shared.Interfaces.GameObjects.Components;
 using SS14.Shared.IoC;
-using SS14.Shared.Reflection;
 using SS14.Shared.Map;
 using SS14.Shared.Maths;
 using SS14.Client.Interfaces.ResourceManagement;
@@ -16,19 +14,20 @@ using SS14.Client.Interfaces.State;
 using SS14.Client.Player;
 using SS14.Client.State.States;
 using SS14.Shared.Interfaces.GameObjects;
+using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Utility;
 
 namespace SS14.Client.UserInterface.CustomControls
 {
     internal class DebugCoordsPanel : Panel
     {
-        [Dependency] readonly IPlayerManager playerManager;
-        [Dependency] readonly IEyeManager eyeManager;
-        [Dependency] readonly IInputManager inputManager;
-        [Dependency] readonly IResourceCache resourceCache;
-        [Dependency] readonly IStateManager stateManager;
-
+        [Dependency] private readonly IPlayerManager playerManager;
+        [Dependency] private readonly IEyeManager eyeManager;
+        [Dependency] private readonly IInputManager inputManager;
+        [Dependency] private readonly IResourceCache resourceCache;
+        [Dependency] private readonly IStateManager stateManager;
         [Dependency] private readonly IDisplayManager _displayManager;
+        [Dependency] private readonly IMapManager _mapManager;
 
         private Label contents;
 
@@ -78,8 +77,8 @@ namespace SS14.Client.UserInterface.CustomControls
             try
             {
                 var coords = eyeManager.ScreenToWorld(new ScreenCoordinates(mouseScreenPos));
-                mouseWorldMap = (int) coords.MapID;
-                mouseWorldGrid = (int) coords.GridID;
+                mouseWorldMap = (int) _mapManager.GetGrid(coords.GridId).Map.Index;
+                mouseWorldGrid = (int) coords.GridId;
                 mouseWorldPos = coords;
                 worldToScreen = eyeManager.WorldToScreen(coords);
                 if (stateManager.CurrentState is GameScreen gameScreen)
@@ -87,7 +86,7 @@ namespace SS14.Client.UserInterface.CustomControls
                     mouseEntity = gameScreen.GetEntityUnderPosition(coords);
                 }
 
-                tile = coords.Grid.GetTile(coords);
+                tile = _mapManager.GetGrid(coords.GridId).GetTile(coords);
             }
             catch
             {

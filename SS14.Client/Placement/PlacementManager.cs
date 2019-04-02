@@ -46,7 +46,7 @@ namespace SS14.Client.Placement
         [Dependency]
         private readonly IReflectionManager ReflectionManager;
         [Dependency]
-        private readonly IMapManager _mapMan;
+        internal readonly IMapManager MapManager;
         [Dependency]
         private readonly IGameTiming _time;
         [Dependency]
@@ -187,7 +187,7 @@ namespace SS14.Client.Placement
                 _modeDictionary.Add(type.Name, type);
             }
 
-            _mapMan.TileChanged += HandleTileChanged;
+            MapManager.TileChanged += HandleTileChanged;
 
             _drawOverlay = new PlacementOverlay(this);
             _overlayManager.AddOverlay(_drawOverlay);
@@ -317,7 +317,7 @@ namespace SS14.Client.Placement
         private void HandleTileChanged(object sender, TileChangedEventArgs args)
         {
             var newTile = args.NewTile;
-            var coords = _mapMan.GetMap(newTile.MapId).GetGrid(newTile.GridId).GridTileToLocal(newTile.GridIndices);
+            var coords = MapManager.GetMap(newTile.MapId).GetGrid(newTile.GridId).GridTileToLocal(newTile.GridIndices);
             _pendingTileChanges.RemoveAll(c => c.Item1 == coords);
         }
 
@@ -574,14 +574,14 @@ namespace SS14.Client.Placement
 
         private void RequestPlacement(GridCoordinates coordinates)
         {
-            if (coordinates.MapID == MapId.Nullspace) return;
+            if (IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridId).Map.Index == MapId.Nullspace) return;
             if (CurrentPermission == null) return;
             if (!CurrentMode.IsValidPosition(coordinates)) return;
             if (Hijack != null && Hijack.HijackPlacementRequest(coordinates)) return;
 
             if (CurrentPermission.IsTile)
             {
-                var grid = _mapMan.GetGrid(coordinates.GridID);
+                var grid = MapManager.GetGrid(coordinates.GridId);
 
                 // no point changing the tile to the same thing.
                 if (grid.GetTile(coordinates).Tile.TileTypeId == CurrentPermission.TileType)

@@ -156,6 +156,13 @@ namespace SS14.Shared.Interfaces.Map
         Vector2 WorldToLocal(Vector2 posWorld);
 
         /// <summary>
+        ///     Transforms world-space coordinates from the global origin to the grid local origin.
+        /// </summary>
+        /// <param name="posWorld">The world-space coordinates with global origin.</param>
+        /// <returns>The world-space coordinates with local origin.</returns>
+        GridCoordinates WorldToGrid(Vector2 posWorld);
+
+        /// <summary>
         ///     Transforms world-space coordinates from the local grid origin to the global origin.
         /// </summary>
         /// <param name="posLocal">The world-space coordinates with local grid origin.</param>

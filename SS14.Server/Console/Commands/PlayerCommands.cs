@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Text;
 using SS14.Server.Interfaces.Console;
-using SS14.Server.Interfaces.GameObjects;
 using SS14.Server.Interfaces.Player;
 using SS14.Shared.Enums;
-using SS14.Shared.Interfaces.GameObjects.Components;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.IoC;
 using SS14.Shared.Map;
 using SS14.Shared.Maths;
 using SS14.Shared.Network;
-using SS14.Shared.Players;
 
 namespace SS14.Server.Console.Commands
 {
@@ -41,9 +38,9 @@ namespace SS14.Server.Console.Commands
             if (args.Length == 3 && int.TryParse(args[2], out var mapId) && mapMgr.TryGetMap(new MapId(mapId), out var map))
                 grid = map.FindGridAt(position);
             else
-                grid = transform.GridPosition.Map.FindGridAt(position);
+                grid = mapMgr.GetGrid(transform.GridPosition.GridId).Map.FindGridAt(position);
 
-            transform.GridPosition = new GridCoordinates(position, grid);
+            transform.GridPosition = new GridCoordinates(position, grid.Index);
 
             shell.SendText(player, $"Teleported {player} to {grid.MapID}:{posX},{posY}.");
         }

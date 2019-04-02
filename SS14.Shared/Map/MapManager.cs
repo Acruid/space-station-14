@@ -256,6 +256,12 @@ namespace SS14.Shared.Map
             }
             _gridDeletionHistory.Add((_gameTiming.CurTick, gridID));
         }
+
+        /// <inheritdoc />
+        public bool IsValidLocation(GridCoordinates coords)
+        {
+            return GridExists(coords.GridId);
+        }
     }
 
     /// <summary>

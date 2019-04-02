@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using SS14.Client.Graphics.Overlays;
 using SS14.Client.Graphics.Shaders;
 using SS14.Client.Interfaces.Graphics.Overlays;
+using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Prototypes;
 using SS14.Shared.Utility;
 
@@ -24,13 +25,12 @@ namespace SS14.Client.GameObjects
 {
     public class EffectSystem : EntitySystem
     {
-        [Dependency] IGameTiming gameTiming;
-
-        [Dependency] IResourceCache resourceCache;
-
-        [Dependency] IEyeManager eyeManager;
-
-        [Dependency] IOverlayManager overlayManager;
+        [Dependency] private readonly IGameTiming gameTiming;
+        [Dependency] private readonly IResourceCache resourceCache;
+        [Dependency] private readonly IEyeManager eyeManager;
+        [Dependency] private readonly IOverlayManager overlayManager;
+        [Dependency] private readonly IPrototypeManager _prototypeManager;
+        [Dependency] private readonly IMapManager _mapManager;
 
         private readonly List<Effect> _Effects = new List<Effect>();
         private TimeSpan lasttimeprocessed = TimeSpan.Zero;
@@ -40,7 +40,7 @@ namespace SS14.Client.GameObjects
             base.Initialize();
             IoCManager.InjectDependencies(this);
 
-            var overlay = new EffectOverlay(this);
+            var overlay = new EffectOverlay(_prototypeManager, _mapManager, this);
             overlayManager.AddOverlay(overlay);
         }
 
@@ -98,14 +98,14 @@ namespace SS14.Client.GameObjects
 
         public override void FrameUpdate(float frameTime)
         {
-            lasttimeprocessed = IoCManager.Resolve<IGameTiming>().CurTime;
+            lasttimeprocessed = gameTiming.CurTime;
 
             for (int i = 0; i < _Effects.Count; i++)
             {
                 var effect = _Effects[i];
 
                 //Update variables of the effect via its deltas
-                effect.Update(frameTime);
+                effect.Update(_mapManager, frameTime);
 
                 //These effects have died
                 if (effect.Age > effect.Deathtime)
@@ -209,7 +209,7 @@ namespace SS14.Client.GameObjects
             /// Time after which the effect will "die"
             /// </summary>
             public TimeSpan Deathtime = TimeSpan.FromSeconds(1);
-
+            
             public Effect(EffectSystemMessage effectcreation, IResourceCache resourceCache)
             {
                 EffectSprite = resourceCache
@@ -233,7 +233,7 @@ namespace SS14.Client.GameObjects
                 Shaded = effectcreation.Shaded;
             }
 
-            public void Update(float frameTime)
+            public void Update(IMapManager mapManager, float frameTime)
             {
                 Age += TimeSpan.FromSeconds(frameTime);
                 if (Age >= Deathtime)
@@ -246,11 +246,11 @@ namespace SS14.Client.GameObjects
                 var deltaPosition = new Vector2(0f, 0f);
 
                 //If we have an emitter we can do special effects around that emitter position
-                if (EmitterCoordinates.IsValidLocation())
+                if (mapManager.IsValidLocation(EmitterCoordinates))
                 {
                     //Calculate delta p due to radial velocity
                     var positionRelativeToEmitter =
-                        Coordinates.ToWorld().Position - EmitterCoordinates.ToWorld().Position;
+                        Coordinates.ToWorld(mapManager).Position - EmitterCoordinates.ToWorld(mapManager).Position;
                     var deltaRadial = RadialVelocity * frameTime;
                     deltaPosition = positionRelativeToEmitter * (deltaRadial / positionRelativeToEmitter.Length);
 
@@ -267,7 +267,7 @@ namespace SS14.Client.GameObjects
 
                 //Calculate new position from our velocity as well as possible rotation/movement around emitter
                 deltaPosition += Velocity * frameTime;
-                Coordinates = new GridCoordinates(Coordinates.Position + deltaPosition, Coordinates.Grid);
+                Coordinates = new GridCoordinates(Coordinates.Position + deltaPosition, Coordinates.GridId);
 
                 //Finish calculating new rotation, size, color
                 Rotation += RotationRate * frameTime;
@@ -290,11 +290,12 @@ namespace SS14.Client.GameObjects
 
             private readonly Shader _unshadedShader;
             private readonly EffectSystem _owner;
+            private readonly IMapManager mapMan;
 
-            public EffectOverlay(EffectSystem owner) : base("EffectSystem")
+            public EffectOverlay(IPrototypeManager prototypeManager, IMapManager mapManager, EffectSystem owner) : base("EffectSystem")
             {
                 _owner = owner;
-                _unshadedShader = IoCManager.Resolve<IPrototypeManager>().Index<ShaderPrototype>("unshaded").Instance();
+                _unshadedShader = prototypeManager.Index<ShaderPrototype>("unshaded").Instance();
             }
 
             protected override void Draw(DrawingHandle handle)
@@ -306,7 +307,7 @@ namespace SS14.Client.GameObjects
 
                 foreach (var effect in _owner._Effects)
                 {
-                    if (effect.Coordinates.MapID != map)
+                    if (mapMan.GetGrid(effect.Coordinates.GridId).Map.Index != map)
                     {
                         continue;
                     }
@@ -317,7 +318,7 @@ namespace SS14.Client.GameObjects
                     var usingHandle = effect.Shaded ? shaded : unshaded;
 
                     usingHandle.SetTransform(
-                        effect.Coordinates.ToWorld().Position,
+                        effect.Coordinates.ToWorld(mapMan).Position,
                         new Angle(-effect.Rotation), effect.Size);
                     var effectSprite = effect.EffectSprite;
                     usingHandle.DrawTexture(effectSprite, -((Vector2) effectSprite.Size / EyeManager.PIXELSPERMETER) / 2, ToColor(effect.Color));

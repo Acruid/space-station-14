@@ -1,5 +1,4 @@
-﻿using SS14.Server.GameObjects;
-using SS14.Server.Interfaces.GameObjects;
+﻿using SS14.Server.Interfaces.GameObjects;
 using SS14.Shared.Interfaces.Map;
 using SS14.Server.Interfaces.Placement;
 using SS14.Server.Interfaces.Player;
@@ -10,11 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using SS14.Shared.Enums;
 using SS14.Shared.GameObjects;
-using SS14.Shared.Interfaces.GameObjects.Components;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.Maths;
 using SS14.Shared.Network.Messages;
-using Vector2 = SS14.Shared.Maths.Vector2;
 
 namespace SS14.Server.Placement
 {
@@ -28,6 +25,8 @@ namespace SS14.Server.Placement
         private readonly IPlayerManager _playerManager;
         [Dependency]
         private readonly IServerEntityManager _entityManager;
+        [Dependency]
+        private readonly IMapManager _mapManager;
 
         //TO-DO: Expand for multiple permission per mob?
         //       Add support for multi-use placeables (tiles etc.).
@@ -117,7 +116,7 @@ namespace SS14.Server.Placement
             }
             else
             {
-                coordinates.Grid.SetTile(coordinates, new Tile(tileType));
+                _mapManager.GetGrid(coordinates.GridId).SetTile(coordinates, new Tile(tileType));
             }
         }
 

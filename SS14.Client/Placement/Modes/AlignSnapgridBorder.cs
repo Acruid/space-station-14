@@ -1,7 +1,6 @@
 ﻿using System;
 using SS14.Client.Graphics.ClientEye;
 using SS14.Client.Graphics.Drawing;
-using SS14.Client.Utility;
 using SS14.Shared.Map;
 using SS14.Shared.Maths;
 
@@ -57,7 +56,7 @@ namespace SS14.Client.Placement.Modes
         {
             MouseCoords = ScreenToPlayerGrid(mouseScreen);
 
-            snapSize = MouseCoords.Grid.SnapSize; //Find snap size.
+            snapSize = pManager.MapManager.GetGrid(MouseCoords.GridId).SnapSize; //Find snap size.
             GridDistancing = snapSize;
             onGrid = true;
 
@@ -68,7 +67,7 @@ namespace SS14.Client.Placement.Modes
             //Convert back to original world and screen coordinates after applying offset
             MouseCoords =
                 new GridCoordinates(
-                    mouselocal + new Vector2(pManager.PlacementOffset.X, pManager.PlacementOffset.Y), MouseCoords.Grid);
+                    mouselocal + new Vector2(pManager.PlacementOffset.X, pManager.PlacementOffset.Y), MouseCoords.GridId);
         }
 
         public override bool IsValidPosition(GridCoordinates position)

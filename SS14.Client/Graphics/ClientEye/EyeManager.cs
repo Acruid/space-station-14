@@ -121,7 +121,8 @@ namespace SS14.Client.Graphics.ClientEye
             {
                 grid = _mapManager.GetGrid(GridId.Nullspace);
             }
-            return new GridCoordinates(grid.WorldToLocal(worldPos), grid);
+
+            return grid.WorldToGrid(worldPos);
         }
     }
 }

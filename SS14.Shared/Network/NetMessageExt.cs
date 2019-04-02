@@ -16,7 +16,7 @@ namespace SS14.Shared.Network
 
         public static void Write(this NetOutgoingMessage message, GridCoordinates coordinates)
         {
-            message.Write(coordinates.GridID.Value);
+            message.Write(coordinates.GridId.Value);
             message.Write(coordinates.Position);
         }
 
