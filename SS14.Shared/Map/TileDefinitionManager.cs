@@ -7,11 +7,17 @@ using SS14.Shared.Prototypes;
 
 namespace SS14.Shared.Map
 {
+    /// <summary>
+    ///     This class manages a collection of <see cref="MapManager"/> tile definitions.
+    /// </summary>
     internal class TileDefinitionManager : ITileDefinitionManager
     {
         [Dependency]
-        IPrototypeManager PrototypeManager;
+        private readonly IPrototypeManager PrototypeManager;
 
+        /// <summary>
+        ///     Collection of all Tile Definitions registered in the system.
+        /// </summary>
         protected readonly List<ITileDefinition> TileDefs;
         private readonly Dictionary<string, ITileDefinition> _tileNames;
         private readonly Dictionary<ITileDefinition, ushort> _tileIds;
@@ -26,6 +32,7 @@ namespace SS14.Shared.Map
             _tileIds = new Dictionary<ITileDefinition, ushort>();
         }
 
+        /// <inheritdoc />
         public virtual void Initialize()
         {
             foreach (var prototype in PrototypeManager.EnumeratePrototypes<PrototypeTileDefinition>().OrderBy(p => p.FutureID))
@@ -34,6 +41,7 @@ namespace SS14.Shared.Map
             }
         }
 
+        /// <inheritdoc />
         public virtual ushort Register(ITileDefinition tileDef)
         {
             if (_tileIds.TryGetValue(tileDef, out ushort id))
@@ -47,19 +55,23 @@ namespace SS14.Shared.Map
                 throw new ArgumentException("Another tile definition with the same name has already been registered.", nameof(tileDef));
             }
 
-            id = checked((ushort) TileDefs.Count);
+            id = checked((ushort)TileDefs.Count);
             TileDefs.Add(tileDef);
             _tileNames[name] = tileDef;
             _tileIds[tileDef] = id;
             return id;
         }
 
+        /// <inheritdoc />
         public ITileDefinition this[string name] => _tileNames[name];
 
+        /// <inheritdoc />
         public ITileDefinition this[int id] => TileDefs[id];
 
+        /// <inheritdoc />
         public int Count => TileDefs.Count;
 
+        /// <inheritdoc />
         public IEnumerator<ITileDefinition> GetEnumerator()
         {
             return TileDefs.GetEnumerator();
