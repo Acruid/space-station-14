@@ -50,7 +50,7 @@ namespace SS14.Shared.Map
 
         public GridCoordinates ToWorld(IMapManager mapManager)
         {
-            return ConvertToGrid(mapManager, mapManager.GetGrid(GridId).Map.DefaultGrid);
+            return ConvertToGrid(mapManager, mapManager.GetGrid(GridId).ParentMap.DefaultGrid);
         }
 
         public GridCoordinates Offset(Vector2 offset)
@@ -60,7 +60,7 @@ namespace SS14.Shared.Map
 
         public bool InRange(IMapManager mapManager, GridCoordinates localpos, float range)
         {
-            if (mapManager.GetGrid(localpos.GridId).Map.Index != mapManager.GetGrid(GridId).Map.Index)
+            if (mapManager.GetGrid(localpos.GridId).ParentMap.Index != mapManager.GetGrid(GridId).ParentMap.Index)
             {
                 return false;
             }

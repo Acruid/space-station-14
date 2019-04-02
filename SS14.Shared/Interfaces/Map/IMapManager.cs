@@ -1,19 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using SS14.Shared.GameStates;
-using SS14.Shared.Interfaces.Network;
 using SS14.Shared.Map;
 
 namespace SS14.Shared.Interfaces.Map
 {
-    /// <summary>
-    ///     Event delegate for the OnTileChanged event.
-    /// </summary>
-    /// <param name="gridId">The ID of the grid being changed.</param>
-    /// <param name="tileRef">A reference to the new tile being inserted.</param>
-    /// <param name="oldTile">The old tile that is being replaced.</param>
-    public delegate void TileChangedEventHandler(TileRef tileRef, Tile oldTile);
-
     public delegate void GridEventHandler(GridId gridId);
 
     /// <summary>
@@ -26,6 +17,10 @@ namespace SS14.Shared.Interfaces.Map
         /// </summary>
         IMap DefaultMap { get; }
 
+        /// <summary>
+        ///     Returns an enumeration of all maps that exist.
+        /// </summary>
+        /// <returns>An enumeration of all maps that exist.</returns>
         IEnumerable<IMap> GetAllMaps();
 
         /// <summary>
@@ -39,7 +34,14 @@ namespace SS14.Shared.Interfaces.Map
         /// </summary>
         void Initialize();
 
+        /// <summary>
+        ///     Shuts down the map system, removing all maps.
+        /// </summary>
         void Shutdown();
+
+        /// <summary>
+        ///     Starts up the map system.
+        /// </summary>
         void Startup();
 
         /// <summary>
@@ -76,6 +78,8 @@ namespace SS14.Shared.Interfaces.Map
         bool GridExists(GridId gridID);
         void DeleteGrid(GridId gridID);
 
+
+
         /// <summary>
         ///     A tile is being modified.
         /// </summary>
@@ -101,7 +105,7 @@ namespace SS14.Shared.Interfaces.Map
         event EventHandler<MapEventArgs> MapDestroyed;
 
         GameStateMapData GetStateData(uint fromTick);
-        void CullDeletionHistory(uint uptoTick);
+        void CullDeletionHistory(uint upToTick);
 
         // Two methods here, so that new grids etc can be made BEFORE entities get states applied,
         // but old ones can be deleted after.

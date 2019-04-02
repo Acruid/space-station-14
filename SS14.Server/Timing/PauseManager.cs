@@ -1,6 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SS14.Server.Interfaces.Timing;
-using SS14.Shared.Interfaces.GameObjects;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.IoC;
 using SS14.Shared.Map;
@@ -30,7 +29,7 @@ namespace SS14.Server.Timing
 
         public bool IsMapPaused(IMap map) => IsMapPaused(map.Index);
         public bool IsMapPaused(MapId mapId) => _pausedMaps.Contains(mapId);
-        public bool IsGridPaused(IMapGrid grid) => _pausedMaps.Contains(grid.MapID);
+        public bool IsGridPaused(IMapGrid grid) => _pausedMaps.Contains(grid.ParentMapId);
 
         public bool IsGridPaused(GridId gridId)
         {

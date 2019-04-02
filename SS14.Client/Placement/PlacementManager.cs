@@ -574,7 +574,7 @@ namespace SS14.Client.Placement
 
         private void RequestPlacement(GridCoordinates coordinates)
         {
-            if (IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridId).Map.Index == MapId.Nullspace) return;
+            if (IoCManager.Resolve<IMapManager>().GetGrid(coordinates.GridId).ParentMap.Index == MapId.Nullspace) return;
             if (CurrentPermission == null) return;
             if (!CurrentMode.IsValidPosition(coordinates)) return;
             if (Hijack != null && Hijack.HijackPlacementRequest(coordinates)) return;

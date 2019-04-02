@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SS14.Shared.Enums;
 using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Interfaces.Timing;
 using SS14.Shared.IoC;
-using SS14.Shared.Log;
-using SS14.Shared.Maths;
-using SS14.Shared.Network.Messages;
 using SS14.Shared.Utility;
 
 namespace SS14.Shared.Map
 {
-    /// <inheritdoc />
+    /// <inheritdoc cref="IMapManager"/>
     public partial class MapManager : IMapManager, IPostInjectInit
     {
-        [Dependency] private protected readonly IGameTiming _gameTiming;
+        [Dependency] private readonly IGameTiming _gameTiming;
 
         /// <inheritdoc />
         public IMap DefaultMap => GetMap(MapId.Nullspace);
@@ -242,7 +238,7 @@ namespace SS14.Shared.Map
         public void DeleteGrid(GridId gridID)
         {
             var grid = _grids[gridID];
-            var map = (Map)grid.Map;
+            var map = (Map)grid.ParentMap;
 
             grid.Dispose();
             map.RemoveGrid(grid);
@@ -255,6 +251,16 @@ namespace SS14.Shared.Map
                 return;
             }
             _gridDeletionHistory.Add((_gameTiming.CurTick, gridID));
+        }
+
+        /// <summary>
+        ///     Teleports a grid, and everything connected to it, to another map.
+        /// </summary>
+        /// <param name="grid"></param>
+        /// <param name="mapId"></param>
+        public void MoveGridToMap(IMapGrid grid, MapId mapId)
+        {
+            grid.ParentMapId = mapId;
         }
 
         /// <inheritdoc />

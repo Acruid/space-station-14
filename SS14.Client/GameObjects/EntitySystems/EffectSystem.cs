@@ -307,7 +307,7 @@ namespace SS14.Client.GameObjects
 
                 foreach (var effect in _owner._Effects)
                 {
-                    if (mapMan.GetGrid(effect.Coordinates.GridId).Map.Index != map)
+                    if (mapMan.GetGrid(effect.Coordinates.GridId).ParentMap.Index != map)
                     {
                         continue;
                     }

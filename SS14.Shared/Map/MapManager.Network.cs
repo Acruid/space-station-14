@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using SS14.Shared.Enums;
 using SS14.Shared.GameStates;
-using SS14.Shared.Interfaces.GameObjects;
-using SS14.Shared.Interfaces.Map;
 using SS14.Shared.Interfaces.Network;
 using SS14.Shared.IoC;
-using SS14.Shared.Log;
-using SS14.Shared.Network.Messages;
 using SS14.Shared.Utility;
 
 namespace SS14.Shared.Map
@@ -51,7 +45,7 @@ namespace SS14.Shared.Map
                 }
 
                 var gridDatum =
-                    new GameStateMapData.GridDatum(chunkData, new MapCoordinates(grid.WorldPosition, grid.MapID));
+                    new GameStateMapData.GridDatum(chunkData, new MapCoordinates(grid.WorldPosition, grid.ParentMapId));
 
                 gridDatums.Add(grid.Index, gridDatum);
             }
@@ -67,10 +61,10 @@ namespace SS14.Shared.Map
             return new GameStateMapData(gridDatums, gridDeletionsData, mapDeletionsData, mapCreations, gridCreations);
         }
 
-        public void CullDeletionHistory(uint uptoTick)
+        public void CullDeletionHistory(uint upToTick)
         {
-            _mapDeletionHistory.RemoveAll(t => t.tick < uptoTick);
-            _gridDeletionHistory.RemoveAll(t => t.tick < uptoTick);
+            _mapDeletionHistory.RemoveAll(t => t.tick < upToTick);
+            _gridDeletionHistory.RemoveAll(t => t.tick < upToTick);
         }
 
         public void ApplyGameStatePre(GameStateMapData data)
@@ -111,7 +105,7 @@ namespace SS14.Shared.Map
             foreach (var (gridId, gridDatum) in data.GridData)
             {
                 var grid = _grids[gridId];
-                if (grid.MapID != gridDatum.Coordinates.MapId)
+                if (grid.ParentMapId != gridDatum.Coordinates.MapId)
                 {
                     throw new NotImplementedException("Moving grids between maps is not yet implemented");
                 }
@@ -132,7 +126,7 @@ namespace SS14.Shared.Map
                         if (chunk.GetTile(x, y).Tile != tile)
                         {
                             chunk.SetTile(x, y, tile);
-                            modified.Add((new MapIndices(chunk.X * grid.ChunkSize + x, chunk.Y * grid.ChunkSize + y), tile));
+                            modified.Add((new MapIndices(chunk.ChunkIndices.X * grid.ChunkSize + x, chunk.ChunkIndices.Y * grid.ChunkSize + y), tile));
                         }
                     }
                 }

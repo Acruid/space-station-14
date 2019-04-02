@@ -15,13 +15,20 @@ namespace SS14.Shared.Interfaces.Map
         ///     True if we are the default grid of our map.
         /// </summary>
         bool IsDefaultGrid { get; }
-        IMap Map { get; }
+
+        /// <summary>
+        ///     The Map that this grid is currently located within.
+        /// </summary>
+        IMap ParentMap { get; }
 
         /// <summary>
         ///     The integer ID of the map this grid is currently located within.
         /// </summary>
-        MapId MapID { get; }
+        MapId ParentMapId { get; set; }
 
+        /// <summary>
+        ///     The identifier of this grid.
+        /// </summary>
         GridId Index { get; }
 
         /// <summary>
@@ -172,9 +179,9 @@ namespace SS14.Shared.Interfaces.Map
         /// <summary>
         ///     Transforms local vectors into world space vectors
         /// </summary>
-        /// <param name="localpos">The local vector with this grid as origin.</param>
+        /// <param name="localPos">The local vector with this grid as origin.</param>
         /// <returns>The world-space vector with global origin.</returns>
-        Vector2 ConvertToWorld(Vector2 localpos);
+        Vector2 ConvertToWorld(Vector2 localPos);
 
         /// <summary>
         ///     Transforms grid-space tile indices to local coordinates.
@@ -184,9 +191,10 @@ namespace SS14.Shared.Interfaces.Map
         GridCoordinates GridTileToLocal(MapIndices gridTile);
 
         /// <summary>
-        ///     Transforms grid indices into an outvar tile, returns false if no tile is found
+        ///     Transforms grid indices into a tile, returns false if no tile is found.
         /// </summary>
-        /// <param name="gridTile">The Grid Tile indices.</param>
+        /// <param name="indices">The Grid Tile indices.</param>
+        /// <param name="tile"></param>
         /// <returns></returns>
         bool IndicesToTile(MapIndices indices, out TileRef tile);
 

@@ -31,7 +31,7 @@ namespace SS14.Client.Placement.Modes
             var manager = IoCManager.Resolve<IClientEntityManager>();
 
             var snapToEntities = manager.GetEntitiesInRange(MouseCoords, SnapToRange)
-                .Where(entity => entity.Prototype == pManager.CurrentPrototype && entity.Transform.MapID == pManager.MapManager.GetGrid(MouseCoords.GridId).Map.Index)
+                .Where(entity => entity.Prototype == pManager.CurrentPrototype && entity.Transform.MapID == pManager.MapManager.GetGrid(MouseCoords.GridId).ParentMap.Index)
                 .OrderBy(entity => (entity.Transform.WorldPosition - MouseCoords.ToWorld(pManager.MapManager).Position).LengthSquared)
                 .ToList();
 

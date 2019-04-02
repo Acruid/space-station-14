@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
@@ -63,7 +63,7 @@ namespace SS14.Client.Graphics.Clyde
                         _updateChunkMesh(grid, chunk);
                     }
 
-                    var datum = _mapChunkData[grid.Index][chunk.Index];
+                    var datum = _mapChunkData[grid.Index][chunk.ChunkIndices];
 
                     if (datum.TileCount == 0)
                     {
@@ -85,7 +85,7 @@ namespace SS14.Client.Graphics.Clyde
         {
             var data = _mapChunkData[grid.Index];
 
-            if (!data.TryGetValue(chunk.Index, out var datum))
+            if (!data.TryGetValue(chunk.ChunkIndices, out var datum))
             {
                 datum = _initChunkBuffers(grid, chunk);
             }
@@ -148,11 +148,11 @@ namespace SS14.Client.Graphics.Clyde
             var eboSize = _indicesPerChunk(chunk) * sizeof(ushort);
 
             var vbo = new Buffer(this, BufferTarget.ArrayBuffer, BufferUsageHint.DynamicDraw,
-                vboSize, $"Grid {grid.Index} chunk {chunk.Index} VBO");
+                vboSize, $"Grid {grid.Index} chunk {chunk.ChunkIndices} VBO");
             var ebo = new Buffer(this, BufferTarget.ElementArrayBuffer, BufferUsageHint.DynamicDraw,
-                eboSize, $"Grid {grid.Index} chunk {chunk.Index} EBO");
+                eboSize, $"Grid {grid.Index} chunk {chunk.ChunkIndices} EBO");
 
-            _objectLabelMaybe(ObjectLabelIdentifier.VertexArray, vao, $"Grid {grid.Index} chunk {chunk.Index} VAO");
+            _objectLabelMaybe(ObjectLabelIdentifier.VertexArray, vao, $"Grid {grid.Index} chunk {chunk.ChunkIndices} VAO");
             // Vertex Coords
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, Vertex2D.SizeOf, 0);
             GL.EnableVertexAttribArray(0);
@@ -173,14 +173,14 @@ namespace SS14.Client.Graphics.Clyde
                 VBO = vbo
             };
 
-            _mapChunkData[grid.Index].Add(chunk.Index, datum);
+            _mapChunkData[grid.Index].Add(chunk.ChunkIndices, datum);
             return datum;
         }
 
         private bool _isChunkDirty(IMapGrid grid, IMapChunk chunk)
         {
             var data = _mapChunkData[grid.Index];
-            return !data.TryGetValue(chunk.Index, out var datum) || datum.Dirty;
+            return !data.TryGetValue(chunk.ChunkIndices, out var datum) || datum.Dirty;
         }
 
         public void _setChunkDirty(IMapGrid grid, MapIndices chunk)

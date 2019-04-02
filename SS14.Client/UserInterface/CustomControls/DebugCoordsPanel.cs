@@ -77,7 +77,7 @@ namespace SS14.Client.UserInterface.CustomControls
             try
             {
                 var coords = eyeManager.ScreenToWorld(new ScreenCoordinates(mouseScreenPos));
-                mouseWorldMap = (int) _mapManager.GetGrid(coords.GridId).Map.Index;
+                mouseWorldMap = (int) _mapManager.GetGrid(coords.GridId).ParentMap.Index;
                 mouseWorldGrid = (int) coords.GridId;
                 mouseWorldPos = coords;
                 worldToScreen = eyeManager.WorldToScreen(coords);

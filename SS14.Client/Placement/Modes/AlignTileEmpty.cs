@@ -42,7 +42,7 @@ namespace SS14.Client.Placement.Modes
             }
 
             var entitymanager = IoCManager.Resolve<IClientEntityManager>();
-            return !(entitymanager.AnyEntitiesIntersecting(pManager.MapManager.GetGrid(MouseCoords.GridId).Map.Index,
+            return !(entitymanager.AnyEntitiesIntersecting(pManager.MapManager.GetGrid(MouseCoords.GridId).ParentMap.Index,
                 new Box2(new Vector2(CurrentTile.GridIndices.X, CurrentTile.GridIndices.Y), new Vector2(CurrentTile.GridIndices.X + 0.99f, CurrentTile.GridIndices.Y + 0.99f))));
         }
     }

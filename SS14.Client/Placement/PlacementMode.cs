@@ -203,7 +203,7 @@ namespace SS14.Client.Placement
                 bounds.Width,
                 bounds.Height);
 
-            if (pManager.PhysicsManager.IsColliding(collisionbox, mapManager.GetGrid(coordinates.GridId).Map.Index))
+            if (pManager.PhysicsManager.IsColliding(collisionbox, mapManager.GetGrid(coordinates.GridId).ParentMap.Index))
                 return true;
 
             return false;

@@ -40,7 +40,7 @@ namespace SS14.Server.Maps
         private static YamlNode SerializeChunk(IMapChunk chunk)
         {
             var root = new YamlMappingNode();
-            var value = new YamlScalarNode($"{chunk.X},{chunk.Y}");
+            var value = new YamlScalarNode($"{chunk.ChunkIndices.X},{chunk.ChunkIndices.Y}");
             value.Style = ScalarStyle.DoubleQuoted;
             root.Add("ind", value);
 

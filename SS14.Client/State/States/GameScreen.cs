@@ -167,7 +167,7 @@ namespace SS14.Client.State.States
             GridCoordinates coordinates, IMapManager mapMan)
         {
             // Find all the entities intersecting our click
-            var entities = entityMan.GetEntitiesIntersecting(mapMan.GetGrid(coordinates.GridId).Map.Index, coordinates.Position);
+            var entities = entityMan.GetEntitiesIntersecting(mapMan.GetGrid(coordinates.GridId).ParentMap.Index, coordinates.Position);
 
             // Check the entities against whether or not we can click them
             var foundEntities = new List<(IEntity clicked, int drawDepth)>();
