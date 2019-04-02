@@ -24,8 +24,8 @@ namespace SS14.Client.Placement.Modes
                 var viewportSize = (Vector2)pManager.DisplayManager.ScreenSize;
                 var position = pManager.eyeManager.ScreenToWorld(Vector2.Zero);
                 var gridstart = pManager.eyeManager.WorldToScreen(new Vector2( //Find snap grid closest to screen origin and convert back to screen coords
-                    (float)(Math.Round(position.X / snapSize - 0.5f, MidpointRounding.AwayFromZero) + 0.5f) * snapSize,
-                    (float)(Math.Round(position.Y / snapSize - 0.5f, MidpointRounding.AwayFromZero) + 0.5f) * snapSize));
+                    (float)(Math.Round(position.Position.X / snapSize - 0.5f, MidpointRounding.AwayFromZero) + 0.5f) * snapSize,
+                    (float)(Math.Round(position.Position.Y / snapSize - 0.5f, MidpointRounding.AwayFromZero) + 0.5f) * snapSize));
                 for (var a = gridstart.X; a < viewportSize.X; a += snapSize * 32) //Iterate through screen creating gridlines
                 {
                     var from = ScreenToWorld(new Vector2(a, 0));

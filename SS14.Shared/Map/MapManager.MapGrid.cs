@@ -80,11 +80,11 @@ namespace SS14.Shared.Map
                 var a = AABBWorld;
                 var b = worldPos;
 
-                var min_x = Math.Min(a.Left, b.X);
-                var max_x = Math.Max(a.Right, b.X);
+                var min_x = Math.Min(a.Left, b.Position.X);
+                var max_x = Math.Max(a.Right, b.Position.X);
 
-                var min_y = Math.Min(a.Bottom, b.Y);
-                var max_y = Math.Max(a.Top, b.Y);
+                var min_y = Math.Min(a.Bottom, b.Position.Y);
+                var max_y = Math.Max(a.Top, b.Position.Y);
 
                 AABBWorld = Box2.FromDimensions(min_x, min_y, max_x - min_x, max_y - min_y);
             }
@@ -250,8 +250,8 @@ namespace SS14.Shared.Map
                 {
                     local = local.Offset(new Vector2(TileSize / 2f, TileSize / 2f));
                 }
-                var x = (int)Math.Floor(local.X / TileSize);
-                var y = (int)Math.Floor(local.Y / TileSize);
+                var x = (int)Math.Floor(local.Position.X / TileSize);
+                var y = (int)Math.Floor(local.Position.Y / TileSize);
                 return new MapIndices(x, y);
             }
 
@@ -314,8 +314,8 @@ namespace SS14.Shared.Map
             public MapIndices WorldToTile(GridCoordinates posWorld)
             {
                 var local = posWorld.ConvertToGrid(this);
-                var x = (int)Math.Floor(local.X / TileSize);
-                var y = (int)Math.Floor(local.Y / TileSize);
+                var x = (int)Math.Floor(local.Position.X / TileSize);
+                var y = (int)Math.Floor(local.Position.Y / TileSize);
                 return new MapIndices(x, y);
             }
 
@@ -327,8 +327,8 @@ namespace SS14.Shared.Map
             public MapIndices WorldToChunk(GridCoordinates posWorld)
             {
                 var local = posWorld.ConvertToGrid(this);
-                var x = (int)Math.Floor(local.X / (TileSize * ChunkSize));
-                var y = (int)Math.Floor(local.Y / (TileSize * ChunkSize));
+                var x = (int)Math.Floor(local.Position.X / (TileSize * ChunkSize));
+                var y = (int)Math.Floor(local.Position.Y / (TileSize * ChunkSize));
                 return new MapIndices(x, y);
             }
 

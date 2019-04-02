@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using SS14.Client.UserInterface;
 using SS14.Client.UserInterface.Controls;
 using SS14.Shared.Map;
@@ -37,7 +37,7 @@ namespace SS14.Client.ViewVariables.Editors
                 SizeFlagsHorizontal = Control.SizeFlags.FillExpand,
                 PlaceHolder = "X",
                 ToolTip = "X",
-                Text = coords.X.ToString(CultureInfo.InvariantCulture)
+                Text = coords.Position.X.ToString(CultureInfo.InvariantCulture)
             };
 
             hBoxContainer.AddChild(x);
@@ -48,7 +48,7 @@ namespace SS14.Client.ViewVariables.Editors
                 SizeFlagsHorizontal = Control.SizeFlags.FillExpand,
                 PlaceHolder = "Y",
                 ToolTip = "Y",
-                Text = coords.Y.ToString(CultureInfo.InvariantCulture)
+                Text = coords.Position.Y.ToString(CultureInfo.InvariantCulture)
             };
 
             hBoxContainer.AddChild(y);

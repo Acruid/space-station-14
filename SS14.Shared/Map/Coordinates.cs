@@ -16,10 +16,6 @@ namespace SS14.Shared.Map
         public readonly GridId GridID;
         public readonly Vector2 Position;
 
-        public float X => Position.X;
-
-        public float Y => Position.Y;
-
         public IMapGrid Grid => IoCManager.Resolve<IMapManager>().GetGrid(GridID);
 
         public static readonly GridCoordinates Nullspace = new GridCoordinates(0, 0, GridId.Nullspace);

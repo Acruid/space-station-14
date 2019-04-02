@@ -160,7 +160,7 @@ namespace SS14.Shared.GameObjects
             foreach (var entity in GetEntities())
             {
                 var transform = entity.Transform;
-                if (FloatMath.CloseTo(transform.GridPosition.X, position.X) && FloatMath.CloseTo(transform.GridPosition.Y, position.Y))
+                if (FloatMath.CloseTo(transform.GridPosition.Position.X, position.X) && FloatMath.CloseTo(transform.GridPosition.Position.Y, position.Y))
                 {
                     yield return entity;
                 }

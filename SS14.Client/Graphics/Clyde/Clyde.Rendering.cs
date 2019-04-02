@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -161,8 +161,8 @@ namespace SS14.Client.Graphics.Clyde
             var viewMatrixWorld = Matrix3.Identity;
             viewMatrixWorld.R0C0 = 1 / eye.Zoom.X;
             viewMatrixWorld.R1C1 = 1 / eye.Zoom.Y;
-            viewMatrixWorld.R0C2 = -cameraWorldAdjusted.X / eye.Zoom.X;
-            viewMatrixWorld.R1C2 = -cameraWorldAdjusted.Y / eye.Zoom.Y;
+            viewMatrixWorld.R0C2 = -cameraWorldAdjusted.Position.X / eye.Zoom.X;
+            viewMatrixWorld.R1C2 = -cameraWorldAdjusted.Position.Y / eye.Zoom.Y;
 
             _combinedDefaultMatricesWorld = new ProjViewMatrices(projMatrixWorld, viewMatrixWorld);
 
