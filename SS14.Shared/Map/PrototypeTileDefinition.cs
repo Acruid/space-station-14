@@ -1,6 +1,4 @@
-﻿using SS14.Shared.Interfaces.Map;
-using SS14.Shared.IoC;
-using SS14.Shared.Prototypes;
+﻿using SS14.Shared.Prototypes;
 using SS14.Shared.Utility;
 using YamlDotNet.RepresentationModel;
 
