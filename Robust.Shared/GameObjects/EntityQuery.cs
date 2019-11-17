@@ -134,4 +134,93 @@ namespace Robust.Shared.GameObjects
             return entityMan.GetEntities().Where(entity => Match(entity));
         }
     }
+
+    public abstract class NodeEntityQuery<T> : IEntityQuery
+        where T : struct
+    {
+        public bool Match(IEntity entity)
+        {
+            return TryMatch(entity, out _);
+        }
+
+        public IEnumerable<IEntity> Match(IEntityManager entityMan)
+        {
+            return entityMan.GetEntities().Where(entity => TryMatch(entity, out _));
+        }
+
+        public abstract bool TryMatch(IEntity entity, out T node);
+    }
+
+    public class TypeEntityQuery<T1, T2> : IEntityQuery
+        where T1 : class
+        where T2 : class
+    {
+        public bool Match(IEntity entity)
+        {
+            return TryMatch(entity, out _);
+        }
+
+        public IEnumerable<IEntity> Match(IEntityManager entityMan)
+        {
+            return entityMan.GetEntities().Where(entity => TryMatch(entity, out _));
+        }
+
+        public bool TryMatch(IEntity entity, out (T1, T2) node)
+        {
+            node = default;
+
+            if (!entity.TryGetComponent<T1>(out var item1))
+                return false;
+
+            if (!entity.TryGetComponent<T2>(out var item2))
+                return false;
+
+            node = (item1, item2);
+            return true;
+        }
+    }
+
+    public class TypeEntityQuery<T1, T2, T3> : IEntityQuery
+        where T1 : class
+        where T2 : class
+        where T3 : class
+    {
+        public bool Match(IEntity entity)
+        {
+            return TryMatch(entity, out _);
+        }
+
+        public IEnumerable<IEntity> Match(IEntityManager entityMan)
+        {
+            return entityMan.GetEntities().Where(entity => TryMatch(entity, out _));
+        }
+
+        public bool TryMatch(IEntity entity, out (T1, T2, T3) node)
+        {
+            node = default;
+
+            if (!entity.TryGetComponent<T1>(out var item1))
+                return false;
+
+            if (!entity.TryGetComponent<T2>(out var item2))
+                return false;
+
+            if (!entity.TryGetComponent<T3>(out var item3))
+                return false;
+
+            node = (item1, item2, item3);
+            return true;
+        }
+
+        public IEnumerable<(T1, T2, T3)> EnumerateEntities(IEntityManager entityManager)
+        {
+            foreach (var entity in entityManager.GetEntities())
+            {
+                if (!TryMatch(entity, out var tuple))
+                    continue;
+
+                yield return tuple;
+            }
+        }
+    }
 }
