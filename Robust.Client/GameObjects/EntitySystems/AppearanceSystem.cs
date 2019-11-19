@@ -1,29 +1,28 @@
-﻿using Robust.Shared.GameObjects.Systems;
+﻿using JetBrains.Annotations;
+using Robust.Shared.GameObjects.Systems;
 using Robust.Shared.GameObjects;
 
 namespace Robust.Client.GameObjects.EntitySystems
 {
-    sealed class AppearanceSystem : EntitySystem
+    [UsedImplicitly]
+    internal sealed class AppearanceSystem : EntitySystem
     {
-        public AppearanceSystem()
-        {
-            EntityQuery = new TypeEntityQuery(typeof(AppearanceComponent));
-        }
+        private readonly TypeEntityQuery<AppearanceComponent> _query
+            = new TypeEntityQuery<AppearanceComponent>();
 
         public override void FrameUpdate(float frameTime)
         {
-            foreach (var entity in RelevantEntities)
+            foreach (var appearance in _query.EnumerateEntities(EntityManager))
             {
-                var component = entity.GetComponent<AppearanceComponent>();
-                if (component.AppearanceDirty)
-                {
-                    UpdateComponent(component);
-                    component.AppearanceDirty = false;
-                }
+                if (!appearance.AppearanceDirty)
+                    continue;
+
+                UpdateComponent(appearance);
+                appearance.AppearanceDirty = false;
             }
         }
 
-        static void UpdateComponent(AppearanceComponent component)
+        private static void UpdateComponent(AppearanceComponent component)
         {
             foreach (var visualizer in component.Visualizers)
             {
@@ -40,7 +39,7 @@ namespace Robust.Client.GameObjects.EntitySystems
             }
         }
 
-        static void UpdateSpriteLayerToggle(AppearanceComponent component, AppearanceComponent.SpriteLayerToggle toggle)
+        private static void UpdateSpriteLayerToggle(AppearanceComponent component, AppearanceComponent.SpriteLayerToggle toggle)
         {
             component.TryGetData(toggle.Key, out bool visible);
             var sprite = component.Owner.GetComponent<SpriteComponent>();

@@ -10,21 +10,15 @@ namespace Robust.Client.GameObjects.EntitySystems
     [UsedImplicitly]
     internal class EyeUpdateSystem : EntitySystem
     {
-        /// <inheritdoc />
-        public override void Initialize()
-        {
-            base.Initialize();
-
-            EntityQuery = new TypeEntityQuery(typeof(EyeComponent));
-        }
+        private readonly TypeEntityQuery<EyeComponent> _query
+            = new TypeEntityQuery<EyeComponent>();
 
         /// <inheritdoc />
         public override void FrameUpdate(float frameTime)
         {
-            foreach (var entity in RelevantEntities)
+            foreach (var eye in _query.EnumerateEntities(EntityManager))
             {
-                var eyeComp = entity.GetComponent<EyeComponent>();
-                eyeComp.UpdateEyePosition();
+                eye.UpdateEyePosition();
             }
         }
     }

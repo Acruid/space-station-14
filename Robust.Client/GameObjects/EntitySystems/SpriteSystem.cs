@@ -1,4 +1,5 @@
-﻿using Robust.Client.Graphics.ClientEye;
+﻿using JetBrains.Annotations;
+using Robust.Client.Graphics.ClientEye;
 using Robust.Client.Interfaces.GameObjects.Components;
 using Robust.Client.Interfaces.Graphics;
 using Robust.Client.Interfaces.Graphics.ClientEye;
@@ -9,15 +10,16 @@ using Robust.Shared.Maths;
 
 namespace Robust.Client.GameObjects.EntitySystems
 {
+    [UsedImplicitly]
     public class SpriteSystem : EntitySystem
     {
+#pragma warning disable 649
         [Dependency] private readonly IClyde _clyde;
         [Dependency] private readonly IEyeManager _eyeManager;
+#pragma warning restore 649
 
-        public SpriteSystem()
-        {
-            EntityQuery = new TypeEntityQuery(typeof(ISpriteComponent));
-        }
+        private readonly TypeEntityQuery<ISpriteComponent> _query
+            = new TypeEntityQuery<ISpriteComponent>();
 
         public override void FrameUpdate(float frameTime)
         {
@@ -29,9 +31,9 @@ namespace Robust.Client.GameObjects.EntitySystems
             var worldBounds = Box2.CenteredAround(eye.Position.Position,
                 _clyde.ScreenSize / EyeManager.PIXELSPERMETER * eye.Zoom).Enlarged(5);
 
-            foreach (var entity in EntityManager.GetEntities(EntityQuery))
+            foreach (var sprite in _query.EnumerateEntities(EntityManager))
             {
-                var transform = entity.Transform;
+                var transform = sprite.Owner.Transform;
                 if (!worldBounds.Contains(transform.WorldPosition))
                 {
                     continue;
@@ -39,7 +41,7 @@ namespace Robust.Client.GameObjects.EntitySystems
 
                 // TODO: Don't call this on components without RSIs loaded.
                 // Serious performance benefit here.
-                entity.GetComponent<ISpriteComponent>().FrameUpdate(frameTime);
+                sprite.FrameUpdate(frameTime);
             }
         }
     }

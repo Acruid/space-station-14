@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using JetBrains.Annotations;
 using Robust.Server.Interfaces.Timing;
 using Robust.Shared.GameObjects;
 using Robust.Shared.GameObjects.Systems;
@@ -10,6 +11,7 @@ using Robust.Shared.Maths;
 
 namespace Robust.Server.GameObjects.EntitySystems
 {
+    [UsedImplicitly]
     internal class PhysicsSystem : EntitySystem
     {
 #pragma warning disable 649
@@ -21,27 +23,25 @@ namespace Robust.Server.GameObjects.EntitySystems
 
         private const float Epsilon = 1.0e-6f;
 
-        public PhysicsSystem()
-        {
-            EntityQuery = new TypeEntityQuery(typeof(PhysicsComponent));
-        }
+        private readonly TypeEntityQuery<PhysicsComponent> _query
+            = new TypeEntityQuery<PhysicsComponent>();
 
         /// <inheritdoc />
         public override void Update(float frameTime)
         {
-            var entities = EntityManager.GetEntities(EntityQuery);
             _physicsManager.BuildCollisionGrid();
-            foreach (var entity in entities)
+            foreach (var physics in _query.EnumerateEntities(EntityManager))
             {
-                if (_pauseManager.IsEntityPaused(entity))
+                if (_pauseManager.IsEntityPaused(physics.Owner))
                 {
                     continue;
                 }
-                HandleMovement(entity, frameTime);
+                HandleMovement(physics.Owner, frameTime);
             }
-            foreach(var entity in entities)
+
+            foreach(var physics in _query.EnumerateEntities(EntityManager))
             {
-                DoMovement(entity, frameTime);
+                DoMovement(physics.Owner, frameTime);
             }
         }
 

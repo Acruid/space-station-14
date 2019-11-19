@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using Robust.Server.GameObjects.Components.UserInterface;
 using Robust.Server.Interfaces.Player;
 using Robust.Shared.GameObjects;
@@ -7,6 +8,7 @@ using Robust.Shared.Interfaces.GameObjects.Components;
 
 namespace Robust.Server.GameObjects.EntitySystems
 {
+    [UsedImplicitly]
     internal class UserInterfaceSystem : EntitySystem
     {
         private const float MaxWindowRange = 2;
@@ -14,20 +16,15 @@ namespace Robust.Server.GameObjects.EntitySystems
 
         private readonly List<IPlayerSession> _sessionCache = new List<IPlayerSession>();
 
-        /// <inheritdoc />
-        public override void Initialize()
-        {
-            EntityQuery = new TypeEntityQuery(typeof(ServerUserInterfaceComponent));
-        }
+        private readonly TypeEntityQuery<ServerUserInterfaceComponent> _query
+            = new TypeEntityQuery<ServerUserInterfaceComponent>();
 
         /// <inheritdoc />
         public override void Update(float frameTime)
         {
-            foreach (var entity in RelevantEntities)
+            foreach (var ui in _query.EnumerateEntities(EntityManager))
             {
-                var uiComp = entity.GetComponent<ServerUserInterfaceComponent>();
-
-                CheckRange(entity.Transform, uiComp);
+                CheckRange(ui.Owner.Transform, ui);
             }
         }
 
