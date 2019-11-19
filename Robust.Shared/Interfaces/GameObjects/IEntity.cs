@@ -134,7 +134,7 @@ namespace Robust.Shared.Interfaces.GameObjects
         /// <param name="component">The component, if it was found. Null otherwise.</param>
         /// <returns>True if a component with specified type was found.</returns>
         bool TryGetComponent<T>(out T component)
-            where T : class;
+            where T : IComponent;
 
         /// <summary>
         ///     Attempt to retrieve the component with specified type,

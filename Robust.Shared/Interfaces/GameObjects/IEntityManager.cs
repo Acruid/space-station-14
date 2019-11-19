@@ -78,13 +78,6 @@ namespace Robust.Shared.Interfaces.GameObjects
         /// <returns>True if a value was returned, false otherwise.</returns>
         bool TryGetEntity(EntityUid uid, out IEntity entity);
 
-        /// <summary>
-        /// Returns all entities that match with the provided query.
-        /// </summary>
-        /// <param name="query">The query to test.</param>
-        /// <returns>An enumerable over all matching entities.</returns>
-        IEnumerable<IEntity> GetEntities(IEntityQuery query);
-
         IEnumerable<IEntity> GetEntities();
 
         IEnumerable<IEntity> GetEntitiesAt(Vector2 position);

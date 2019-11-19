@@ -276,7 +276,7 @@ namespace Robust.Shared.GameObjects
 
         /// <inheritdoc />
         public bool TryGetComponent<T>(out T component)
-            where T : class
+            where T : IComponent
         {
             return EntityManager.ComponentManager.TryGetComponent(Uid, out component);
         }

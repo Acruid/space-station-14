@@ -23,19 +23,9 @@ namespace Robust.Shared.GameObjects.Systems
         [Dependency] protected readonly IEntitySystemManager EntitySystemManager;
         [Dependency] protected readonly IEntityNetworkManager EntityNetworkManager;
 
-        protected IEntityQuery EntityQuery;
-        protected IEnumerable<IEntity> RelevantEntities => EntityManager.GetEntities(EntityQuery);
-
         private readonly Dictionary<Type, (CancellationTokenRegistration, TaskCompletionSource<EntitySystemMessage>)>
             _awaitingMessages
                 = new Dictionary<Type, (CancellationTokenRegistration, TaskCompletionSource<EntitySystemMessage>)>();
-
-        protected EntitySystem()
-        {
-            //EntityManager = IoCManager.Resolve<IEntityManager>();
-            //EntitySystemManager = IoCManager.Resolve<IEntitySystemManager>();
-            //EntityNetworkManager = IoCManager.Resolve<IEntityNetworkManager>();
-        }
 
         public virtual void RegisterMessageTypes()
         {

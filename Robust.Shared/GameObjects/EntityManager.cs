@@ -164,11 +164,6 @@ namespace Robust.Shared.GameObjects
             return false;
         }
 
-        public IEnumerable<IEntity> GetEntities(IEntityQuery query)
-        {
-            return query.Match(this);
-        }
-
         public IEnumerable<IEntity> GetEntitiesAt(Vector2 position)
         {
             foreach (var entity in GetEntities())
