@@ -3,6 +3,7 @@ using Robust.Shared.Maths;
 using Robust.Shared.Serialization;
 using System;
 using JetBrains.Annotations;
+using Robust.Shared.Interfaces.GameObjects;
 
 namespace Robust.Shared.Map
 {
@@ -81,15 +82,24 @@ namespace Robust.Shared.Map
         /// </summary>
         public GridCoordinates ConvertToGrid(IMapManager mapManager, IMapGrid argGrid)
         {
+            if (GridID == GridId.Nullspace)
+                throw new InvalidOperationException("Trying to convert an invalid grid to world coordinates.");
+
             return new GridCoordinates(Position + mapManager.GetGrid(GridID).WorldPosition - argGrid.WorldPosition, argGrid);
         }
 
         /// <summary>
-        ///     Converts this set of coordinates to the default grid on the map.
+        ///     Converts this set of coordinates from local to world.
         /// </summary>
-        public GridCoordinates ToWorld(IMapManager mapManager)
+        public MapCoordinates ToWorld(IMapManager mapManager, IEntityManager entityManager)
         {
-            return ConvertToGrid(mapManager, mapManager.GetDefaultGrid(mapManager.GetGrid(GridID).ParentMapId));
+            if(GridID == GridId.Nullspace)
+                throw new InvalidOperationException("Trying to convert an invalid grid to world coordinates.");
+
+            var grid = mapManager.GetGrid(GridID);
+            var gridEntity = entityManager.GetEntity(grid.GridEntity);
+            var worldPos = gridEntity.Transform.WorldMatrix.Transform(Position);
+            return new MapCoordinates(worldPos, grid.ParentMapId);
         }
 
         /// <summary>
@@ -99,45 +109,48 @@ namespace Robust.Shared.Map
         {
             return new GridCoordinates(Position + offset, GridID);
         }
-        
+
         /// <summary>
         ///     Checks that these coordinates are within a certain distance of another set. 
         /// </summary>
         /// <param name="mapManager">Map manager containing the two GridIds.</param>
+        /// <param name="entityManager"></param>
         /// <param name="otherCoords">Other set of coordinates to use.</param>
         /// <param name="range">maximum distance between the two sets of coordinates.</param>
         /// <returns>True if the two points are within a given range.</returns>
-        public bool InRange(IMapManager mapManager, GridCoordinates otherCoords, float range)
+        public bool InRange(IMapManager mapManager, IEntityManager entityManager, GridCoordinates otherCoords, float range)
         {
             if (mapManager.GetGrid(otherCoords.GridID).ParentMapId != mapManager.GetGrid(GridID).ParentMapId)
             {
                 return false;
             }
 
-            return ((otherCoords.ToWorld(mapManager).Position - ToWorld(mapManager).Position).LengthSquared < range * range);
+            return ((otherCoords.ToWorld(mapManager, entityManager).Position - ToWorld(mapManager, entityManager).Position).LengthSquared < range * range);
         }
 
         /// <summary>
         ///     Checks that these coordinates are within a certain distance of another set. 
         /// </summary>
         /// <param name="mapManager">Map manager containing the two GridIds.</param>
+        /// <param name="entityManager"></param>
         /// <param name="otherCoords">Other set of coordinates to use.</param>
         /// <param name="range">maximum distance between the two sets of coordinates.</param>
         /// <returns>True if the two points are within a given range.</returns>
-        public bool InRange(IMapManager mapManager, GridCoordinates otherCoords, int range)
+        public bool InRange(IMapManager mapManager, IEntityManager entityManager, GridCoordinates otherCoords, int range)
         {
-            return InRange(mapManager, otherCoords, (float) range);
+            return InRange(mapManager, entityManager, otherCoords, (float) range);
         }
 
         /// <summary>
         ///     Calculates the distance between two GirdCoordinates.
         /// </summary>
         /// <param name="mapManager">Map manager containing this GridId.</param>
+        /// <param name="entityManager"></param>
         /// <param name="otherCoords">Other set of coordinates to use.</param>
         /// <returns>Distance between the two points.</returns>
-        public float Distance(IMapManager mapManager, GridCoordinates otherCoords)
+        public float Distance(IMapManager mapManager, IEntityManager entityManager, GridCoordinates otherCoords)
         {
-            return (ToWorld(mapManager).Position - otherCoords.ToWorld(mapManager).Position).Length;
+            return (ToWorld(mapManager, entityManager).Position - otherCoords.ToWorld(mapManager, entityManager).Position).Length;
         }
 
         /// <summary>

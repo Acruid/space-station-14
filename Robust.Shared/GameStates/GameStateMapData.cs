@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Robust.Shared.Map;
-using Robust.Shared.Maths;
 using Robust.Shared.Serialization;
 
 namespace Robust.Shared.GameStates
@@ -10,13 +9,13 @@ namespace Robust.Shared.GameStates
     public class GameStateMapData
     {
         // Dict of the new maps along with which grids are their defaults.
-        public readonly Dictionary<MapId, GridId> CreatedMaps;
+        public readonly List<MapId> CreatedMaps;
         public readonly Dictionary<GridId, GridCreationDatum> CreatedGrids;
         public readonly Dictionary<GridId, GridDatum> GridData;
         public readonly List<GridId> DeletedGrids;
         public readonly List<MapId> DeletedMaps;
 
-        public GameStateMapData(Dictionary<GridId, GridDatum> gridData, List<GridId> deletedGrids, List<MapId> deletedMaps, Dictionary<MapId, GridId> createdMaps, Dictionary<GridId, GridCreationDatum> createdGrids)
+        public GameStateMapData(Dictionary<GridId, GridDatum> gridData, List<GridId> deletedGrids, List<MapId> deletedMaps, List<MapId> createdMaps, Dictionary<GridId, GridCreationDatum> createdGrids)
         {
             GridData = gridData;
             DeletedGrids = deletedGrids;
@@ -30,13 +29,11 @@ namespace Robust.Shared.GameStates
         {
             public readonly ushort ChunkSize;
             public readonly float SnapSize;
-            public readonly bool IsTheDefault;
 
-            public GridCreationDatum(ushort chunkSize, float snapSize, bool isTheDefault)
+            public GridCreationDatum(ushort chunkSize, float snapSize)
             {
                 ChunkSize = chunkSize;
                 SnapSize = snapSize;
-                IsTheDefault = isTheDefault;
             }
         }
 

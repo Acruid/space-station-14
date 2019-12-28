@@ -58,7 +58,7 @@ namespace Robust.Client.Placement
         [Dependency]
         private readonly IEntitySystemManager _entitySystemManager;
         [Dependency]
-        private readonly IEntityManager _entityManager;
+        public readonly IEntityManager EntityManager;
         [Dependency]
         private readonly IPrototypeManager _prototypeManager;
         [Dependency]
@@ -225,7 +225,7 @@ namespace Robust.Client.Placement
                         {
                             return false;
                         }
-                        HandleDeletion(_entityManager.GetEntity(uid));
+                        HandleDeletion(EntityManager.GetEntity(uid));
                     }
                     else
                     {

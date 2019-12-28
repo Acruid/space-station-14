@@ -57,7 +57,6 @@ namespace Robust.Shared.Map
         private readonly Dictionary<MapId, GameTick> _mapCreationTick = new Dictionary<MapId, GameTick>();
 
         private readonly Dictionary<GridId, MapGrid> _grids = new Dictionary<GridId, MapGrid>();
-        private readonly Dictionary<MapId, GridId> _defaultGrids = new Dictionary<MapId, GridId>();
         private readonly Dictionary<MapId, EntityUid> _mapEntities = new Dictionary<MapId, EntityUid>();
 
         private readonly List<(GameTick tick, GridId gridId)> _gridDeletionHistory = new List<(GameTick, GridId)>();
@@ -66,7 +65,7 @@ namespace Robust.Shared.Map
         /// <inheritdoc />
         public void Initialize()
         {
-            CreateMap(MapId.Nullspace, GridId.Nullspace);
+            CreateMap(MapId.Nullspace);
             // So uh I removed the contents from this but I'm too lazy to remove the Initialize method.
             // Deal with it.
         }
@@ -139,12 +138,8 @@ namespace Robust.Shared.Map
         }
 
         /// <inheritdoc />
-        public MapId CreateMap(MapId? mapID = null, GridId? defaultGridID = null)
+        public MapId CreateMap(MapId? mapID = null)
         {
-            if (defaultGridID != null && GridExists(defaultGridID.Value))
-            {
-                throw new InvalidOperationException($"Grid '{defaultGridID}' already exists.");
-            }
             MapId actualID;
             if (mapID != null)
             {
@@ -202,9 +197,6 @@ namespace Robust.Shared.Map
             }
 
             MapCreated?.Invoke(this, new MapEventArgs(actualID));
-            var newDefaultGrid = CreateGrid(actualID, defaultGridID);
-            _defaultGrids.Add(actualID, newDefaultGrid.Index);
-
             return actualID;
         }
 
@@ -227,18 +219,6 @@ namespace Robust.Shared.Map
         public IEnumerable<MapId> GetAllMapIds()
         {
             return _maps;
-        }
-
-        public IMapGrid GetDefaultGrid(MapId mapID)
-        {
-            return _grids[_defaultGrids[mapID]];
-        }
-
-        public GridId GetDefaultGridId(MapId mapID)
-        {
-            if(_defaultGrids.TryGetValue(mapID, out var gridID))
-                return gridID;
-            return GridId.Nullspace; //TODO: Hack to make shutdown work
         }
 
         public IEnumerable<IMapGrid> GetAllGrids()
@@ -339,11 +319,11 @@ namespace Robust.Shared.Map
 
         public IMapGrid FindGridAt(MapId mapId, Vector2 worldPos)
         {
-            var defaultGrid = GetDefaultGrid(mapId);
             foreach (var grid in GetAllMapGrids(mapId))
-                if (grid.WorldBounds.Contains(worldPos) && grid != defaultGrid)
+                if (grid.WorldBounds.Contains(worldPos))
                     return grid;
-            return defaultGrid;
+
+            return null;
         }
 
         public IMapGrid FindGridAt(MapCoordinates mapCoords)
@@ -366,9 +346,6 @@ namespace Robust.Shared.Map
 
             grid.Dispose();
             _grids.Remove(grid.Index);
-
-            if (_defaultGrids.ContainsKey(grid.ParentMapId))
-                _defaultGrids.Remove(grid.ParentMapId);
 
             if(_entityManager.TryGetEntity(grid.GridEntity, out var gridEnt))
                 gridEnt.Delete();

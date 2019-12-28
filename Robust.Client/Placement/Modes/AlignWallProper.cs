@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Robust.Shared.Map;
 using Vector2 = Robust.Shared.Maths.Vector2;
 
@@ -35,7 +35,7 @@ namespace Robust.Client.Placement.Modes
             };
 
             var closestNode = offsets.Select(o => tileGridCoordinates.Offset(o))
-                .OrderBy(node => node.Distance(pManager.MapManager, MouseCoords)).First();
+                .OrderBy(node => node.Distance(pManager.MapManager, pManager.EntityManager, MouseCoords)).First();
 
             MouseCoords = closestNode;
         }

@@ -49,9 +49,8 @@ namespace Robust.Shared.Interfaces.Map
         ///     Creates a new map.
         /// </summary>
         /// <param name="mapID">
-        ///     If provided, the new map will use this ID. If not provided, a new ID will be selected automatically.
+        /// If provided, the new map will use this ID. If not provided, a new ID will be selected automatically.
         /// </param>
-        /// <param name="defaultGridID"></param>
         /// <param name="defaultGapID">
         ///     If provided, the new map will use this grid ID as default grid. If not provided, a new ID will be selected automatically.
         /// </param>
@@ -59,7 +58,7 @@ namespace Robust.Shared.Interfaces.Map
         /// <exception cref="InvalidOperationException">
         ///     Throw if an explicit ID for the map or default grid is passed and a map or grid with the specified ID already exists, respectively.
         /// </exception>
-        MapId CreateMap(MapId? mapID = null, GridId? defaultGridID = null);
+        MapId CreateMap(MapId? mapID = null);
 
         /// <summary>
         ///     Check whether a map with specified ID exists.
@@ -72,9 +71,6 @@ namespace Robust.Shared.Interfaces.Map
         IEntity GetMapEntity(MapId mapId);
 
         IEnumerable<MapId> GetAllMapIds();
-
-        IMapGrid GetDefaultGrid(MapId mapID);
-        GridId GetDefaultGridId(MapId mapID);
 
         void DeleteMap(MapId mapID);
 

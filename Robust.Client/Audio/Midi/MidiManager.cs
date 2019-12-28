@@ -6,6 +6,7 @@ using System.Threading;
 using NFluidsynth;
 using Robust.Client.Interfaces.Graphics;
 using Robust.Client.Interfaces.ResourceManagement;
+using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.Interfaces.Map;
 using Robust.Shared.IoC;
 using Robust.Shared.Utility;
@@ -49,6 +50,7 @@ namespace Robust.Client.Audio.Midi
     {
 #pragma warning disable 649
         [Dependency] private readonly IMapManager _mapManager;
+        [Dependency] private readonly IEntityManager _entityManager;
 #pragma warning restore 649
 
         private bool _alive = true;
@@ -171,7 +173,7 @@ namespace Robust.Client.Audio.Midi
 
                     if (renderer.TrackingCoordinates != null)
                     {
-                        renderer.Source.SetPosition(renderer.TrackingCoordinates.Value.ToWorld(_mapManager).Position);
+                        renderer.Source.SetPosition(renderer.TrackingCoordinates.Value.ToWorld(_mapManager, _entityManager).Position);
                     }
                     else if (renderer.TrackingEntity != null)
                     {

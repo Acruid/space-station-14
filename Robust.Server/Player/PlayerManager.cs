@@ -7,6 +7,7 @@ using Robust.Server.Interfaces.Player;
 using Robust.Shared.Enums;
 using Robust.Shared.GameStates;
 using Robust.Shared.Input;
+using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.Interfaces.Map;
 using Robust.Shared.Interfaces.Network;
 using Robust.Shared.Interfaces.Reflection;
@@ -31,6 +32,7 @@ namespace Robust.Server.Player
         [Dependency] private readonly IServerNetManager _network;
         [Dependency] private readonly IReflectionManager _reflectionManager;
         [Dependency] private readonly IMapManager _mapManager;
+        [Dependency] private readonly IEntityManager _entityManager;
 #pragma warning restore 649
 
         public BoundKeyMap KeyMap { get; private set; }
@@ -203,7 +205,7 @@ namespace Robust.Server.Player
             {
                 return
                     _sessions.Values.Where(x => x.AttachedEntity != null &&
-                                                worldPos.InRange(_mapManager, x.AttachedEntity.Transform.GridPosition, range))
+                                                worldPos.InRange(_mapManager, _entityManager, x.AttachedEntity.Transform.GridPosition, range))
                         .Cast<IPlayerSession>()
                         .ToList();
             }

@@ -6,6 +6,7 @@ using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.IoC;
 using Robust.Shared.Maths;
 using Robust.Shared.Timing;
+using Robust.Shared.Utility;
 
 namespace Robust.Shared.Map
 {
@@ -257,7 +258,7 @@ namespace Robust.Shared.Map
 
             foreach(var tile in GetTilesIntersecting(aabb, ignoreEmpty))
             {
-                if (GridTileToLocal(tile.GridIndices).Distance(_mapManager, new GridCoordinates(worldArea.Position,tile.GridIndex)) <= worldArea.Radius)
+                if (GridTileToLocal(tile.GridIndices).Distance(_mapManager, TODO, new GridCoordinates(worldArea.Position,tile.GridIndex)) <= worldArea.Radius)
                 {
                     if (predicate == null || predicate(tile))
                     {
@@ -317,15 +318,24 @@ namespace Robust.Shared.Map
         /// <inheritdoc />
         public MapIndices SnapGridCellFor(GridCoordinates worldPos, SnapGridOffset offset)
         {
-            var local = worldPos.ConvertToGrid(_mapManager, this);
+            DebugTools.Assert(worldPos.GridID == Index);
+
+            Vector2 local;
+            if (worldPos.GridID != GridId.Nullspace)
+                local = worldPos.ConvertToGrid(_mapManager, this).Position;
+            else
+                local = worldPos.Position;
+
             if (offset == SnapGridOffset.Edge)
             {
-                local = local.Offset(new Vector2(TileSize / 2f, TileSize / 2f));
+                local = local + new Vector2(TileSize / 2f, TileSize / 2f));
             }
             var x = (int)Math.Floor(local.X / TileSize);
             var y = (int)Math.Floor(local.Y / TileSize);
             return new MapIndices(x, y);
         }
+
+
 
         /// <inheritdoc />
         public void AddToSnapGridCell(MapIndices pos, SnapGridOffset offset, SnapGridComponent snap)

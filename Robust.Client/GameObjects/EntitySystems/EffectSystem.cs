@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using Robust.Client.Graphics.Overlays;
 using Robust.Client.Graphics.Shaders;
 using Robust.Client.Interfaces.Graphics.Overlays;
+using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.Interfaces.Map;
 using Robust.Shared.Log;
 using Robust.Shared.Prototypes;
@@ -33,6 +34,7 @@ namespace Robust.Client.GameObjects
         [Dependency] private readonly IOverlayManager overlayManager;
         [Dependency] private readonly IPrototypeManager prototypeManager;
         [Dependency] private readonly IMapManager _mapManager;
+        [Dependency] private readonly IEntityManager _entityManager;
 #pragma warning restore 649
 
         private readonly List<Effect> _Effects = new List<Effect>();
@@ -41,7 +43,7 @@ namespace Robust.Client.GameObjects
         {
             base.Initialize();
 
-            var overlay = new EffectOverlay(this, prototypeManager, _mapManager);
+            var overlay = new EffectOverlay(this, prototypeManager, _mapManager, _entityManager);
             overlayManager.AddOverlay(overlay);
         }
 
@@ -82,7 +84,7 @@ namespace Robust.Client.GameObjects
             }
 
             //Create effect from creation message
-            var effect = new Effect(message, resourceCache, _mapManager);
+            var effect = new Effect(message, resourceCache, _mapManager, _entityManager);
 
             //Age the effect through a single update to the previous update tick of the effect system
             //effect.Update((float)((lasttimeprocessed - effect.Age).TotalSeconds));
@@ -211,8 +213,9 @@ namespace Robust.Client.GameObjects
             public TimeSpan Deathtime = TimeSpan.FromSeconds(1);
 
             private readonly IMapManager _mapManager;
+            private readonly IEntityManager _entityManager;
 
-            public Effect(EffectSystemMessage effectcreation, IResourceCache resourceCache, IMapManager mapManager)
+            public Effect(EffectSystemMessage effectcreation, IResourceCache resourceCache, IMapManager mapManager, IEntityManager entityManager)
             {
                 if (effectcreation.RsiState != null)
                 {
@@ -248,6 +251,7 @@ namespace Robust.Client.GameObjects
                 ColorDelta = effectcreation.ColorDelta;
                 Shaded = effectcreation.Shaded;
                 _mapManager = mapManager;
+                _entityManager = entityManager;
             }
 
             public void Update(float frameTime)
@@ -267,7 +271,7 @@ namespace Robust.Client.GameObjects
                 {
                     //Calculate delta p due to radial velocity
                     var positionRelativeToEmitter =
-                        Coordinates.ToWorld(_mapManager).Position - EmitterCoordinates.ToWorld(_mapManager).Position;
+                        Coordinates.ToWorld(_mapManager, _entityManager).Position - EmitterCoordinates.ToWorld(_mapManager, _entityManager).Position;
                     var deltaRadial = RadialVelocity * frameTime;
                     deltaPosition = positionRelativeToEmitter * (deltaRadial / positionRelativeToEmitter.Length);
 
@@ -339,13 +343,15 @@ namespace Robust.Client.GameObjects
             private readonly ShaderInstance _unshadedShader;
             private readonly EffectSystem _owner;
             private readonly IMapManager _mapManager;
+            private readonly IEntityManager _entityManager;
 
-            public EffectOverlay(EffectSystem owner, IPrototypeManager protoMan, IMapManager mapMan) : base(
+            public EffectOverlay(EffectSystem owner, IPrototypeManager protoMan, IMapManager mapMan, IEntityManager entityManager) : base(
                 "EffectSystem")
             {
                 _owner = owner;
                 _unshadedShader = protoMan.Index<ShaderPrototype>("unshaded").Instance();
                 _mapManager = mapMan;
+                _entityManager = entityManager;
             }
 
             protected override void Draw(DrawingHandleBase handle)
@@ -371,7 +377,7 @@ namespace Robust.Client.GameObjects
                     }
 
                     worldHandle.SetTransform(
-                        effect.Coordinates.ToWorld(_mapManager).Position,
+                        effect.Coordinates.ToWorld(_mapManager, _entityManager).Position,
                         new Angle(-effect.Rotation), effect.Size);
                     var effectSprite = effect.EffectSprite;
                     worldHandle.DrawTexture(effectSprite,

@@ -121,7 +121,7 @@ namespace Robust.Client.Placement
 
         public IEnumerable<GridCoordinates> LineCoordinates()
         {
-            var placementdiff = MouseCoords.ToWorld(pManager.MapManager).Position - pManager.StartPoint.ToWorld(pManager.MapManager).Position;
+            var placementdiff = MouseCoords.ToWorld(pManager.MapManager, pManager.EntityManager).Position - pManager.StartPoint.ToWorld(pManager.MapManager, pManager.EntityManager).Position;
             var iterations = 0f;
             Vector2 distance;
             if (Math.Abs(placementdiff.X) > Math.Abs(placementdiff.Y))
@@ -143,7 +143,7 @@ namespace Robust.Client.Placement
 
         public IEnumerable<GridCoordinates> GridCoordinates()
         {
-            var placementdiff = MouseCoords.ToWorld(pManager.MapManager).Position - pManager.StartPoint.ToWorld(pManager.MapManager).Position;
+            var placementdiff = MouseCoords.ToWorld(pManager.MapManager, pManager.EntityManager).Position - pManager.StartPoint.ToWorld(pManager.MapManager, pManager.EntityManager).Position;
             var distanceX = new Vector2(placementdiff.X > 0 ? 1 : -1, 0) * GridDistancing;
             var distanceY = new Vector2(0, placementdiff.Y > 0 ? 1 : -1) * GridDistancing;
 
@@ -183,7 +183,7 @@ namespace Robust.Client.Placement
             if (!RangeRequired)
                 return true;
             var range = pManager.CurrentPermission.Range;
-            if (range > 0 && !pManager.PlayerManager.LocalPlayer.ControlledEntity.Transform.GridPosition.InRange(pManager.MapManager, coordinates, range))
+            if (range > 0 && !pManager.PlayerManager.LocalPlayer.ControlledEntity.Transform.GridPosition.InRange(pManager.MapManager, pManager.EntityManager, coordinates, range))
                 return false;
             return true;
         }
@@ -191,7 +191,7 @@ namespace Robust.Client.Placement
         public bool IsColliding(GridCoordinates coordinates)
         {
             var bounds = pManager.ColliderAABB;
-            var worldcoords = coordinates.ToWorld(pManager.MapManager);
+            var worldcoords = coordinates.ToWorld(pManager.MapManager, pManager.EntityManager);
 
             var collisionbox = Box2.FromDimensions(
                 bounds.Left + worldcoords.Position.X,
@@ -208,7 +208,7 @@ namespace Robust.Client.Placement
         protected Vector2 ScreenToWorld(Vector2 point)
         {
             var gridCoords = pManager.eyeManager.ScreenToWorld(point);
-            return gridCoords.ToWorld(pManager.MapManager).Position;
+            return gridCoords.ToWorld(pManager.MapManager, pManager.EntityManager).Position;
         }
 
         protected Vector2 WorldToScreen(Vector2 point)

@@ -112,7 +112,7 @@ namespace Robust.Server.Placement
             }
             else
             {
-                PlaceNewTile(coordinates, tileType, _mapManager.GetGrid(coordinates.GridID).ParentMapId, coordinates.ToWorld(_mapManager).Position);
+                PlaceNewTile(coordinates, tileType, _mapManager.GetGrid(coordinates.GridID).ParentMapId, coordinates.ToWorld(_mapManager, _entityManager).Position);
             }
         }
 
@@ -150,7 +150,7 @@ namespace Robust.Server.Placement
                 // round coords to center of tile
                 var tileIndices = closest.WorldToTile(intersect.Center);
                 var tileCenterLocal = closest.GridTileToLocal(tileIndices);
-                var tileCenterWorld = tileCenterLocal.ToWorld(_mapManager).Position;
+                var tileCenterWorld = tileCenterLocal.ToWorld(_mapManager, _entityManager).Position;
 
                 // move mouse one tile out along normal
                 var newTilePos = tileCenterWorld + normal * closest.TileSize;

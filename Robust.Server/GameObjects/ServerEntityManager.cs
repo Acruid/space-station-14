@@ -178,7 +178,7 @@ namespace Robust.Server.GameObjects
         /// <inheritdoc />
         public IEnumerable<IEntity> GetEntitiesIntersecting(GridCoordinates position)
         {
-            return GetEntitiesIntersecting(_mapManager.GetGrid(position.GridID).ParentMapId, position.ToWorld(_mapManager).Position);
+            return GetEntitiesIntersecting(_mapManager.GetGrid(position.GridID).ParentMapId, position.ToWorld(_mapManager, this).Position);
         }
 
         /// <inheritdoc />
@@ -227,7 +227,7 @@ namespace Robust.Server.GameObjects
 
             foreach (var entity in entities)
             {
-                var angle = new Angle(entity.Transform.WorldPosition - coordinates.ToWorld(_mapManager).Position);
+                var angle = new Angle(entity.Transform.WorldPosition - coordinates.ToWorld(_mapManager, this).Position);
                 if (angle.Degrees < direction.Degrees + arcWidth / 2 && angle.Degrees > direction.Degrees - arcWidth / 2)
                     yield return entity;
             }
