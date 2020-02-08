@@ -6,11 +6,11 @@ using Robust.Shared.Containers;
 using Robust.Shared.Enums;
 using Robust.Shared.GameObjects.Components.Map;
 using Robust.Shared.GameObjects.EntitySystemMessages;
+using Robust.Shared.GameStates;
 using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.Interfaces.GameObjects.Components;
 using Robust.Shared.Interfaces.Map;
 using Robust.Shared.Interfaces.Timing;
-using Robust.Shared.IoC;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Robust.Shared.Serialization;
@@ -19,7 +19,7 @@ using Robust.Shared.ViewVariables;
 
 namespace Robust.Shared.GameObjects.Components.Transform
 {
-    internal class TransformComponent : Component, ITransformComponent, IComponentDebug
+    internal class TransformComponent : Component, ITransformComponent, IComponentDebug, INetworkedComponent
     {
         private EntityUid _parent;
         private Vector2 _localPosition; // holds offset from grid, or offset from parent
@@ -35,9 +35,9 @@ namespace Robust.Shared.GameObjects.Components.Transform
         [ViewVariables] private readonly List<EntityUid> _children = new List<EntityUid>();
 
 #pragma warning disable 649
-        [Dependency] private readonly IMapManager _mapManager;
-        [Dependency] private readonly IGameTiming _gameTiming;
-        [Dependency] private readonly IEntityManager _entityManager;
+        [IoC.Dependency] private readonly IMapManager _mapManager;
+        [IoC.Dependency] private readonly IGameTiming _gameTiming;
+        [IoC.Dependency] private readonly IEntityManager _entityManager;
 #pragma warning restore 649
 
         /// <inheritdoc />
@@ -670,6 +670,29 @@ namespace Robust.Shared.GameObjects.Components.Transform
                 LocalPosition = localPosition;
                 Rotation = rotation;
                 ParentID = parentId;
+            }
+        }
+
+        /// <inheritdoc />
+        public void WriteNetworkState(BitDeltaWriter state)
+        {
+            state.Write((int) _parent);
+            state.Write(_localPosition.X);
+            state.Write(_localPosition.Y);
+            state.Write((float)_localRotation.Theta);
+        }
+
+        /// <inheritdoc />
+        public void ReadNetworkState(BitReader curState, BitReader nextState)
+        {
+            if (curState != null)
+            {
+                var parent = new EntityUid();
+            }
+
+            if (nextState != null)
+            {
+
             }
         }
     }
