@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using System.Threading;
+using JetBrains.Annotations;
 using Robust.Shared.Interfaces.Log;
 using Robust.Shared.IoC;
 
@@ -16,12 +18,36 @@ namespace Robust.Shared.Log
     /// <seealso cref="ISawmill"/>
     public static class Logger
     {
+        private static readonly ThreadLocal<ILogManager> LogManagerSingleton = new ThreadLocal<ILogManager>();
+
         /// <summary>
-        ///     The instance we're using.
-        ///     As it's a direct proxy to IoC this will not work if IoC is not functional.
+        /// The thread local <see cref="ILogManager"/> dependency for this static class.
+        ///
+        /// if no methods have been called on this <see cref="Logger"/> class in the current thread context, this property allows
+        /// the default dependency obtained from the <see cref="IoCManager"/> to be substituted through Property Injection.
         /// </summary>
-        // TODO: Maybe cache this to improve performance.
-        private static ILogManager LogManagerSingleton => IoCManager.Resolve<ILogManager>();
+        public static ILogManager LogManager
+        {
+            private get // getter kept private so nobody gets any 'Logger.LogManager.Log()' ideas.
+            {
+                var logMan = LogManagerSingleton.Value;
+
+                if (logMan is null)
+                    return LogManagerSingleton.Value = IoCManager.Resolve<ILogManager>();
+
+                return logMan;
+            }
+            set
+            {
+                if (value is null)
+                    throw new ArgumentNullException(nameof(value));
+
+                if (LogManagerSingleton.IsValueCreated)
+                    throw new InvalidOperationException();
+
+                LogManagerSingleton.Value = value;
+            }
+        }
 
         /// <summary>
         ///     Gets a sawmill by name. Equivalent to <see cref="ILogManager.GetSawmill(string)"/>.
@@ -30,7 +56,7 @@ namespace Robust.Shared.Log
         /// <returns>The sawmill with specified name. Creates a new one if it does not exist.</returns>
         public static ISawmill GetSawmill(string name)
         {
-            return LogManagerSingleton.GetSawmill(name);
+            return LogManager.GetSawmill(name);
         }
 
         /// <summary>
@@ -39,7 +65,7 @@ namespace Robust.Shared.Log
         [StringFormatMethod("message")]
         public static void LogS(LogLevel logLevel, string sawmillname, string message, params object?[] args)
         {
-            var sawmill = LogManagerSingleton.GetSawmill(sawmillname);
+            var sawmill = LogManager.GetSawmill(sawmillname);
             sawmill.Log(logLevel, message, args);
         }
 
@@ -48,7 +74,7 @@ namespace Robust.Shared.Log
         /// </summary>
         public static void LogS(LogLevel logLevel, string sawmillname, string message)
         {
-            var sawmill = LogManagerSingleton.GetSawmill(sawmillname);
+            var sawmill = LogManager.GetSawmill(sawmillname);
             sawmill.Log(logLevel, message);
         }
 
@@ -58,7 +84,7 @@ namespace Robust.Shared.Log
         [StringFormatMethod("message")]
         public static void Log(LogLevel logLevel, string message, params object?[] args)
         {
-            LogManagerSingleton.RootSawmill.Log(logLevel, message, args);
+            LogManager.RootSawmill.Log(logLevel, message, args);
         }
 
         /// <summary>
@@ -66,7 +92,7 @@ namespace Robust.Shared.Log
         /// </summary>
         public static void Log(LogLevel logLevel, string message)
         {
-            LogManagerSingleton.RootSawmill.Log(logLevel, message);
+            LogManager.RootSawmill.Log(logLevel, message);
         }
 
         /// <summary>
