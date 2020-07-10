@@ -72,6 +72,8 @@ namespace Robust.Shared.Prototypes
         /// </summary>
         void RegisterIgnore(string name);
 
+        void RegisterType(Type protoClass);
+
         event Action<YamlStream, string>? LoadedData;
 
     }
@@ -281,24 +283,7 @@ namespace Robust.Shared.Prototypes
             Clear();
             foreach (var type in ReflectionManager.GetAllChildren<IPrototype>())
             {
-                var attribute = (PrototypeAttribute?)Attribute.GetCustomAttribute(type, typeof(PrototypeAttribute));
-                if (attribute == null)
-                {
-                    throw new InvalidImplementationException(type, typeof(IPrototype), "No " + nameof(PrototypeAttribute) + " to give it a type string.");
-                }
-
-                if (prototypeTypes.ContainsKey(attribute.Type))
-                {
-                    throw new InvalidImplementationException(type, typeof(IPrototype),
-                        $"Duplicate prototype type ID: {attribute.Type}. Current: {prototypeTypes[attribute.Type]}");
-                }
-
-                prototypeTypes[attribute.Type] = type;
-                prototypes[type] = new List<IPrototype>();
-                if (typeof(IIndexedPrototype).IsAssignableFrom(type))
-                {
-                    indexedPrototypes[type] = new Dictionary<string, IIndexedPrototype>();
-                }
+                RegisterType(type);
             }
         }
 
@@ -357,6 +342,36 @@ namespace Robust.Shared.Prototypes
         public void RegisterIgnore(string name)
         {
             IgnoredPrototypeTypes.Add(name);
+        }
+
+        public void RegisterType(Type type)
+        {
+            if(!(typeof(IPrototype).IsAssignableFrom(type)))
+                throw new InvalidOperationException("Type must implement IPrototype.");
+
+            var attribute = (PrototypeAttribute?)Attribute.GetCustomAttribute(type, typeof(PrototypeAttribute));
+
+            if (attribute == null)
+            {
+                throw new InvalidImplementationException(type,
+                    typeof(IPrototype),
+                    "No " + nameof(PrototypeAttribute) + " to give it a type string.");
+            }
+
+            if (prototypeTypes.ContainsKey(attribute.Type))
+            {
+                throw new InvalidImplementationException(type,
+                    typeof(IPrototype),
+                    $"Duplicate prototype type ID: {attribute.Type}. Current: {prototypeTypes[attribute.Type]}");
+            }
+
+            prototypeTypes[attribute.Type] = type;
+            prototypes[type] = new List<IPrototype>();
+
+            if (typeof(IIndexedPrototype).IsAssignableFrom(type))
+            {
+                indexedPrototypes[type] = new Dictionary<string, IIndexedPrototype>();
+            }
         }
 
         public event Action<YamlStream, string>? LoadedData;
