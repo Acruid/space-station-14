@@ -21,6 +21,10 @@ namespace Robust.Shared.GameObjects
     [Prototype("entity")]
     public class EntityPrototype : IPrototype, IIndexedPrototype, ISyncingPrototype
     {
+#pragma warning disable 649
+        [Dependency] private readonly IComponentFactory _componentFactory;
+#pragma warning restore 649
+
         /// <summary>
         /// The "in code name" of the object. Must be unique.
         /// </summary>
@@ -172,16 +176,15 @@ namespace Robust.Shared.GameObjects
             // COMPONENTS
             if (mapping.TryGetNode<YamlSequenceNode>("components", out var componentsequence))
             {
-                var factory = IoCManager.Resolve<IComponentFactory>();
                 foreach (var componentMapping in componentsequence.Cast<YamlMappingNode>())
                 {
-                    ReadComponent(componentMapping, factory);
+                    ReadComponent(componentMapping, _componentFactory);
                 }
 
                 // Assert that there are no conflicting component references.
                 foreach (var componentName in Components.Keys)
                 {
-                    var registration = factory.GetRegistration(componentName);
+                    var registration = _componentFactory.GetRegistration(componentName);
                     foreach (var type in registration.References)
                     {
                         if (ReferenceTypes.Contains(type))
@@ -288,7 +291,7 @@ namespace Robust.Shared.GameObjects
                         break;
                     }
 
-                    PushInheritanceAll();
+                    PushInheritanceAll(_componentFactory);
                     break;
             }
 
@@ -298,7 +301,8 @@ namespace Robust.Shared.GameObjects
         /// <summary>
         /// Iteratively pushes inheritance down to all children, children's children, etc. breadth-first.
         /// </summary>
-        private void PushInheritanceAll()
+        /// <param name="componentFactory"></param>
+        private void PushInheritanceAll(IComponentFactory componentFactory)
         {
             if (Children == null)
             {
@@ -318,7 +322,7 @@ namespace Robust.Shared.GameObjects
 
                     foreach (var target in targetList)
                     {
-                        PushInheritance(source, target);
+                        PushInheritance(componentFactory, source, target);
                     }
 
                     newSources.AddRange(targetList);
@@ -339,7 +343,7 @@ namespace Robust.Shared.GameObjects
             }
         }
 
-        private static void PushInheritance(EntityPrototype source, EntityPrototype target)
+        private static void PushInheritance(IComponentFactory factory, EntityPrototype source, EntityPrototype target)
         {
             // Copy component data over.
             foreach (KeyValuePair<string, YamlMappingNode> component in source.Components)
@@ -359,7 +363,6 @@ namespace Robust.Shared.GameObjects
                 {
                     // Copy component into the target, since it doesn't have it yet.
                     // Unless it'd cause a conflict.
-                    var factory = IoCManager.Resolve<IComponentFactory>();
                     foreach (var refType in factory.GetRegistration(component.Key).References)
                     {
                         if (target.ReferenceTypes.Contains(refType))
