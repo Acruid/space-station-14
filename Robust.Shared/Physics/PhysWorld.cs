@@ -61,7 +61,7 @@ namespace Robust.Shared.Physics
             //Note that collision resolution will modify the set of awake bodies
             foreach (var manifold in manifolds)
             {
-                //TODO: Resolve collisions
+                NarrowPhase(manifold);
             }
 
             // Integrate Velocities (including newly awakened bodies)
@@ -132,6 +132,24 @@ namespace Robust.Shared.Physics
             }
 
             return true;
+        }
+
+        private static void NarrowPhase(Manifold manifold)
+        {
+            //2018 collision resolution ftw
+            var left = manifold.Left;
+            if(left.SetupPhysicsProxy())
+            {
+                left.LinearVelocity = Vector2.Zero;
+                left.AngularVelocity = 0f;
+            }
+
+            var right = manifold.Right;
+            if(right.SetupPhysicsProxy())
+            {
+                right.LinearVelocity = Vector2.Zero;
+                right.AngularVelocity = 0f;
+            }
         }
 
         private readonly struct Manifold

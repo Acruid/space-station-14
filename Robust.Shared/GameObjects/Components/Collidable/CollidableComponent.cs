@@ -73,9 +73,15 @@ namespace Robust.Shared.GameObjects.Components
 
         public IPhysicsComponent PhysicsComponent { get; private set; }
 
-        public void SetupPhysicsProxy()
+        public bool SetupPhysicsProxy()
         {
-            PhysicsComponent = Owner.GetComponent<IPhysicsComponent>();
+            if (Owner.TryGetComponent<IPhysicsComponent>(out var physicsComponent))
+            {
+                PhysicsComponent = physicsComponent;
+                return true;
+            }
+
+            return false;
         }
 
         public Vector2 Position

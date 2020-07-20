@@ -81,7 +81,7 @@ namespace Robust.Shared.Physics
         IPhysicsComponent PhysicsComponent { get; }
 
         [Obsolete("Temporary Compatibility with legacy code.")]
-        void SetupPhysicsProxy();
+        bool SetupPhysicsProxy();
 
         #endregion
 
