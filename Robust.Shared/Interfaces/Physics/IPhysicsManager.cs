@@ -107,6 +107,9 @@ namespace Robust.Shared.Interfaces.Physics
         void RemovedFromMap(IPhysBody body, MapId mapId);
         void AddedToMap(IPhysBody body, MapId mapId);
         int SleepTimeThreshold { get; set; }
+        void AddWorld(MapId mapId);
+        void RemoveWorld(MapId mapId);
+        void SimulateWorld(TimeSpan deltaTime);
     }
 
     public struct DebugRayData

@@ -37,6 +37,9 @@ namespace Robust.Shared.GameObjects.Systems
         [MethodImpl(MethodImplOptions.NoInlining)]
         protected void SimulateWorld(float frameTime, List<IPhysicsComponent> physicsComponents)
         {
+            _physicsManager.SimulateWorld(TimeSpan.FromSeconds(frameTime));
+            return;
+
             foreach (var physics in physicsComponents)
             {
                 physics.Controller?.UpdateBeforeProcessing();

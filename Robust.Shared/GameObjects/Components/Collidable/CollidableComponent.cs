@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.Interfaces.Physics;
 using Robust.Shared.IoC;
@@ -53,6 +54,82 @@ namespace Robust.Shared.GameObjects.Components
         {
             SleepAccumulator = 0;
         }
+
+        public bool IsDynamic([NotNullWhen(true)] out IPhysicsComponent? physicsComp)
+        {
+            if (Owner.TryGetComponent(out physicsComp) && BodyType == BodyType.Dynamic)
+            {
+                return true;
+            }
+
+            physicsComp = default;
+            return false;
+        }
+
+        public bool IsDynamic()
+        {
+            return Owner.HasComponent<IPhysicsComponent>() && BodyType == BodyType.Dynamic;
+        }
+
+        public IPhysicsComponent PhysicsComponent { get; private set; }
+
+        public void SetupPhysicsProxy()
+        {
+            PhysicsComponent = Owner.GetComponent<IPhysicsComponent>();
+        }
+
+        public Vector2 Position
+        {
+            get => Owner.Transform.WorldPosition;
+            set => Owner.Transform.WorldPosition = value;
+        }
+
+        public float Rotation
+        {
+            get => (float) Owner.Transform.WorldRotation.Theta;
+            set => Owner.Transform.WorldRotation = new Angle(value);
+        }
+
+        public Vector2 LinearVelocity
+        {
+            get => PhysicsComponent.LinearVelocity;
+            set => PhysicsComponent.LinearVelocity = value;
+        }
+
+        public float AngularVelocity
+        {
+            get => PhysicsComponent.AngularVelocity;
+            set => PhysicsComponent.AngularVelocity = value;
+        }
+
+        private Vector2 _force;
+        public Vector2 Force
+        {
+            get => _force;
+            set => _force = value;
+        }
+
+        private float _torque;
+        public float Torque
+        {
+            get => _torque;
+            set => _torque = value;
+        }
+
+        public float Mass
+        {
+            get => PhysicsComponent.Mass;
+            set => PhysicsComponent.Mass = value;
+        }
+        public float I { get; set; }
+
+        public float InvMass
+        {
+            get => PhysicsComponent.Mass > 0 ? 1f / PhysicsComponent.Mass : 0f;
+            set => PhysicsComponent.Mass = value > 0 ? 1f / value : 0f;
+        }
+
+        public float InvI { get; set; }
 
         public CollidableComponent()
         {

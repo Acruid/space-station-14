@@ -216,6 +216,14 @@ namespace Robust.Shared.GameObjects.Components
             }
         }
 
+        protected override void Startup()
+        {
+            base.Startup();
+
+            if (Owner.TryGetComponent<ICollidableComponent>(out var comp))
+                comp.BodyType = BodyType.Dynamic;
+        }
+
         protected override void Shutdown()
         {
             base.Shutdown();

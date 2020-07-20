@@ -4,11 +4,11 @@ using Robust.Shared.Maths;
 
 namespace Robust.Shared.Physics {
 
-    public sealed class BroadPhase : IBroadPhase {
+    public sealed class DynamicBroadPhase : IBroadPhase {
 
         private readonly DynamicTree<IPhysBody> _tree;
 
-        public BroadPhase() =>
+        public DynamicBroadPhase() =>
             _tree = new DynamicTree<IPhysBody>(
                 (in IPhysBody body) => body.WorldAABB,
                 capacity: 3840,

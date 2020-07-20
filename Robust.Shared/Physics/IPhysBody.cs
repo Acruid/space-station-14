@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Robust.Shared.GameObjects.Components;
 using Robust.Shared.Interfaces.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
@@ -66,5 +68,32 @@ namespace Robust.Shared.Physics
         bool Awake { get; }
 
         void WakeBody();
+
+        #region Legacy
+
+        [Obsolete("Temporary Compatibility with legacy code.")]
+        bool IsDynamic(out IPhysicsComponent? physicsComp);
+
+        [Obsolete("Temporary Compatibility with legacy code.")]
+        bool IsDynamic();
+
+        [Obsolete("Temporary Compatibility with legacy code.")]
+        IPhysicsComponent PhysicsComponent { get; }
+
+        [Obsolete("Temporary Compatibility with legacy code.")]
+        void SetupPhysicsProxy();
+
+        #endregion
+
+        Vector2 Position { get; set; }
+        float Rotation { get; set; }
+        Vector2 LinearVelocity { get; set; }
+        float AngularVelocity { get; set; }
+        Vector2 Force { get; set; }
+        float Torque { get; set; }
+        float Mass { get; set; }
+        float I { get; set; }
+        float InvMass { get; set; }
+        float InvI { get; set; }
     }
 }
