@@ -14,14 +14,13 @@ namespace Robust.Client.Physics
     public class PhysicsSystem : SharedPhysicsSystem
     {
         [Dependency] private readonly IGameTiming _gameTiming = default!;
-        [Dependency] private readonly IComponentManager _componentManager = default!;
 
         private TimeSpan _lastRem;
 
         public override void Update(float frameTime)
         {
             _lastRem = _gameTiming.CurTime;
-            SimulateWorld(frameTime, ActuallyRelevant());
+            SimulateWorld(frameTime, false);
         }
 
         public override void FrameUpdate(float frameTime)
@@ -33,14 +32,7 @@ namespace Robust.Client.Physics
 
             var diff = _gameTiming.TickRemainder - _lastRem;
             _lastRem = _gameTiming.TickRemainder;
-            SimulateWorld((float) diff.TotalSeconds, ActuallyRelevant());
-        }
-
-        private List<IPhysicsComponent> ActuallyRelevant()
-        {
-            var relevant = _componentManager.GetAllComponents<IPhysicsComponent>().Where(p => p.Predict)
-                .ToList();
-            return relevant;
+            SimulateWorld((float) diff.TotalSeconds, true);
         }
     }
 }

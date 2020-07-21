@@ -1,5 +1,6 @@
 ﻿using Moq;
 using NUnit.Framework;
+using Robust.Shared.Interfaces.Physics;
 using Robust.Shared.Physics;
 
 namespace Robust.UnitTesting.Shared.Physics
@@ -23,7 +24,7 @@ namespace Robust.UnitTesting.Shared.Physics
 
         private void Act()
         {
-            Result = PhysicsManager.CollidesOnMask(A.Object, B.Object);
+            Result = Manifold.CollidesOnMask(A.Object, B.Object);
         }
 
         [TestCase(0, 0, 0, 0, false)]

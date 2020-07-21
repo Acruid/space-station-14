@@ -50,27 +50,14 @@ namespace Robust.Shared.Physics
             return !_mapManager.GetGrid(gridPosition.GridID).HasGravity || tile.IsEmpty;
         }
 
-        public Vector2 CalculateNormal(IPhysBody target, IPhysBody source)
-        {
-            var manifold = target.WorldAABB.Intersect(source.WorldAABB);
-            if (manifold.IsEmpty()) return Vector2.Zero;
-            if (manifold.Height > manifold.Width)
-            {
-                // X is the axis of seperation
-                var leftDist = source.WorldAABB.Right - target.WorldAABB.Left;
-                var rightDist = target.WorldAABB.Right - source.WorldAABB.Left;
-                return new Vector2(leftDist > rightDist ? 1 : -1, 0);
-            }
-            else
-            {
-                // Y is the axis of seperation
-                var bottomDist = source.WorldAABB.Top - target.WorldAABB.Bottom;
-                var topDist = target.WorldAABB.Top - source.WorldAABB.Bottom;
-                return new Vector2(0, bottomDist > topDist ? 1 : -1);
-            }
-        }
 
-        public float CalculatePenetration(IPhysBody target, IPhysBody source)
+        /// <summary>
+        ///     Calculates the penetration depth of the axis-of-least-penetration for a
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static float CalculatePenetration(IPhysBody target, IPhysBody source)
         {
             var manifold = target.WorldAABB.Intersect(source.WorldAABB);
             if (manifold.IsEmpty()) return 0.0f;
@@ -78,13 +65,13 @@ namespace Robust.Shared.Physics
         }
 
         // Impulse resolution algorithm based on Box2D's approach in combination with Randy Gaul's Impulse Engine resolution algorithm.
-        public Vector2 SolveCollisionImpulse(Manifold manifold)
+        public static Vector2 SolveCollisionImpulse(Manifold manifold)
         {
             var aP = manifold.APhysics;
             var bP = manifold.BPhysics;
             if (aP == null && bP == null) return Vector2.Zero;
             var restitution = 0.01f;
-            var normal = CalculateNormal(manifold.A, manifold.B);
+            var normal = Manifold.CalculateNormal(manifold.A, manifold.B);
             var rV = aP != null
                 ? bP != null ? bP.LinearVelocity - aP.LinearVelocity : -aP.LinearVelocity
                 : bP!.LinearVelocity;
@@ -113,7 +100,7 @@ namespace Robust.Shared.Physics
                     continue;
                 }
 
-                if (CollidesOnMask(physBody, body))
+                if (Manifold.CollidesOnMask(physBody, body))
                 {
                     var preventCollision = false;
                     var otherModifiers = body.Owner.GetAllComponents<ICollideSpecial>();
@@ -137,24 +124,6 @@ namespace Robust.Shared.Physics
             return GetCollidingEntities(body, offset, approximate).Any();
         }
 
-        public static bool CollidesOnMask(IPhysBody a, IPhysBody b)
-        {
-            if (a == b)
-                return false;
-
-            if (a.BodyType == BodyType.None || b.BodyType == BodyType.None)
-                return false;
-
-            if (!a.CanCollide || !b.CanCollide)
-                return false;
-
-            if ((a.CollisionMask & b.CollisionLayer) == 0x0 &&
-                (b.CollisionMask & a.CollisionLayer) == 0x0)
-                return false;
-
-            return true;
-        }
-
         /// <summary>
         ///     Adds a physBody to the manager.
         /// </summary>
@@ -163,7 +132,7 @@ namespace Robust.Shared.Physics
         {
             if (!_worlds.TryGetValue(physBody.MapID, out var world))
             {
-                world = new PhysWorld();
+                world = new PhysWorld(this);
                 _worlds.Add(physBody.MapID, world);
             }
             world.AddBody(physBody);
@@ -326,7 +295,7 @@ namespace Robust.Shared.Physics
 
             if (!_worlds.TryGetValue(collider.MapID, out var world))
             {
-                world = new PhysWorld();
+                world = new PhysWorld(this);
                 _worlds.Add(collider.MapID, world);
             }
             _worlds[collider.MapID].WakeBody(collider);

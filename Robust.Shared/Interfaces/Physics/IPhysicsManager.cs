@@ -71,23 +71,6 @@ namespace Robust.Shared.Interfaces.Physics
         /// <returns>The distance the ray traveled while colliding with entities</returns>
         public float IntersectRayPenetration(MapId mapId, CollisionRay ray, float maxLength, IEntity? ignoredEnt = null);
 
-        /// <summary>
-        ///     Calculates the normal vector for two colliding bodies
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        Vector2 CalculateNormal(IPhysBody target, IPhysBody source);
-
-        /// <summary>
-        ///     Calculates the penetration depth of the axis-of-least-penetration for a
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        float CalculatePenetration(IPhysBody target, IPhysBody source);
-
-        Vector2 SolveCollisionImpulse(Manifold manifold);
 
         /// <summary>
         ///     Casts a ray in the world, returning the first entity it hits (or all entities it hits, if so specified)
@@ -109,7 +92,8 @@ namespace Robust.Shared.Interfaces.Physics
         int SleepTimeThreshold { get; set; }
         void AddWorld(MapId mapId);
         void RemoveWorld(MapId mapId);
-        void SimulateWorld(TimeSpan deltaTime);
+        void SimulateWorld(TimeSpan deltaTime, bool predict);
+        float GetTileFriction(IPhysicsComponent physics);
     }
 
     public struct DebugRayData
@@ -175,10 +159,56 @@ namespace Robust.Shared.Interfaces.Physics
         {
             this.A = A;
             this.B = B;
-            Normal = physicsManager.CalculateNormal(A, B);
+            Normal = CalculateNormal(A, B);
             APhysics = aPhysics;
             BPhysics = bPhysics;
             Hard = hard;
+        }
+
+        /// <summary>
+        ///     Calculates the normal vector for two colliding bodies
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static Vector2 CalculateNormal(IPhysBody target, IPhysBody source)
+        {
+            // TODO: Convert both to space local to source and compare
+
+            var manifold = target.WorldAABB.Intersect(source.WorldAABB);
+            if (manifold.IsEmpty()) return Vector2.Zero;
+            if (manifold.Height > manifold.Width)
+            {
+                // X is the axis of seperation
+                var leftDist = source.WorldAABB.Right - target.WorldAABB.Left;
+                var rightDist = target.WorldAABB.Right - source.WorldAABB.Left;
+                return new Vector2(leftDist > rightDist ? 1 : -1, 0);
+            }
+            else
+            {
+                // Y is the axis of seperation
+                var bottomDist = source.WorldAABB.Top - target.WorldAABB.Bottom;
+                var topDist = target.WorldAABB.Top - source.WorldAABB.Bottom;
+                return new Vector2(0, bottomDist > topDist ? 1 : -1);
+            }
+        }
+
+        public static bool CollidesOnMask(IPhysBody a, IPhysBody b)
+        {
+            if (a == b)
+                return false;
+
+            if (a.BodyType == BodyType.None || b.BodyType == BodyType.None)
+                return false;
+
+            if (!a.CanCollide || !b.CanCollide)
+                return false;
+
+            if ((a.CollisionMask & b.CollisionLayer) == 0x0 &&
+                (b.CollisionMask & a.CollisionLayer) == 0x0)
+                return false;
+
+            return true;
         }
     }
 }

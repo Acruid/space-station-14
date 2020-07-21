@@ -95,5 +95,6 @@ namespace Robust.Shared.Physics
         float I { get; set; }
         float InvMass { get; set; }
         float InvI { get; set; }
+        int CollideCount { get; set; }
     }
 }

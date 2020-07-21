@@ -136,6 +136,7 @@ namespace Robust.Shared.GameObjects.Components
         }
 
         public float InvI { get; set; }
+        public int CollideCount { get; set; }
 
         public CollidableComponent()
         {
