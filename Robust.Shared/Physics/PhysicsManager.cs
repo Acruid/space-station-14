@@ -14,8 +14,10 @@ namespace Robust.Shared.Physics
 
         private readonly Dictionary<MapId, PhysWorld> _worlds = new Dictionary<MapId, PhysWorld>();
 
+        /// <inheritdoc />
         public int SleepTimeThreshold { get; set; } = 240;
 
+        /// <inheritdoc />
         public void AddWorld(MapId mapId)
         {
             if (_worlds.ContainsKey(mapId))
@@ -27,13 +29,15 @@ namespace Robust.Shared.Physics
             Logger.DebugS("phys", $"Creating new PhysWorld: {mapId}");
         }
 
+        /// <inheritdoc />
         public void RemoveWorld(MapId mapId)
         {
             _worlds.Remove(mapId);
             Logger.DebugS("phys", $"removed PhysWorld: {mapId}");
         }
 
-        public void SimulateWorld(TimeSpan deltaTime, bool predict)
+        /// <inheritdoc />
+        public void SimulateWorlds(TimeSpan deltaTime, bool predict)
         {
             //TODO: This can be ran in parallel, worlds do not interact
             foreach (var kvWorld in _worlds)
@@ -47,6 +51,7 @@ namespace Robust.Shared.Physics
             }
         }
 
+        /// <inheritdoc />
         public float GetTileFriction(IPhysicsComponent physics)
         {
             if (!physics.OnGround)

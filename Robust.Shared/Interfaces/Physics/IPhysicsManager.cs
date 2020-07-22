@@ -92,11 +92,17 @@ namespace Robust.Shared.Interfaces.Physics
         int SleepTimeThreshold { get; set; }
         void AddWorld(MapId mapId);
         void RemoveWorld(MapId mapId);
-        void SimulateWorld(TimeSpan deltaTime, bool predict);
+
+        /// <summary>
+        /// Simulate all of the physics worlds for a certain amount of time.
+        /// </summary>
+        /// <param name="deltaTime">The amount of time to simulate the world.</param>
+        /// <param name="predict">True if only predicted entities should be simulated.</param>
+        void SimulateWorlds(TimeSpan deltaTime, bool predict);
         float GetTileFriction(IPhysicsComponent physics);
     }
 
-    public struct DebugRayData
+    public readonly struct DebugRayData
     {
         public DebugRayData(Ray ray, float maxLength, [CanBeNull] RayCastResults? results)
         {
@@ -105,110 +111,9 @@ namespace Robust.Shared.Interfaces.Physics
             Results = results;
         }
 
-        public Ray Ray
-        {
-            get;
-        }
+        public Ray Ray { get; }
 
         public RayCastResults? Results { get; }
         public float MaxLength { get; }
-    }
-
-    public struct Manifold
-    {
-        public Vector2 RelativeVelocity
-        {
-            get
-            {
-                if (APhysics != null)
-                {
-                    if (BPhysics != null)
-                    {
-                        return BPhysics.LinearVelocity - APhysics.LinearVelocity;
-                    }
-                    else
-                    {
-                        return -APhysics.LinearVelocity;
-                    }
-                }
-
-                if (BPhysics != null)
-                {
-                    return BPhysics.LinearVelocity;
-                }
-                else
-                {
-                    return Vector2.Zero;
-                }
-            }
-        }
-        public readonly Vector2 Normal;
-        public readonly IPhysBody A;
-        public readonly IPhysBody B;
-        public IPhysicsComponent? APhysics;
-        public IPhysicsComponent? BPhysics;
-        public readonly bool Hard;
-
-        public float InvAMass => 1 / APhysics?.Mass ?? 0.0f;
-        public float InvBMass => 1 / BPhysics?.Mass ?? 0.0f;
-
-        public bool Unresolved => Vector2.Dot(RelativeVelocity, Normal) < 0 && Hard;
-
-        public Manifold(IPhysBody A, IPhysBody B, IPhysicsComponent? aPhysics, IPhysicsComponent? bPhysics, bool hard,
-            IPhysicsManager physicsManager)
-        {
-            this.A = A;
-            this.B = B;
-            Normal = CalculateNormal(A, B);
-            APhysics = aPhysics;
-            BPhysics = bPhysics;
-            Hard = hard;
-        }
-
-        /// <summary>
-        ///     Calculates the normal vector for two colliding bodies
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        public static Vector2 CalculateNormal(IPhysBody target, IPhysBody source)
-        {
-            // TODO: Convert both to space local to source and compare
-
-            var manifold = target.WorldAABB.Intersect(source.WorldAABB);
-            if (manifold.IsEmpty()) return Vector2.Zero;
-            if (manifold.Height > manifold.Width)
-            {
-                // X is the axis of seperation
-                var leftDist = source.WorldAABB.Right - target.WorldAABB.Left;
-                var rightDist = target.WorldAABB.Right - source.WorldAABB.Left;
-                return new Vector2(leftDist > rightDist ? 1 : -1, 0);
-            }
-            else
-            {
-                // Y is the axis of seperation
-                var bottomDist = source.WorldAABB.Top - target.WorldAABB.Bottom;
-                var topDist = target.WorldAABB.Top - source.WorldAABB.Bottom;
-                return new Vector2(0, bottomDist > topDist ? 1 : -1);
-            }
-        }
-
-        public static bool CollidesOnMask(IPhysBody a, IPhysBody b)
-        {
-            if (a == b)
-                return false;
-
-            if (a.BodyType == BodyType.None || b.BodyType == BodyType.None)
-                return false;
-
-            if (!a.CanCollide || !b.CanCollide)
-                return false;
-
-            if ((a.CollisionMask & b.CollisionLayer) == 0x0 &&
-                (b.CollisionMask & a.CollisionLayer) == 0x0)
-                return false;
-
-            return true;
-        }
     }
 }

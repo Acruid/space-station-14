@@ -50,46 +50,7 @@ namespace Robust.Shared.Physics
             return !_mapManager.GetGrid(gridPosition.GridID).HasGravity || tile.IsEmpty;
         }
 
-
-        /// <summary>
-        ///     Calculates the penetration depth of the axis-of-least-penetration for a
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        public static float CalculatePenetration(IPhysBody target, IPhysBody source)
-        {
-            var manifold = target.WorldAABB.Intersect(source.WorldAABB);
-            if (manifold.IsEmpty()) return 0.0f;
-            return manifold.Height > manifold.Width ? manifold.Width : manifold.Height;
-        }
-
         // Impulse resolution algorithm based on Box2D's approach in combination with Randy Gaul's Impulse Engine resolution algorithm.
-        public static Vector2 SolveCollisionImpulse(Manifold manifold)
-        {
-            var aP = manifold.APhysics;
-            var bP = manifold.BPhysics;
-            if (aP == null && bP == null) return Vector2.Zero;
-            var restitution = 0.01f;
-            var normal = Manifold.CalculateNormal(manifold.A, manifold.B);
-            var rV = aP != null
-                ? bP != null ? bP.LinearVelocity - aP.LinearVelocity : -aP.LinearVelocity
-                : bP!.LinearVelocity;
-
-            var vAlongNormal = Vector2.Dot(rV, normal);
-            if (vAlongNormal > 0)
-            {
-                return Vector2.Zero;
-            }
-
-            var impulse = -(1.0f + restitution) * vAlongNormal;
-            // So why the 100.0f instead of 0.0f? Well, because the other object needs to have SOME mass value,
-            // or otherwise the physics object can actually sink in slightly to the physics-less object.
-            // (the 100.0f is equivalent to a mass of 0.01kg)
-            impulse /= (aP != null && aP.Mass > 0.0f ? 1 / aP.Mass : 100.0f) +
-                       (bP != null && bP.Mass > 0.0f ? 1 / bP.Mass : 100.0f);
-            return manifold.Normal * impulse;
-        }
 
         public IEnumerable<IEntity> GetCollidingEntities(IPhysBody physBody, Vector2 offset, bool approximate = true)
         {

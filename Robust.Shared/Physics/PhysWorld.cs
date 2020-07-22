@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
 using Robust.Shared.GameObjects.Components;
-using Robust.Shared.Interfaces.Map;
 using Robust.Shared.Interfaces.Physics;
 using Robust.Shared.Maths;
 
@@ -70,7 +68,7 @@ namespace Robust.Shared.Physics
                 .SelectMany(body => FindCollisions(_broadPhase, body))
                 //TODO: Is it cheaper to remove {(A,B), (B,A)} duplicates here,
                 // or just not care (if the first one gets resolved, second one won't make it through NarrowPhase)
-                .Where(tuple => Interfaces.Physics.Manifold.CollidesOnMask(tuple.Item1, tuple.Item2)) //TODO: Make BroadPhase do this way earlier
+                .Where(tuple => Manifold.CollidesOnMask(tuple.Item1, tuple.Item2)) //TODO: Make BroadPhase do this way earlier
                 .Where((tuple => ShouldCollideCallback(tuple.Item1, tuple.Item2)))
                 .Select(tuple => new Manifold(tuple.Item1, tuple.Item2))
                 .ToList(); // allows awakeBodies to be modified
@@ -182,58 +180,43 @@ namespace Robust.Shared.Physics
         private static void CollideWithCallback(Manifold manifold)
         {
             // Apply onCollide behavior
-            var aBehaviors = manifold.Left.Owner.GetAllComponents<ICollideBehavior>();
+            var aBehaviors = manifold.A.Owner.GetAllComponents<ICollideBehavior>();
             var hasBehavior = false;
             foreach (var behavior in aBehaviors)
             {
-                var entity = manifold.Right.Owner;
+                var entity = manifold.B.Owner;
                 if (entity.Deleted) continue;
                 behavior.CollideWith(entity);
                 hasBehavior = true;
             }
 
             if(hasBehavior)
-                manifold.Left.CollideCount++;
+                manifold.A.CollideCount++;
 
-            var bBehaviors = manifold.Right.Owner.GetAllComponents<ICollideBehavior>();
+            var bBehaviors = manifold.B.Owner.GetAllComponents<ICollideBehavior>();
             hasBehavior = false;
             foreach (var behavior in bBehaviors)
             {
-                var entity = manifold.Left.Owner;
+                var entity = manifold.A.Owner;
                 if (entity.Deleted) continue;
                 behavior.CollideWith(entity);
                 hasBehavior = true;
             }
 
             if(hasBehavior)
-                manifold.Left.CollideCount++;
+                manifold.A.CollideCount++;
         }
 
         private static void NarrowPhase(Manifold manifold)
         {
-            // generate normal
-
-            // generate overlap
-
-
+            if(!ResolveCollision(manifold))
+                return;
 
             CollideWithCallback(manifold);
         }
 
-        private readonly struct Manifold
-        {
-            public readonly IPhysBody Left;
-            public readonly IPhysBody Right;
-
-            public Manifold(IPhysBody left, IPhysBody right)
-            {
-                Left = left;
-                Right = right;
-            }
-        }
-
         // Based off of Randy Gaul's ImpulseEngine code
-        private static bool FixClipping(IPhysicsManager physicsManager, List<Interfaces.Physics.Manifold> collisions, float divisions)
+        private static bool FixClipping(IPhysicsManager physicsManager, List<Manifold> collisions, float divisions)
         {
             const float allowance = 0.05f;
             var percent = Math.Clamp(1f / divisions, 0.01f, 1f);
@@ -245,33 +228,35 @@ namespace Robust.Shared.Physics
                     continue;
                 }
 
-                var penetration = PhysicsManager.CalculatePenetration(collision.A, collision.B);
+                var penetration = Manifold.CalculatePenetration(collision.A, collision.B);
                 if (penetration > allowance)
                 {
                     done = false;
                     var correction = collision.Normal * Math.Abs(penetration) * percent;
-                    if (collision.APhysics != null && !collision.APhysics.Anchored && !collision.APhysics.Deleted)
-                        collision.APhysics.Owner.Transform.WorldPosition -= correction;
-                    if (collision.BPhysics != null && !collision.BPhysics.Anchored && !collision.BPhysics.Deleted)
-                        collision.BPhysics.Owner.Transform.WorldPosition += correction;
+                    if (collision.A.PhysicsComponent != null && !collision.A.PhysicsComponent.Anchored && !collision.A.PhysicsComponent.Deleted)
+                        collision.A.PhysicsComponent.Owner.Transform.WorldPosition -= correction;
+                    if (collision.B.PhysicsComponent != null && !collision.B.PhysicsComponent.Anchored && !collision.B.PhysicsComponent.Deleted)
+                        collision.B.PhysicsComponent.Owner.Transform.WorldPosition += correction;
                 }
             }
 
             return done;
         }
 
-        public static void ResolveCollision(Interfaces.Physics.Manifold collision)
+        public static bool ResolveCollision(Manifold collision)
         {
-            var impulse = PhysicsManager.SolveCollisionImpulse(collision);
-            if (collision.APhysics != null)
+            var impulse = collision.SolveCollisionImpulse();
+            if (collision.A.PhysicsComponent != null)
             {
-                collision.APhysics.Momentum -= impulse;
+                collision.A.PhysicsComponent.Momentum -= impulse;
             }
 
-            if (collision.BPhysics != null)
+            if (collision.B.PhysicsComponent != null)
             {
-                collision.BPhysics.Momentum += impulse;
+                collision.B.PhysicsComponent.Momentum += impulse;
             }
+
+            return impulse.Length > 0;
         }
 
         private void ProcessFriction(IPhysicsComponent physics)
