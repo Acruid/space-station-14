@@ -1,5 +1,6 @@
 ﻿using System;
 using Robust.Shared.Interfaces.Physics;
+using Robust.Shared.Map;
 using Robust.Shared.Maths;
 using Math = CannyFastMath.Math;
 using MathF = CannyFastMath.MathF;
@@ -25,10 +26,63 @@ namespace Robust.Shared.Physics
                         case PhysShapeRect bRect:
                             RectCircle(manifold, bRect, aCircle, true, out features);
                             return;
+                        case PhysShapeGrid bGrid:
+                            features = default;
+                            return;
+                    }
+                    break;
+                case PhysShapeAabb aAabb:
+                    switch (b)
+                    {
+                        case PhysShapeCircle bCircle:
+                            features = default;
+                            return;
+                        case PhysShapeAabb bAabb:
+                            features = default;
+                            return;
+                        case PhysShapeRect bRect:
+                            features = default;
+                            return;
+                        case PhysShapeGrid bGrid:
+                            features = default;
+                            return;
+                    }
+                    break;
+                case PhysShapeRect aRect:
+                    switch (b)
+                    {
+                        case PhysShapeCircle bCircle:
+                            features = default;
+                            return;
+                        case PhysShapeAabb bAabb:
+                            features = default;
+                            return;
+                        case PhysShapeRect bRect:
+                            features = default;
+                            return;
+                        case PhysShapeGrid bGrid:
+                            features = default;
+                            return;
+                    }
+                    break;
+                case PhysShapeGrid aGrid:
+                    switch (b)
+                    {
+                        case PhysShapeCircle bCircle:
+                            features = default;
+                            return;
+                        case PhysShapeAabb bAabb:
+                            features = default;
+                            return;
+                        case PhysShapeRect bRect:
+                            features = default;
+                            return;
+                        case PhysShapeGrid bGrid:
+                            features = default;
+                            return;
                     }
                     break;
             }
-
             features = default;
         }
 
