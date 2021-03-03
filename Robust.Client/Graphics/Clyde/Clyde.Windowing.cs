@@ -1,16 +1,19 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using OpenToolkit;
 using OpenToolkit.Graphics.OpenGL4;
 using Robust.Client.Input;
+using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
 using Robust.Client.Utility;
 using Robust.Shared;
+using Robust.Shared.ContentPack;
 using Robust.Shared.Localization;
 using Robust.Shared.Log;
 using Robust.Shared.Maths;
@@ -155,6 +158,9 @@ namespace Robust.Client.Graphics.Clyde
 
         private bool InitWindow()
         {
+            var iconTask = new Task<List<Image<Rgba32>>?>(() => LoadWindowIcons(_resourceCache));
+            iconTask.Start();
+
             var width = _configurationManager.GetCVar(CVars.DisplayWidth);
             var height = _configurationManager.GetCVar(CVars.DisplayHeight);
 
@@ -223,8 +229,10 @@ namespace Robust.Client.Graphics.Clyde
                 return false;
             }
 
-            LoadWindowIcon();
-
+            var icons = iconTask.Result;
+            if(icons is not null)
+                SetWindowIcon(icons);
+            
             GLFW.SetCharCallback(_glfwWindow, _charCallback);
             GLFW.SetKeyCallback(_glfwWindow, _keyCallback);
             GLFW.SetWindowCloseCallback(_glfwWindow, _windowCloseCallback);
@@ -305,30 +313,30 @@ namespace Robust.Client.Graphics.Clyde
             }
         }
 
-        private void LoadWindowIcon()
+        private static List<Image<Rgba32>>? LoadWindowIcons(IResourceManager resourceCache)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 // Does nothing on macOS so don't bother.
-                return;
+                return null;
             }
 
             var icons = new List<Image<Rgba32>>();
-            foreach (var file in _resourceCache.ContentFindFiles("/Textures/Logo/icon"))
+            foreach (var file in resourceCache.ContentFindFiles("/Textures/Logo/icon"))
             {
                 if (file.Extension != "png")
                 {
                     continue;
                 }
 
-                using (var stream = _resourceCache.ContentFileRead(file))
+                using (var stream = resourceCache.ContentFileRead(file))
                 {
                     var image = Image.Load<Rgba32>(stream);
                     icons.Add(image);
                 }
             }
 
-            SetWindowIcon(icons);
+            return icons;
         }
 
         private void SetWindowIcon(IEnumerable<Image<Rgba32>> icons)
