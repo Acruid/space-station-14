@@ -9,6 +9,8 @@ using OpenToolkit.Audio.OpenAL;
 using OpenToolkit.Audio.OpenAL.Extensions.Creative.EFX;
 using Robust.Client.Audio;
 using Robust.Shared;
+using Robust.Shared.Configuration;
+using Robust.Shared.IoC;
 using Robust.Shared.Log;
 using Vector2 = Robust.Shared.Maths.Vector2;
 
@@ -44,19 +46,24 @@ namespace Robust.Client.Graphics.Clyde
 
         internal bool IsEfxSupported;
 
-        private void _initializeAudio()
+        private void _initializeAudio(ILogManager logMan, IConfigurationManager confgMan)
         {
-            _audioOpenDevice();
+            // Registers log manager on this thread.
+            IoCManager.InitThread();
+            IoCManager.RegisterInstance<ILogManager>(logMan);
+
+            string preferredDevice = confgMan.GetCVar(CVars.AudioDevice);
+            _audioOpenDevice(preferredDevice);
 
             // Create OpenAL context.
-            _audioCreateContext();
+            _audioCreateContext(Logger.GetSawmill("clyde.oal"));
 
             IsEfxSupported = HasAlDeviceExtension("ALC_EXT_EFX");
 
-            _configurationManager.OnValueChanged(CVars.AudioMasterVolume, SetMasterVolume, true);
+            confgMan.OnValueChanged(CVars.AudioMasterVolume, SetMasterVolume, true);
         }
 
-        private void _audioCreateContext()
+        private void _audioCreateContext(ISawmill logger)
         {
             unsafe
             {
@@ -74,15 +81,13 @@ namespace Robust.Client.Graphics.Clyde
                 _alContextExtensions.Add(extension);
             }
 
-            Logger.DebugS("clyde.oal", "OpenAL Vendor: {0}", AL.Get(ALGetString.Vendor));
-            Logger.DebugS("clyde.oal", "OpenAL Renderer: {0}", AL.Get(ALGetString.Renderer));
-            Logger.DebugS("clyde.oal", "OpenAL Version: {0}", AL.Get(ALGetString.Version));
+            logger.Debug("OpenAL Vendor: {0}", AL.Get(ALGetString.Vendor));
+            logger.Debug("OpenAL Renderer: {0}", AL.Get(ALGetString.Renderer));
+            logger.Debug("OpenAL Version: {0}", AL.Get(ALGetString.Version));
         }
 
-        private void _audioOpenDevice()
+        private void _audioOpenDevice(string preferredDevice)
         {
-            var preferredDevice = _configurationManager.GetCVar(CVars.AudioDevice);
-
             // Open device.
             if (!string.IsNullOrEmpty(preferredDevice))
             {

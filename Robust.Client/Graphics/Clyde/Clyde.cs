@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using OpenToolkit.Graphics.OpenGL4;
 using Robust.Client.Map;
 using Robust.Client.ResourceManagement;
@@ -89,12 +90,16 @@ namespace Robust.Client.Graphics.Clyde
 
             _configurationManager.OnValueChanged(CVars.DisplayOGLCheckErrors, b => _checkGLErrors = b, true);
 
+            var audioTask = new Task(() => _initializeAudio(_logManager, _configurationManager));
+            audioTask.Start();
+
             if (!InitWindowing())
             {
+                audioTask.Wait();
                 return false;
             }
 
-            _initializeAudio();
+            audioTask.Wait();
             ReloadConfig();
 
             return true;
@@ -231,9 +236,6 @@ namespace Robust.Client.Graphics.Clyde
 
             GL.Viewport(0, 0, ScreenSize.X, ScreenSize.Y);
             CheckGlError();
-
-            // Quickly do a render with _drawingSplash = true so the screen isn't blank.
-            Render();
         }
 
         private (int major, int minor)? ParseGLOverrideVersion()

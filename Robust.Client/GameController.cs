@@ -139,6 +139,8 @@ namespace Robust.Client
 
             _fontManager.Initialize();
 
+            return true;
+
             // Disable load context usage on content start.
             // This prevents Content.Client being loaded twice and things like csi blowing up because of it.
             _modLoader.SetUseLoadContext(!_disableAssemblyLoadContext);
@@ -160,7 +162,6 @@ namespace Robust.Client
             // Call Init in game assemblies.
             _modLoader.BroadcastRunLevel(ModRunLevel.PreInit);
             _modLoader.BroadcastRunLevel(ModRunLevel.Init);
-
             _userInterfaceManager.Initialize();
             _networkManager.Initialize(false);
             IoCManager.Resolve<INetConfigurationManager>().SetupNetworking();

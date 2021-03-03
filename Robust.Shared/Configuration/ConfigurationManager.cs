@@ -18,6 +18,7 @@ namespace Robust.Shared.Configuration
         protected readonly Dictionary<string, ConfigVar> _configVars = new();
         private string? _configFile;
         protected bool _isServer;
+        object _lockObject = new();
 
         /// <summary>
         ///     Constructs a new ConfigurationManager.
@@ -246,12 +247,15 @@ namespace Robust.Shared.Configuration
         public void OnValueChanged<T>(string name, Action<T> onValueChanged, bool invokeImmediately = false)
             where T : notnull
         {
-            var reg = _configVars[name];
-            reg.ValueChanged += o => onValueChanged((T) o);
-
-            if (invokeImmediately)
+            lock(_lockObject)
             {
-                onValueChanged((T) (reg.Value ?? reg.DefaultValue)!);
+                var reg = _configVars[name];
+                reg.ValueChanged += o => onValueChanged((T) o);
+
+                if (invokeImmediately)
+                {
+                    onValueChanged((T) (reg.Value ?? reg.DefaultValue)!);
+                }
             }
         }
 
@@ -331,9 +335,12 @@ namespace Robust.Shared.Configuration
         /// <inheritdoc />
         public T GetCVar<T>(string name)
         {
-            if (_configVars.TryGetValue(name, out var cVar) && cVar.Registered)
-                //TODO: Make flags work, required non-derpy net system.
-                return (T)(cVar.OverrideValueParsed ?? cVar.Value ?? cVar.DefaultValue)!;
+            lock(_lockObject)
+            {
+                if (_configVars.TryGetValue(name, out var cVar) && cVar.Registered)
+                    //TODO: Make flags work, required non-derpy net system.
+                    return (T)(cVar.OverrideValueParsed ?? cVar.Value ?? cVar.DefaultValue)!;
+            }
 
             throw new InvalidConfigurationException($"Trying to get unregistered variable '{name}'");
         }

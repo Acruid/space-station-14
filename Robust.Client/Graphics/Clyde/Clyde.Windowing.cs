@@ -272,6 +272,9 @@ namespace Robust.Client.Graphics.Clyde
             GLFW.MakeContextCurrent(_glfwWindow);
 
             InitOpenGL();
+            
+            // Quickly do a render with _drawingSplash = true so the screen isn't blank.
+            Render();
 
             return true;
 
