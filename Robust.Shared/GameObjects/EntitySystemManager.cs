@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -14,12 +14,7 @@ namespace Robust.Shared.GameObjects
 {
     public class EntitySystemManager : IEntitySystemManager
     {
-        private static readonly Histogram _tickUsageHistogram = Metrics.CreateHistogram("robust_entity_systems_update_usage",
-            "Amount of time spent processing each entity system", new HistogramConfiguration
-            {
-                LabelNames = new[] {"system"},
-                Buckets = Histogram.ExponentialBuckets(0.000_001, 1.5, 25)
-            });
+        private Histogram _tickUsageHistogram = default!;
 
 #pragma warning disable 649
         [Dependency] private readonly IReflectionManager _reflectionManager = default!;
@@ -142,6 +137,13 @@ namespace Robust.Shared.GameObjects
 
             // Create update order for entity systems.
             var (fUpdate, update) = CalculateUpdateOrder(_systems.Values);
+
+            _tickUsageHistogram = Metrics.CreateHistogram("robust_entity_systems_update_usage",
+                "Amount of time spent processing each entity system", new HistogramConfiguration
+                {
+                    LabelNames = new[] {"system"},
+                    Buckets = Histogram.ExponentialBuckets(0.000_001, 1.5, 25)
+                });
 
             _frameUpdateOrder = fUpdate.ToArray();
             _updateOrder = update
